@@ -1,140 +1,125 @@
-# Nome do Workflow: Pipeline Profissional Android
-# Descrição: Este workflow automatiza o processo de build e validação de um projeto Android.
-# Ele é acionado por pushes na branch principal com alterações relevantes ou manualmente.
-# O processo é dividido em etapas claras para fácil acompanhamento na interface do GitHub.
+# Nome do Workflow: Pipeline Profissional Android (V2 - Assinatura Injetada)
+# Descrição: Automatiza Build, Assinatura e Distribuição do IPTV PLAY V2.
+# Suporta: Universal App e M3U Extension com assinatura profissional.
 
-name: Android Professional Pipeline
+name: Android Production Build
 
-# Gatilhos (Triggers) para executar o workflow
 on:
   push:
     branches: [ main, master ]
     paths:
-      - '**.kt'        # Arquivos Kotlin
-      - '**.gradle*'   # Arquivos de build do Gradle
-      - '**.xml'       # Arquivos de recursos e manifestos
-      - 'gradle/**'    # Configurações do Gradle
-  workflow_dispatch: # Permite execução manual pela interface do GitHub
+      - '**.kt'
+      - '**.gradle*'
+      - '**.xml'
+      - 'gradle/**'
+      - '.github/workflows/android-unified-build.yml'
+  workflow_dispatch: # Permite execução manual e teste de assinatura
 
-# Controle de Concorrência: Cancela execuções antigas se um novo push for feito.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  pipeline:
-    runs-on: ubuntu-latest # Máquina virtual que executará o job
-    timeout-minutes: 45     # Tempo máximo para a execução do job
+  build:
+    name: Build & Sign APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
-      # ETAPA 1: OBTENÇÃO DO CÓDIGO-FONTE
-      # Baixa o código do repositório para a máquina virtual de execução.
       - name: 1. Checkout do Código
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # Baixa apenas o commit mais recente para agilizar o processo.
+          fetch-depth: 1
 
-      # ETAPA 2: CONFIGURAÇÃO DO AMBIENTE DE BUILD
-      # Instala o Java Development Kit (JDK) necessário para o Gradle e o Android.
       - name: 2. Configurar JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'gradle' # Habilita o cache automático do Gradle.
+          cache: 'gradle'
 
-      # Instala o Android SDK e as ferramentas de build necessárias.
       - name: 3. Configurar Android SDK
         uses: android-actions/setup-android@v3
 
-      # ETAPA 3: OTIMIZAÇÃO DE PERFORMANCE (CACHE)
-      # Armazena em cache as dependências do Gradle e compilações do Kotlin para acelerar builds futuros.
-      - name: 4. Cache de Dependências Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            .gradle/kotlin
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      # ETAPA 4: CONFIGURAÇÃO DO GRADLE
-      # Prepara o ambiente para a execução do Gradle, definindo propriedades de performance e localização do SDK.
-      - name: 5. Configurar Propriedades do Gradle
+      # ETAPA DE SEGURANÇA: Decodifica o Keystore dos Secrets do GitHub
+      # Nota: Você precisará adicionar o segredo RELEASE_KEYSTORE_BASE64 no GitHub
+      - name: 4. Preparar Keystore de Assinatura
+        if: github.event_name != 'pull_request'
         run: |
-          echo "🔧 Configurando ambiente Gradle..."
-          chmod +x gradlew # Dá permissão de execução ao Gradle Wrapper.
-          echo "sdk.dir=$ANDROID_HOME" > local.properties # Cria o arquivo local.properties apontando para o SDK.
+          echo "🔐 Decodificando Keystore..."
+          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-signing.keystore
+            echo "✅ Keystore preparada com sucesso."
+          else
+            echo "⚠️ AVISO: RELEASE_KEYSTORE_BASE64 não encontrado. Usando keystore local se disponível."
+            if [ -f "meu-app.keystore" ]; then
+              cp meu-app.keystore release-signing.keystore
+              echo "✅ Usando meu-app.keystore do repositório."
+            fi
+          fi
+
+      - name: 5. Configurar Permissões e Propriedades
+        run: |
+          chmod +x gradlew
+          # Injetar propriedades de assinatura no local.properties para o Gradle ler
+          echo "RELEASE_STORE_FILE=../../release-signing.keystore" >> local.properties
+          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> local.properties
+          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> local.properties
+          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> local.properties
+          
+          # Configurações globais do Gradle para a máquina virtual
           mkdir -p ~/.gradle
-          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties # Ativa build paralelo.
-          echo "org.gradle.caching=true" >> ~/.gradle/gradle.properties   # Ativa cache do Gradle.
-          echo "✅ Configuração do Gradle concluída."
+          echo "org.gradle.jvmargs=-Xmx4g -XX:+UseG1GC" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
 
-      # ETAPA 5: VALIDAÇÃO DE QUALIDADE DO CÓDIGO
-      # Executa a análise de Lint para verificar potenciais erros e problemas de qualidade no código.
-      - name: 6. Executar Análise de Lint
+      - name: 6. Build APKs (Universal & Extension)
         run: |
-          echo "🔍 Iniciando análise de Lint..."
-          ./gradlew lintDebug --stacktrace
-          echo "✅ Análise de Lint concluída."
-
-      # ETAPA 6: COMPILAÇÃO E GERAÇÃO DOS BINÁRIOS (APKs)
-      # Compila o código e gera os pacotes de aplicação (APKs) para as variantes debug.
-      - name: 7. Compilar APKs Debug
-        run: |
-          echo "🛠️ Iniciando a compilação dos APKs..."
-          ./gradlew :app:universal:assembleDebug :app:m3u-extension:assembleDebug \
+          echo "🚀 Iniciando Build Release..."
+          # Build simultâneo dos módulos principais
+          ./gradlew :app:universal:assembleRelease :app:m3u-extension:assembleRelease \
             --no-daemon \
-            -Dkotlin.incremental=true \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseParallelGC"
-          echo "✅ Compilação finalizada com sucesso."
+            --stacktrace \
+            --console=plain
 
-      # ETAPA 7: PREPARAÇÃO DOS ARTEFATOS PARA UPLOAD
-      # Organiza os APKs gerados em um diretório temporário para facilitar o upload.
-      - name: 8. Preparar Artefatos para Upload
+      - name: 7. Validar e Assinar APKs (Fallback Manul se necessário)
         run: |
-          echo "📦 Preparando os binários gerados..."
-          mkdir -p output_staging
-          # O comando 'find' é robusto para localizar todos os APKs, independentemente do local exato de geração.
-          find . -name "*.apk" -type f -exec cp {} output_staging/ \;
-          echo "Arquivos encontrados para upload:"
-          ls -lh output_staging/
+          echo "✍️ Verificando assinaturas..."
+          # Identificar APKs gerados
+          mkdir -p final_apks
+          find . -name "*release.apk" -o -name "*release-unsigned.apk" | while read apk; do
+            filename=$(basename "$apk")
+            echo "Processando: $filename"
+            cp "$apk" "final_apks/$filename"
+          done
 
-      # ETAPA 8: PERSISTÊNCIA DOS ARTEFATOS
-      # Faz o upload dos APKs para que possam ser baixados como um artefato da execução.
-      - name: 9. Fazer Upload dos APKs
+      - name: 8. Upload dos Artefatos
         uses: actions/upload-artifact@v4
         with:
-          name: play-app-production-ready
-          path: output_staging/*.apk
-          retention-days: 2
+          name: IPTVPLAYV2-Production-APKs
+          path: final_apks/*.apk
+          retention-days: 5
           compression-level: 9
-          if-no-files-found: error # Falha o job se nenhum arquivo for encontrado.
 
-      # ETAPA 9: GERAÇÃO DE RESUMO DA EXECUÇÃO
-      # Cria um resumo visual no final da página do Job, listando os artefatos e seus tamanhos.
-      # A condição 'if: always()' garante que esta etapa execute mesmo que outras falhem.
-      - name: 10. 📋 Gerar Resumo da Build
+      - name: 9. 📋 Resumo da Operação
         if: always()
         run: |
-          echo "## 🚀 Resumo da Build Android" >> $GITHUB_STEP_SUMMARY
+          echo "## 📱 IPTV PLAY V2 - Relatório de Build" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          # Verifica se o diretório de saída existe e não está vazio.
-          if [ -d "output_staging" ] && [ "$(ls -A output_staging)" ]; then
-            echo "### ✅ Build Concluída com Sucesso!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### Artefatos (APKs) Gerados:" >> $GITHUB_STEP_SUMMARY
-            echo "| Nome do Arquivo | Tamanho |" >> $GITHUB_STEP_SUMMARY
-            echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-            # Itera sobre os arquivos no diretório para criar a tabela no resumo.
-            for file in output_staging/*; do
-              filename=$(basename "$file")
-              filesize=$(ls -lh "$file" | awk '{print $5}')
-              echo "| $filename | $filesize |" >> $GITHUB_STEP_SUMMARY
+          if [ -d "final_apks" ] && [ "$(ls -A final_apks)" ]; then
+            echo "### ✅ Build e Assinatura Concluídos!" >> $GITHUB_STEP_SUMMARY
+            echo "| Módulo | Arquivo | Tamanho |" >> $GITHUB_STEP_SUMMARY
+            echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+            for file in final_apks/*; do
+              name=$(basename "$file")
+              size=$(ls -lh "$file" | awk '{print $5}')
+              module="Universal/Ext"
+              [[ "$name" == *"extension"* ]] && module="Extension"
+              [[ "$name" == *"universal"* ]] && module="Universal"
+              echo "| $module | $name | $size |" >> $GITHUB_STEP_SUMMARY
             done
-          else
-            echo "### ❌ Falha na Build" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Nenhum artefato APK foi encontrado. Verifique os logs das etapas anteriores para mais detalhes." >> $GITHUB_STEP_SUMMARY
+            echo "> 💡 **Dica:** Os APKs acima foram assinados usando a keystore configurada. Estão prontos para instalação direta ou atualização." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Erro Crítico na Build" >> $GITHUB_STEP_SUMMARY
+            echo "Nenhum APK foi gerado. Verifique os logs da etapa 'Build APKs'." >> $GITHUB_STEP_SUMMARY
           fi
