@@ -1,8 +1,8 @@
-# Pipeline de Alta Estabilidade - IPTV PLAY V2
-# Estratégia: Jobs isolados para máximo aproveitamento de RAM (7GB por módulo)
-# Isso evita o erro de "Java heap space" ao limpar o ambiente entre as compilações.
+# Pipeline Ultra-Eficiente - IPTV PLAY V2
+# Foco: Economia de Cota do GitHub (Minutos) e Estabilidade Sequencial.
+# Agrupa os builds em um único "Job" para evitar o custo de inicialização duplicado (Setup Java/SDK).
 
-name: Android Production Build (Isolated Jobs)
+name: Android Production Build (Sequential Economy)
 
 on:
   push:
@@ -14,23 +14,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ---------------------------------------------------------
-  # Job 1: Build do Módulo Universal (App + TV)
-  # ---------------------------------------------------------
-  build-universal:
-    name: Build Universal (Smartphone/TV)
+  build:
+    name: Build All APKs (One by One)
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90 # Tempo total generoso, mas o build deve ser mais rápido agora
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      # 1. Configuração Única (Economiza ~3-5 minutos de setup duplicado)
+      - name: 1. Checkout do Código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 2. Configurar JDK 21
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
           cache: 'gradle'
-      - uses: android-actions/setup-android@v3
 
-      - name: Preparar Keystore e Propriedades
+      - name: 3. Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 2. Preparação de Segredos
+      - name: 4. Preparar Keystore e Propriedades
         run: |
           if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
@@ -42,11 +49,15 @@ jobs:
           echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> $GITHUB_ENV
           echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
 
-      - name: Compilar Universal
+      # 3. Build Sequencial (Economiza cota e evita exaustão de RAM global)
+      - name: 5. Compilar Módulo Universal (App Principal)
         run: |
           chmod +x gradlew
+          echo "🏗️ Iniciando Build Universal..."
           ./gradlew :app:universal:assembleRelease \
-            --no-daemon --no-parallel --console=plain \
+            --no-daemon \
+            --no-parallel \
+            --console=plain \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.jvmargs="-Xmx4g"
         env:
@@ -55,50 +66,13 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
 
-      - name: Coletar APK
+      - name: 6. Compilar Módulo Extension (Python)
         run: |
-          mkdir -p output
-          find app/universal/build/outputs/apk/release/ -name "*.apk" -exec cp {} output/ \;
-
-      - name: Upload Universal APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: IPTVPLAYV2-Universal-APK
-          path: output/*.apk
-
-  # ---------------------------------------------------------
-  # Job 2: Build do Módulo M3U Extension (Python/Extraction)
-  # ---------------------------------------------------------
-  build-extension:
-    name: Build Extension (Python Support)
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'gradle'
-      - uses: android-actions/setup-android@v3
-
-      - name: Preparar Keystore e Propriedades
-        run: |
-          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
-            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> $GITHUB_ENV
-          else
-            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/meu-app.keystore" >> $GITHUB_ENV
-          fi
-          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
-          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> $GITHUB_ENV
-          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
-
-      - name: Compilar Extension
-        run: |
-          chmod +x gradlew
+          echo "🏗️ Iniciando Build Extension..."
           ./gradlew :app:m3u-extension:assembleRelease \
-            --no-daemon --no-parallel --console=plain \
+            --no-daemon \
+            --no-parallel \
+            --console=plain \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.jvmargs="-Xmx4g"
         env:
@@ -107,13 +81,17 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
 
-      - name: Coletar APK
+      # 4. Coleta Unificada de Resultados
+      - name: 7. Coletar e Upload de APKs
         run: |
-          mkdir -p output
-          find app/m3u-extension/build/outputs/apk/release/ -name "*.apk" -exec cp {} output/ \;
+          mkdir -p final_output
+          echo "📦 Organizando APKs para download..."
+          find . -path "*/build/outputs/apk/release/*.apk" -exec cp {} final_output/ \;
+          ls -lh final_output/
 
-      - name: Upload Extension APK
+      - name: 8. Publicar Artefatos
         uses: actions/upload-artifact@v4
         with:
-          name: IPTVPLAYV2-Extension-APK
-          path: output/*.apk
+          name: IPTVPLAYV2-Signed-APKs
+          path: final_output/*.apk
+          retention-days: 7
