@@ -74,9 +74,8 @@ jobs:
 
       - name: 6. Build APKs (Universal & Extension)
         run: |
-          echo "🚀 Iniciando Build Release..."
-          # Build simultâneo dos módulos principais
-          ./gradlew :app:universal:assembleRelease :app:m3u-extension:assembleRelease \
+          echo "🚀 Iniciando Build Release Limpo..."
+          ./gradlew clean :app:universal:assembleRelease :app:m3u-extension:assembleRelease \
             --no-daemon \
             --stacktrace \
             --console=plain
