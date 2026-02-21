@@ -199,3 +199,4 @@
 -dontwarn jdk.jfr.**
 -dontwarn reactor.blockhound.integration.**
 -dontwarn javax.lang.model.element.**
+-dontwarn org.slf4j.**
