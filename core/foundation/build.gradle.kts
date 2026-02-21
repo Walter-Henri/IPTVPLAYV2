@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.org.jetbrains.kotlin.plugin.compose)
     alias(libs.plugins.com.google.devtools.ksp)
-    id("org.jetbrains.kotlin.plugin.parcelize")
+    alias(libs.plugins.org.jetbrains.kotlin.plugin.parcelize)
 }
 
 android {
