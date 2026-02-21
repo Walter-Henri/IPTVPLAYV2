@@ -8,6 +8,7 @@ pluginManagement {
             }
         }
         mavenCentral()
+        maven("https://chaquo.com/maven")
         gradlePluginPortal()
     }
 }
@@ -17,6 +18,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://chaquo.com/maven")
         maven("https://jitpack.io")
         maven("https://artifacts.videolan.org/android/")
     }
