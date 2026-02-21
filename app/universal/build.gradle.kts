@@ -49,20 +49,30 @@ android {
                 }
             }
 
-            val path = localProperties["RELEASE_STORE_FILE"] as? String ?: "meu-app.keystore"
-            if (file(path).exists()) {
-                storeFile = file(path)
-                storePassword = localProperties["RELEASE_STORE_PASSWORD"] as? String
-                keyAlias = localProperties["RELEASE_KEY_ALIAS"] as? String
-                keyPassword = localProperties["RELEASE_KEY_PASSWORD"] as? String
+            // Prioritiza Environment Variables (CI) > local.properties > Default
+            val storeFilePath = System.getenv("RELEASE_STORE_FILE")
+                ?: localProperties["RELEASE_STORE_FILE"] as? String
+                ?: "meu-app.keystore"
+
+            val storeFileObj = if (java.io.File(storeFilePath).isAbsolute) {
+                java.io.File(storeFilePath)
             } else {
-                 val userDebug = file(System.getProperty("user.home") + "/.android/debug.keystore")
-                 if (userDebug.exists()) {
-                     storeFile = userDebug
-                     storePassword = "android"
-                     keyAlias = "androiddebugkey"
-                     keyPassword = "android"
-                 }
+                rootProject.file(storeFilePath)
+            }
+
+            if (storeFileObj.exists()) {
+                storeFile = storeFileObj
+                storePassword = System.getenv("RELEASE_STORE_PASSWORD") ?: localProperties["RELEASE_STORE_PASSWORD"] as? String
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: localProperties["RELEASE_KEY_ALIAS"] as? String
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: localProperties["RELEASE_KEY_PASSWORD"] as? String
+            } else {
+                val userDebug = file(System.getProperty("user.home") + "/.android/debug.keystore")
+                if (userDebug.exists()) {
+                    storeFile = userDebug
+                    storePassword = "android"
+                    keyAlias = "androiddebugkey"
+                    keyPassword = "android"
+                }
             }
         }
     }

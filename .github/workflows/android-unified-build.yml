@@ -34,13 +34,13 @@ jobs:
         run: |
           if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> local.properties
+            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> $GITHUB_ENV
           else
-            echo "RELEASE_STORE_FILE=../../meu-app.keystore" >> local.properties
+            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/meu-app.keystore" >> $GITHUB_ENV
           fi
-          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> local.properties
-          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> local.properties
-          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> local.properties
+          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
+          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> $GITHUB_ENV
+          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
 
       - name: Compilar Universal
         run: |
@@ -49,6 +49,11 @@ jobs:
             --no-daemon --no-parallel --console=plain \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.jvmargs="-Xmx4g"
+        env:
+          RELEASE_STORE_FILE: ${{ env.RELEASE_STORE_FILE }}
+          RELEASE_STORE_PASSWORD: ${{ env.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
 
       - name: Coletar APK
         run: |
@@ -81,13 +86,13 @@ jobs:
         run: |
           if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> local.properties
+            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> $GITHUB_ENV
           else
-            echo "RELEASE_STORE_FILE=../../meu-app.keystore" >> local.properties
+            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/meu-app.keystore" >> $GITHUB_ENV
           fi
-          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> local.properties
-          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> local.properties
-          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> local.properties
+          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
+          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> $GITHUB_ENV
+          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
 
       - name: Compilar Extension
         run: |
@@ -96,6 +101,11 @@ jobs:
             --no-daemon --no-parallel --console=plain \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.jvmargs="-Xmx4g"
+        env:
+          RELEASE_STORE_FILE: ${{ env.RELEASE_STORE_FILE }}
+          RELEASE_STORE_PASSWORD: ${{ env.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
 
       - name: Coletar APK
         run: |

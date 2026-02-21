@@ -56,12 +56,16 @@ android {
             if (localPropertiesFile.exists()) {
                 localPropertiesFile.withInputStream { localProperties.load(it) }
             }
-            def path = localProperties.getProperty("RELEASE_STORE_FILE") ?: "meu-app.keystore"
-            if (file(path).exists()) {
-                storeFile file(path)
-                storePassword localProperties.getProperty("RELEASE_STORE_PASSWORD")
-                keyAlias localProperties.getProperty("RELEASE_KEY_ALIAS")
-                keyPassword localProperties.getProperty("RELEASE_KEY_PASSWORD")
+
+            // Prioritiza Environment Variables (CI) > local.properties > Default
+            def storeFilePath = System.getenv("RELEASE_STORE_FILE") ?: localProperties.getProperty("RELEASE_STORE_FILE") ?: "meu-app.keystore"
+            def storeFileObj = new File(storeFilePath).isAbsolute() ? new File(storeFilePath) : rootProject.file(storeFilePath)
+
+            if (storeFileObj.exists()) {
+                storeFile storeFileObj
+                storePassword System.getenv("RELEASE_STORE_PASSWORD") ?: localProperties.getProperty("RELEASE_STORE_PASSWORD")
+                keyAlias System.getenv("RELEASE_KEY_ALIAS") ?: localProperties.getProperty("RELEASE_KEY_ALIAS")
+                keyPassword System.getenv("RELEASE_KEY_PASSWORD") ?: localProperties.getProperty("RELEASE_KEY_PASSWORD")
             } else {
                 File userDebug = file(System.getProperty("user.home") + "/.android/debug.keystore")
                 if (userDebug.exists()) {
@@ -75,6 +79,9 @@ android {
     }
 
     packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
             excludes += 'META-INF/DEPENDENCIES'
