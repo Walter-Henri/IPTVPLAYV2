@@ -31,7 +31,7 @@ android {
         buildConfigField "String", "DROPBOX_REFRESH_TOKEN", "\"UASt2SANM74AAAAAAAAAATytQgDha2NsamfnZML4Cd-Mtwg5bEzmt8fMHwnGxInf\""
  
         ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
         ndkVersion project.property("ndkVersion")
 
@@ -130,8 +130,8 @@ dependencies {
     implementation libs.haze
     implementation libs.haze.materials
 
-    implementation "com.squareup.okhttp3:okhttp:4.12.0"
-    implementation "org.jsoup:jsoup:1.17.2"
+    implementation libs.okhttp
+    implementation libs.jsoup
 
     // DataStore
     implementation libs.androidx.datastore.preferences
@@ -152,6 +152,5 @@ dependencies {
 
     // Testing
     testImplementation "junit:junit:4.13.2"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:1.9.0"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
+    testImplementation libs.kotlinx.coroutines.android // Exemplo, deveria ser test ktx
 }
