@@ -49,32 +49,16 @@ jobs:
           echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> $GITHUB_ENV
           echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
 
-      # 3. Build Sequencial (Economiza cota e evita exaustão de RAM global)
-      - name: 5. Compilar Módulo Universal (App Principal)
+      # 3. Build Unificado e Sequencial (Economiza cota e tempo de inicialização)
+      - name: 5. Compilar Todos os APKs (Smartphone + Extensões)
         run: |
           chmod +x gradlew
-          echo "🏗️ Iniciando Build Universal..."
-          ./gradlew :app:universal:assembleRelease \
-            --no-daemon \
-            --no-parallel \
+          echo "🏗️ Iniciando Compilação Global..."
+          ./gradlew :app:universal:assembleRelease :app:m3u-extension:assembleRelease \
+            --parallel \
             --console=plain \
-            -Dorg.gradle.workers.max=1 \
-            -Dorg.gradle.jvmargs="-Xmx4g"
-        env:
-          RELEASE_STORE_FILE: ${{ env.RELEASE_STORE_FILE }}
-          RELEASE_STORE_PASSWORD: ${{ env.RELEASE_STORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
-
-      - name: 6. Compilar Módulo Extension (Python)
-        run: |
-          echo "🏗️ Iniciando Build Extension..."
-          ./gradlew :app:m3u-extension:assembleRelease \
-            --no-daemon \
-            --no-parallel \
-            --console=plain \
-            -Dorg.gradle.workers.max=1 \
-            -Dorg.gradle.jvmargs="-Xmx4g"
+            -Dorg.gradle.workers.max=2 \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
         env:
           RELEASE_STORE_FILE: ${{ env.RELEASE_STORE_FILE }}
           RELEASE_STORE_PASSWORD: ${{ env.RELEASE_STORE_PASSWORD }}
@@ -82,16 +66,16 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
 
       # 4. Coleta Unificada de Resultados
-      - name: 7. Coletar e Upload de APKs
+      - name: 6. Coletar e Upload de APKs
         run: |
           mkdir -p final_output
           echo "📦 Organizando APKs para download..."
           find . -path "*/build/outputs/apk/release/*.apk" -exec cp {} final_output/ \;
           ls -lh final_output/
 
-      - name: 8. Publicar Artefatos
+      - name: 7. Publicar Artefatos
         uses: actions/upload-artifact@v4
         with:
           name: IPTVPLAYV2-Signed-APKs
           path: final_output/*.apk
-          retention-days: 7
+          retention-days: 14
