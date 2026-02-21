@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d nova notificação</item>
+    <item quantity="other">%d novas notificações</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Navegar para a página inicial"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Navegar para cima"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Mais opções"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Concluído"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Ver tudo"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Selecionar um app"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"DESATIVADO"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ATIVADO"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"espaço"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Pesquisar…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Limpar consulta"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Consulta de pesquisa"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Pesquisar"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Enviar consulta"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Pesquisa por voz"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Compartilhar com"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Compartilhar com <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Recolher"</string>
+    <string name="app_label_crash">Falhas do App</string>
+    <string name="app_shortcut_channel_recently_disabled">Indisponível</string>
+    <string name="app_shortcut_channel_recently_long_label">Veja as streams recentes</string>
+    <string name="app_shortcut_channel_recently_short_label">Recentes</string>
+    <string msgid="389117264260014992" name="autofill">"Preenchimento automático"</string>
+    <string name="bottomsheet_action_collapse">Fechar a página inferior</string>
+    <string name="bottomsheet_action_expand">Abrir a página inferior</string>
+    <string name="bottomsheet_action_expand_halfway">Expandir até a metade</string>
+    <string name="bottomsheet_drag_handle_clicked">Alça de arrastar tocada duas vezes</string>
+    <string name="bottomsheet_drag_handle_content_description">Alça de arrastar</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Atender"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Vídeo"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Recusar"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Desligar"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Alguém está ligando"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Chamada em andamento"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Filtrando uma ligação recebida"</string>
+    <string name="character_counter_content_description">Caracteres inseridos: %1$d de %2$d</string>
+    <string name="character_counter_overflowed_content_description">Limite de %2$d caracteres excedido em %1$d</string>
+    <string name="clear_text_end_icon_content_description">Limpar texto</string>
+    <string msgid="406453423630273620" name="close_drawer">"Fechar menu de navegação"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Fechar planilha"</string>
+    <string name="crash_notification_channel_name">Protegido</string>
+    <string name="crash_notification_text">O log foi coletado; você pode compartilhar depois</string>
+    <string name="crash_notification_title">Ops! O app falhou</string>
+    <string name="data_channel_description_stream_download_service">Descrição do download da stream</string>
+    <string name="data_channel_name_stream_download_service">Serviço de download de streaming</string>
+    <string name="data_error_empty_title">O nome da playlist está vazio</string>
+    <string name="data_error_file_not_found">Arquivo não encontrado</string>
+    <string name="data_worker_subscription_action_cancel">Cancelar</string>
+    <string name="data_worker_subscription_action_retry">Tentar novamente</string>
+    <string name="data_worker_subscription_content_channel_progress">%d Canais foram baixados</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Entrada inválida"</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Janela pop-up"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Menu suspenso"</string>
+    <string name="error_a11y_label">Erro: inválido</string>
+    <string name="error_icon_content_description">Erro</string>
+    <string name="exposed_dropdown_menu_content_description">Mostrar menu suspenso</string>
+    <string name="feat_about_title">Sobre o projeto</string>
+    <string name="feat_channel_dialog_choose_tracks">Escolha faixas de áudio</string>
+    <string name="feat_channel_dialog_dlna_devices">Dispositivos DLNA</string>
+    <string name="feat_channel_open_in_external_app">Abrir em App externo</string>
+    <string name="feat_channel_playback_state_buffering">Carregando</string>
+    <string name="feat_channel_playback_state_ended">Concluído</string>
+    <string name="feat_channel_playback_state_idle">Idle</string>
+    <string name="feat_channel_playback_state_ready">Pronto</string>
+    <string name="feat_channel_tooltip_cast">Screencast</string>
+    <string name="feat_channel_tooltip_choose_format">Escolha um formato</string>
+    <string name="feat_channel_tooltip_download">Download</string>
+    <string name="feat_channel_tooltip_enter_pip_mode">Modo PIP</string>
+    <string name="feat_channel_tooltip_favourite">Favoritar</string>
+    <string name="feat_channel_tooltip_mute">Mudo</string>
+    <string name="feat_channel_tooltip_on_back_pressed">Voltar</string>
+    <string name="feat_channel_tooltip_screen_rotating">Rotação da tela</string>
+    <string name="feat_channel_tooltip_stop_download">Parar o download</string>
+    <string name="feat_channel_tooltip_unfavourite">Desfavoritar</string>
+    <string name="feat_channel_tooltip_unmute">Ativar som</string>
+    <string name="feat_console_title">Editor de console</string>
+    <string name="feat_favorite_scheme_unknown">Desconhecido</string>
+    <string name="feat_foryou_connect_subtitle">Certifique-se de está conectado ao mesmo Wi-Fi</string>
+    <string name="feat_foryou_connect_title">Digite o código da TV</string>
+    <string name="feat_foryou_copy_playlist_url">Copiar url</string>
+    <string name="feat_foryou_hidden_channels_playlist">Streams ocultas</string>
+    <string name="feat_foryou_imported_playlist_title">Importada</string>
+    <string name="feat_foryou_prompt_add_playlist">Adicione uma playlist</string>
+    <string name="feat_foryou_recommend_unseen_days">%d dias</string>
+    <string name="feat_foryou_recommend_unseen_hours">%d horas</string>
+    <string name="feat_foryou_recommend_unseen_label">Favoritos que você veria novamente</string>
+    <string name="feat_foryou_recommend_unseen_more_than_days">mais de %d dias</string>
+    <string name="feat_foryou_rename_playlist">Renomear</string>
+    <string name="feat_foryou_unsubscribe_playlist">Cancelar inscrição</string>
+    <string name="feat_playlist_configuration_enabled_epgs">EPGs habilitados</string>
+    <string name="feat_playlist_configuration_title">Nome</string>
+    <string name="feat_playlist_configuration_user_agent">Agente de usuário</string>
+    <string name="feat_playlist_dialog_create_shortcut_title">Criar um atalho</string>
+    <string name="feat_playlist_dialog_favourite_cancel_title">Desfavoritar</string>
+    <string name="feat_playlist_dialog_favourite_title">Favoritar</string>
+    <string name="feat_playlist_dialog_hide_title">Ocultar</string>
+    <string name="feat_playlist_dialog_save_picture_title">Salvar na galeria</string>
+    <string name="feat_playlist_error_channel_cover_not_found">A capa não existe</string>
+    <string name="feat_playlist_error_channel_not_found">A stream não existe</string>
+    <string name="feat_playlist_error_playlist_not_found">A playlist não existe (%s)</string>
+    <string name="feat_playlist_error_playlist_url_not_found">A URL da playlist não existe</string>
+    <string name="feat_playlist_query_placeholder">Insira a palavra-chave</string>
+    <string name="feat_playlist_scheme_unknown">Desconhecido</string>
+    <string name="feat_playlist_scroll_up">Role para cima</string>
+    <string name="feat_playlist_success_save_cover">Salvo em (%s)</string>
+    <string name="feat_setting_always_replay">Sempre mostrar o botão de replay</string>
+    <string name="feat_setting_app_version">Versão do App</string>
+    <string name="feat_setting_appearance">Aparência</string>
+    <string name="feat_setting_appearance_hint_edit_color">Pressione e segure para editar o tema</string>
+    <string name="feat_setting_auto_refresh_channels">Atualização automática</string>
+    <string name="feat_setting_auto_refresh_channels_description">Atualiza automaticamente ao entrar na playlist</string>
+    <string name="feat_setting_back_home">Voltar</string>
+    <string name="feat_setting_backing_up">Fazendo backup de todas as playlists e canais</string>
+    <string name="feat_setting_cache">Cache enquanto reproduz</string>
+    <string name="feat_setting_cache_description">Esta opção pode impedir a reprodução normal</string>
+    <string name="feat_setting_canvas_apply">Aplicar</string>
+    <string name="feat_setting_canvas_dark">Escuro</string>
+    <string name="feat_setting_canvas_light">Claro</string>
+    <string name="feat_setting_canvas_reset">Desfazer</string>
+    <string name="feat_setting_clear_cache">Limpar cache</string>
+    <string name="feat_setting_clip_mode">Modo de videoclipe</string>
+    <string name="feat_setting_clip_mode_adaptive">Adaptativo</string>
+    <string name="feat_setting_clip_mode_clip">Clip</string>
+    <string name="feat_setting_clip_mode_stretched">Esticado</string>
+    <string name="feat_setting_connect_timeout">A conexão falhou</string>
+    <string name="feat_setting_data_source_dropbox" translatable="false">Dropbox</string>
+    <string name="feat_setting_data_source_emby" translatable="false">Emby</string>
+    <string name="feat_setting_data_source_epg" translatable="false">EPG</string>
+    <string name="feat_setting_data_source_m3u" translatable="false">M3U</string>
+    <string name="feat_setting_data_source_xtream" translatable="false">Xtream</string>
+    <string name="feat_setting_dropbox">Dropbox</string>
+    <string name="feat_setting_enqueue_subscribe">Uma tarefa de inscrição foi adicionada à fila</string>
+    <string name="feat_setting_epg_added">Você pode associar uma playlist ao EPG</string>
+    <string name="feat_setting_error_blank_url">Url vazia</string>
+    <string name="feat_setting_error_empty_epg">O link do EPG está vazio</string>
+    <string name="feat_setting_error_empty_epg_title">O nome EPG está vazio</string>
+    <string name="feat_setting_error_empty_title">O nome da playlist está vazio</string>
+    <string name="feat_setting_error_unselected_file">Nenhum arquivo foi selecionado</string>
+    <string name="feat_setting_experimental_mode">Modo experimental</string>
+    <string name="feat_setting_experimental_mode_description">Recursos instáveis podem gerar erros fatais</string>
+    <string name="feat_setting_failed_malformed_url">URL malformada (%s)</string>
+    <string name="feat_setting_follow_system_theme">Tema padrão do sistema</string>
+    <string name="feat_setting_full_info_player">informações completas no player</string>
+    <string name="feat_setting_full_info_player_description">Exibe mais informações no player</string>
+    <string name="feat_setting_gesture_brightness">Brilho por gestos</string>
+    <string name="feat_setting_gesture_volume">Volume por gestos</string>
+    <string name="feat_setting_god_mode">Modo Avançado</string>
+    <string name="feat_setting_god_mode_description">Ajuste os layouts através botões de volume</string>
+    <string name="feat_setting_label_add_playlist">Adicionar uma playlist</string>
+    <string name="feat_setting_label_backup">Backup</string>
+    <string name="feat_setting_label_epg_playlists">Lista EPG</string>
+    <string name="feat_setting_label_hidden_channels">Streams ocultas</string>
+    <string name="feat_setting_label_hidden_playlist_groups">Categorias de playlists ocultas</string>
+    <string name="feat_setting_label_parse_from_clipboard">Colar da área de transferência</string>
+    <string name="feat_setting_label_parse_from_disk">Analisar arquivo</string>
+    <string name="feat_setting_label_restore">Restaurar</string>
+    <string name="feat_setting_label_select_from_local_storage">Selecione um arquivo</string>
+    <string name="feat_setting_label_subscribe">Inscrever-se</string>
+    <string name="feat_setting_label_subscribing">Inscrito</string>
+    <string name="feat_setting_local_storage">Armazenamento local</string>
+    <string name="feat_setting_no_picture_mode">Sem modo de imagem</string>
+    <string name="feat_setting_no_picture_mode_description">Pode melhorar o desempenho</string>
+    <string name="feat_setting_not_implementation">Este recurso não foi implementado ainda</string>
+    <string name="feat_setting_optional_features">Recursos opcionais do player</string>
+    <string name="feat_setting_paging">Paginação em canais</string>
+    <string name="feat_setting_paging_description">útil para grandes quantidades de canais, mas o agrupamento será desativado ao mesmo tempo</string>
+    <string name="feat_setting_placeholder_basic_url">URL</string>
+    <string name="feat_setting_placeholder_epg">Link do EPG</string>
+    <string name="feat_setting_placeholder_epg_title">Nome EPG</string>
+    <string name="feat_setting_placeholder_password">Senha</string>
+    <string name="feat_setting_placeholder_title">Nome da playlist</string>
+    <string name="feat_setting_placeholder_url">Link da playlist</string>
+    <string name="feat_setting_placeholder_username">Usuário</string>
+    <string name="feat_setting_player_panel">Painel do player</string>
+    <string name="feat_setting_player_panel_description">Deslize o player para expandi-lo no modo retrato</string>
+    <string name="feat_setting_playlist_management">Gerenciamento de playlist</string>
+    <string name="feat_setting_project_about">Sobre o projeto</string>
+    <string name="feat_setting_reconnect_mode">Reconexão automática</string>
+    <string name="feat_setting_reconnect_mode_no">Nunca</string>
+    <string name="feat_setting_reconnect_mode_reconnect">Sempre</string>
+    <string name="feat_setting_reconnect_mode_retry">Apenas quando falhar</string>
+    <string name="feat_setting_remote_control">Controle Remoto</string>
+    <string name="feat_setting_remote_control_description">Ativa a capacidade de controlar remotamente sua TV</string>
+    <string name="feat_setting_remote_control_tv_side">Controle Remoto</string>
+    <string name="feat_setting_remote_control_tv_side_description">Permite que smartphones controlem sua TV</string>
+    <string name="feat_setting_restoring">Restaurando todas as playlists e canais</string>
+    <string name="feat_setting_screen_rotating">Rotação da tela</string>
+    <string name="feat_setting_screen_rotating_description">Disponível quando a rotação do sistema está desbloqueada</string>
+    <string name="feat_setting_screencast">Screencast</string>
+    <string name="feat_setting_script_management_import_js">importar Javascript</string>
+    <string name="feat_setting_slider">Barra de reprodução</string>
+    <string name="feat_setting_source_code">Código fonte</string>
+    <string name="feat_setting_subscribe_for_tv">Para TV</string>
+    <string name="feat_setting_success_subscribe">Inscrição concluída</string>
+    <string name="feat_setting_sync_mode">Estratégia de sincronização</string>
+    <string name="feat_setting_sync_mode_all">Todos</string>
+    <string name="feat_setting_sync_mode_keep">Manter</string>
+    <string name="feat_setting_system_setting">Configuração de sistema</string>
+    <string name="feat_setting_tunneling">Modo de tunelamento</string>
+    <string name="feat_setting_tunneling_description">Melhora a reprodução de conteúdo em 4K/HDR</string>
+    <string name="feat_setting_unseen_limit">Recomendar streams favoritas não vistas há um tempo</string>
+    <string name="feat_setting_use_dynamic_colors">Cores dinâmicas</string>
+    <string name="feat_setting_use_dynamic_colors_unavailable">Está disponível no Android 12+</string>
+    <string name="feat_setting_warning_xtream_takes_much_more_time">Isso pode levar algum tempo</string>
+    <string name="feat_setting_zapping_mode">Modo de zapping</string>
+    <string name="feat_setting_zapping_mode_description">Visualização rápida antes de reproduzir a stream</string>
+    <string msgid="2863935784364843033" name="glance_error_layout_text">"Pesquise "<b><tt>"GlanceAppWidget"</tt></b>" no "<b><tt>"adb logcat"</tt></b>" para consultar o erro exato"</string>
+    <string msgid="5191168365305634625" name="glance_error_layout_text_v2">"Não é possível mostrar conteúdo"</string>
+    <string msgid="3631961919234443531" name="glance_error_layout_title"><b>"Erro no widget do app Glance"</b></string>
+    <string name="icon_content_description">Ícone de caixa de diálogo</string>
+    <string msgid="6827826412747255547" name="in_progress">"Em andamento"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Parcialmente selecionada"</string>
+    <string name="item_view_role_description">Guia</string>
+    <string msgid="9031621431415014327" name="m3_adaptive_default_pane_expansion_drag_handle_action_description">"Mudar a divisão do painel para %s"</string>
+    <string msgid="9058489142432490820" name="m3_adaptive_default_pane_expansion_drag_handle_content_description">"Alça de arrastar para expandir o painel"</string>
+    <string msgid="3470811934112444098" name="m3_adaptive_default_pane_expansion_drag_handle_state_description">"Divisão atual do painel, %s"</string>
+    <string msgid="6412636251656811002" name="m3_adaptive_default_pane_expansion_end_offset_anchor_description">"%d DPs do fim"</string>
+    <string msgid="1205294531112795522" name="m3_adaptive_default_pane_expansion_proportion_anchor_description">"%d por cento"</string>
+    <string msgid="5056616348537665604" name="m3_adaptive_default_pane_expansion_start_offset_anchor_description">"%d DPs do início"</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Fechar página inferior"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Dispensar página inferior"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Alça de arrastar"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Abrir página inferior"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Página inferior"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Data informada"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Data informada: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"A data não está no padrão esperado: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Data não permitida: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"A data está fora do intervalo de anos esperado: %1$s a %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Data"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Nenhum"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Selecionar data"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Data selecionada"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Seleção atual: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"Navegar para o ano de %1$s"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Nenhum"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Role a tela para mostrar anos anteriores"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Role a tela para mostrar anos seguintes"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Usar o modo de entrada na agenda"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Deslize para selecionar um ano ou toque para voltar à seleção de dia"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Usar o modo de entrada de texto"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Mudar para o próximo mês"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Mudar para o mês anterior"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Usar a seleção de ano"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Selecionar data"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Hoje"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Seletor de ano visível"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Período inválido"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Informar datas"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Dentro do período"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Data de término"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Role a tela para mostrar o mês seguinte"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Role a tela para mostrar o mês anterior"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Data de início"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Selecionar datas"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Caixa de diálogo"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Fechado"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Aberto"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Ativar/desativar o menu suspenso"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Fechar barra de ferramentas"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Abrir barra de ferramentas"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Pesquisar"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Dispensar"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Alerta"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Sugestões abaixo"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Insira a hora"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Selecione o horário"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Hora"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d horas"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Selecione a hora"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$dh"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"por hora"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Minuto"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Selecione os minutos"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d minutos"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"por minutos"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"Selecione AM ou PM"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4145073906612931838" name="m3c_time_picker_toggle_keyboard">"Mudar para o modo de entrada de texto para informar o horário"</string>
+    <string msgid="8841786098195101324" name="m3c_time_picker_toggle_touch">"Mudar para o modo de relógio para informar o horário"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Mostrar dica"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Dica"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Fechar coluna"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Coluna de navegação"</string>
+    <string name="material_clock_toggle_content_description">Selecionar AM ou PM</string>
+    <string name="material_hour_24h_suffix">%1$s horas</string>
+    <string name="material_hour_selection">Selecionar horário</string>
+    <string name="material_hour_suffix">%1$s em ponto</string>
+    <string name="material_minute_selection">Selecione os minutos</string>
+    <string name="material_minute_suffix">%1$s minutos</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Alterne para o modo de relógio para informar o horário.</string>
+    <string name="material_timepicker_hour">Hora</string>
+    <string name="material_timepicker_minute">Minuto</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Selecionar horário</string>
+    <string name="material_timepicker_text_input_mode_description">Alterne para o modo de entrada de texto para informar o horário.</string>
+    <string msgid="2792228137354697160" name="mc2_snackbar_pane_title">"Alerta"</string>
+    <string name="mtrl_badge_numberless_content_description">Nova notificação</string>
+    <string name="mtrl_checkbox_state_description_checked">Marcada</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Parcialmente marcada</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Desmarcada</string>
+    <string name="mtrl_chip_close_icon_content_description">Remover %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Mais de %1$d novas notificações</string>
+    <string name="mtrl_picker_a11y_next_month">Alterar para o próximo mês</string>
+    <string name="mtrl_picker_a11y_prev_month">Alterar para o mês anterior</string>
+    <string name="mtrl_picker_announce_current_range_selection">Seleção da data de início: %1$s. Seleção da data de término: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Seleção atual: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">nenhuma</string>
+    <string name="mtrl_picker_cancel">Cancelar</string>
+    <string name="mtrl_picker_confirm">OK</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Selecionar data</string>
+    <string name="mtrl_picker_date_header_unselected">Data selecionada</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Data de término: %1$s</string>
+    <string name="mtrl_picker_invalid_format">Formato inválido.</string>
+    <string name="mtrl_picker_invalid_format_example">Exemplo: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Usar %1$s</string>
+    <string name="mtrl_picker_invalid_range">Intervalo inválido.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Ir para o ano atual %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">Ir para o ano %1$d</string>
+    <string name="mtrl_picker_out_of_range">Fora do intervalo: %1$s</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Data de início – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Data de término</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Selecionar intervalo</string>
+    <string name="mtrl_picker_range_header_unselected">Data de início – Data de término</string>
+    <string name="mtrl_picker_save">Salvar</string>
+    <string name="mtrl_picker_start_date_description">Data de início: %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Data</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Data de término</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Data de início</string>
+    <string name="mtrl_picker_text_input_day_abbr">d</string>
+    <string name="mtrl_picker_text_input_month_abbr">m</string>
+    <string name="mtrl_picker_text_input_year_abbr">a</string>
+    <string name="mtrl_picker_today_description">Hoje %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Mudar para o modo de entrada da agenda</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Toque para mudar para a visualização de agenda</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Mudar para o modo de entrada de texto</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Toque para mudar para a visualização \"Ano\"</string>
+    <string name="mtrl_timepicker_cancel">Cancelar</string>
+    <string name="mtrl_timepicker_confirm">OK</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Menu de navegação"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Não selecionado"</string>
+    <string name="password_toggle_content_description">Exibir senha</string>
+    <string msgid="5941395253238309765" name="range_end">"Fim do intervalo"</string>
+    <string msgid="7097486360902471446" name="range_start">"Início do intervalo"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Pesquisar"</string>
+    <string name="searchview_clear_text_content_description">Limpar texto</string>
+    <string name="searchview_navigation_content_description">Voltar</string>
+    <string msgid="6043586758067023" name="selected">"Selecionado"</string>
+    <string name="side_sheet_accessibility_pane_title">Página lateral</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Alerta"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Vazio"</string>
+    <string msgid="5834637030682409883" name="state_off">"Desativado"</string>
+    <string msgid="1490883874751719580" name="state_on">"Ativado"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Chave"</string>
+    <string msgid="1672349317127674378" name="tab">"Guia"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g>%%"</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"dica"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"mostrar dica"</string>
+    <string name="ui_cd_top_bar_on_back_pressed">Voltar</string>
+    <string name="ui_connect">Conectar</string>
+    <string name="ui_destination_favourite">Favoritos</string>
+    <string name="ui_destination_foryou">Para Você</string>
+    <string name="ui_destination_setting">Configurações</string>
+    <string name="ui_error_unknown">Erro Desconhecido</string>
+    <string name="ui_sort">Reordenar</string>
+    <string name="ui_sort_asc">A-Z</string>
+    <string name="ui_sort_desc">Z-A</string>
+    <string name="ui_sort_never_played">Não assistiu ainda</string>
+    <string name="ui_sort_recently">Recentes</string>
+    <string name="ui_sort_unspecified">Não especificado</string>
+    <string name="ui_theme_card_left">ho</string>
+    <string name="ui_theme_card_right">la</string>
+    <string name="ui_title_favourite">Favoritos</string>
+    <string name="ui_title_foryou">M3U</string>
+    <string name="ui_title_setting">Configurações</string>
+</resources>

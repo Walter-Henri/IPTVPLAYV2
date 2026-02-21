@@ -1,0 +1,63 @@
+# Gradle
+# .gradle/ (Removido do ignore a pedido do usuário)
+build/
+build2/
+**/build/
+**/build2/
+.build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.vs/
+.vscode/
+
+# Android
+local.properties
+*.apk
+*.aab
+*.dex
+*.class
+
+# Keystore (manter keystores fora do repositório)
+*.keystore
+*.jks
+release.keystore
+meu-app.keystore
+
+# Kotlin / Compiler caches
+.kotlin/
+**/*.log
+hs_err_pid*.log
+replay_pid*.log
+
+# Generated sources
+**/build/generated/
+**/generated/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Documentação temporária
+DIAGNOSTICO.md
+
+# Diretórios de desenvolvimento
+design/
+skills/
+fastlane/
+
+# Cache e dados temporários
+.cache/
+.browser_data_dir/
+Downloads/
+upload/
+.local/
+.npm/
+.nvm/
+.pki/
+.logs/
+.github_workflows/
+.kotlin/
+#.github/

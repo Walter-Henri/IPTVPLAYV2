@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "tslog": "^4.10.2"
+  }
+}

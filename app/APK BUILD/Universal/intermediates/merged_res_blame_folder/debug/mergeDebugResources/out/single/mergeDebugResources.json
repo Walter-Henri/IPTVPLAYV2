@@ -1,0 +1,178 @@
+[
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_regular.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_regular.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_lightitalic.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_lightitalic.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml-v31_widget_info.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml-v31/widget_info.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_black.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_black.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_lexend_exa_medium.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/lexend_exa_medium.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.m3u.universal-main-120:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_widget_info.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/widget_info.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.m3u.universal-main-120:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/drawable_round_space_dashboard_24.xml.flat",
+        "source": "com.m3u.universal-main-120:/drawable/round_space_dashboard_24.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_thin.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_thin.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_blackitalic.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_blackitalic.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_bolditalic.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_bolditalic.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_bold.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_bold.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.m3u.universal-main-120:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_semi_bold.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_semi_bold.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_bold.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_bold.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_black.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_black.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_thinitalic.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_thinitalic.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_thin.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_thin.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.m3u.universal-main-120:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_backup_rules.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_jb_mono_medium.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/jb_mono_medium.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.m3u.universal-main-120:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_google_sans.xml.flat",
+        "source": "com.m3u.universal-main-120:/font/google_sans.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_shortcuts.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/shortcuts.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/drawable_baseline_history_toggle_off_24.xml.flat",
+        "source": "com.m3u.universal-main-120:/drawable/baseline_history_toggle_off_24.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_italic.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_italic.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_medium.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_medium.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/drawable_ic_splash.xml.flat",
+        "source": "com.m3u.universal-main-120:/drawable/ic_splash.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_file_paths.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.m3u.universal-main-120:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_data_extraction_rules.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_mediumitalic.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_mediumitalic.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_network_security_config.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_medium.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_medium.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/drawable_round_calendar_month_24.xml.flat",
+        "source": "com.m3u.universal-main-120:/drawable/round_calendar_month_24.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/xml_filepaths.xml.flat",
+        "source": "com.m3u.universal-main-120:/xml/filepaths.xml"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.m3u.universal-main-120:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_regular.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_regular.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_light.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_light.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_extra_bold.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_extra_bold.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_productsans_light.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/productsans_light.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/font_inter_extra_light.ttf.flat",
+        "source": "com.m3u.universal-main-120:/font/inter_extra_light.ttf"
+    },
+    {
+        "merged": "com.m3u.universal-debug-118:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.m3u.universal-main-120:/mipmap-xhdpi/ic_launcher.png"
+    }
+]

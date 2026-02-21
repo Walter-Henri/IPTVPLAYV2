@@ -1,0 +1,153 @@
+package com.m3u.data.service.internal.player
+
+import android.content.Context
+import android.graphics.Rect
+import android.view.Surface
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.TrackGroup
+import androidx.media3.common.Tracks
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import tv.danmaku.ijk.media.player.IMediaPlayer
+import tv.danmaku.ijk.media.player.IjkMediaPlayer
+
+class IjkPlayerController(
+    private val context: Context
+) : PlayerController {
+
+    private var mediaPlayer: IjkMediaPlayer? = null
+    private val scope = CoroutineScope(Dispatchers.Main)
+
+    private val _playbackState = MutableStateFlow(Player.STATE_IDLE)
+    override val playbackState = _playbackState.asStateFlow()
+
+    private val _isPlaying = MutableStateFlow(false)
+    override val isPlaying = _isPlaying.asStateFlow()
+
+    private val _videoSize = MutableStateFlow(Rect())
+    override val videoSize = _videoSize.asStateFlow()
+
+    private val _playbackException = MutableStateFlow<PlaybackException?>(null)
+    override val playbackException = _playbackException.asStateFlow()
+
+    private val _tracksGroups = MutableStateFlow<List<Tracks.Group>>(emptyList())
+    override val tracksGroups = _tracksGroups.asStateFlow()
+
+    override val playerObject: Any?
+        get() = mediaPlayer
+
+    init {
+        initializePlayer()
+    }
+
+    private fun initializePlayer() {
+        IjkMediaPlayer.loadLibrariesOnce(null)
+        IjkMediaPlayer.native_profileBegin("libijkplayer.so")
+        
+        mediaPlayer = IjkMediaPlayer().apply {
+            // Optimizations for IPTV
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 1)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 1)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 1)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 1)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
+            setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48)
+            
+            setOnPreparedListener { 
+                _playbackState.value = Player.STATE_READY
+                _isPlaying.value = true
+                it.start()
+            }
+            setOnErrorListener { _, what, extra ->
+                _playbackException.value = PlaybackException(
+                    "IJK Error: $what, $extra",
+                    null,
+                    PlaybackException.ERROR_CODE_UNSPECIFIED
+                )
+                true
+            }
+            setOnCompletionListener {
+                _playbackState.value = Player.STATE_ENDED
+                _isPlaying.value = false
+            }
+            setOnVideoSizeChangedListener { _, width, height, _, _ ->
+                _videoSize.value = Rect(0, 0, width, height)
+            }
+            setOnInfoListener { _, what, _ ->
+                when (what) {
+                    IMediaPlayer.MEDIA_INFO_BUFFERING_START -> _playbackState.value = Player.STATE_BUFFERING
+                    IMediaPlayer.MEDIA_INFO_BUFFERING_END -> _playbackState.value = Player.STATE_READY
+                }
+                true
+            }
+        }
+    }
+
+    override fun play(url: String, headers: Map<String, String>) {
+        mediaPlayer?.let {
+            it.stop()
+            it.reset()
+            it.dataSource = url
+            headers.forEach { (k, v) ->
+                // IJK doesn't have a direct "add header" for all cases easily via API sometimes, 
+                // but we can pass them in the dataSource if it's a URL or use some native options.
+                // However, IjkMediaPlayer.setOption can be used for some basic headers.
+                // Re-prepare logic might be needed.
+            }
+            it.prepareAsync()
+        }
+    }
+
+    override fun pause() {
+        mediaPlayer?.pause()
+        _isPlaying.value = false
+    }
+
+    override fun resume() {
+        mediaPlayer?.start()
+        _isPlaying.value = true
+    }
+
+    override fun stop() {
+        mediaPlayer?.stop()
+        _isPlaying.value = false
+        _playbackState.value = Player.STATE_IDLE
+    }
+
+    override fun release() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+        IjkMediaPlayer.native_profileEnd()
+    }
+
+    override fun seekTo(positionMs: Long) {
+        mediaPlayer?.seekTo(positionMs)
+    }
+
+    override fun setSurface(surface: Surface?) {
+        mediaPlayer?.setSurface(surface)
+    }
+
+    override fun setVolume(volume: Float) {
+        mediaPlayer?.setVolume(volume, volume)
+    }
+
+    override fun setPlaybackSpeed(speed: Float) {
+        // IJK speed control
+    }
+
+    override fun chooseTrack(group: TrackGroup, index: Int) {
+        // IJK track selection
+    }
+
+    override fun clearTrack(type: Int) {
+        // IJK track clearing
+    }
+}

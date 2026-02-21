@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.m3u.extension.m3u-extension-mergeDebugResources-66:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Walter\\.gradle\\caches\\8.12\\transforms\\8f4addb3ef9b29b7132e16a8e5d93c9a\\transformed\\appcompat-1.7.1\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    }
+                }
+            ]
+        }
+    ]
+}

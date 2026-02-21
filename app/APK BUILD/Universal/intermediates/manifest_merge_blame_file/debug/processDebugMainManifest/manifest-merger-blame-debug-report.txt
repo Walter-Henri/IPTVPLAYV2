@@ -1,0 +1,973 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.m3u.android"
+4    android:versionCode="1"
+5    android:versionName="1.0.0-universal" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:5:5-67
+11-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:5:22-64
+12    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+12-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:6:5-76
+12-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:6:22-73
+13    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+13-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:7:5-76
+13-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:7:22-73
+14    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+14-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:8:5-86
+14-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:8:22-83
+15    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+15-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:9:5-79
+15-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:9:22-76
+16    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+16-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:10:5-80
+16-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:10:22-77
+17    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+17-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:11:5-81
+17-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:11:22-78
+18    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+18-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:12:5-77
+18-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:12:22-74
+19    <uses-permission
+19-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:13:5-68
+20        android:name="android.permission.WAKE_LOCK"
+20-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:13:22-65
+21        android:maxSdkVersion="25" />
+21-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:17:9-35
+22    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+22-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:14:5-75
+22-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:14:22-72
+23    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+23-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:15:5-77
+23-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:15:22-74
+24    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+24-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:16:5-87
+24-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:16:22-84
+25    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+25-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:17:5-92
+25-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:17:22-89
+26    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+26-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:18:5-20:53
+26-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:19:9-61
+27    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+27-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:21:5-81
+27-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:21:22-78
+28
+29    <queries>
+29-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:23:5-28:15
+30        <package android:name="com.m3u.extension" />
+30-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:24:9-53
+30-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:24:18-50
+31
+32        <intent>
+32-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:25:9-27:18
+33            <action android:name="com.m3u.extension.ExtensionService" />
+33-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:26:13-73
+33-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:26:21-70
+34        </intent>
+35        <intent>
+35-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:8:9-12:18
+36            <action android:name="android.intent.action.CREATE_DOCUMENT" />
+36-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:9:13-76
+36-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:9:21-73
+37
+38            <data android:mimeType="*/*" />
+38-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+38-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:23-52
+39        </intent>
+40        <intent>
+40-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:23:9-27:18
+41            <action android:name="android.intent.action.SEND" />
+41-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:70:17-69
+41-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:70:25-66
+42
+43            <data android:mimeType="message/rfc822" />
+43-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+43-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:23-52
+44        </intent>
+45        <intent>
+45-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:28:9-32:18
+46            <action android:name="android.intent.action.SEND_MULTIPLE" />
+46-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:29:13-74
+46-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:29:21-71
+47
+48            <data android:mimeType="message/rfc822" />
+48-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+48-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:23-52
+49        </intent>
+50        <intent>
+50-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:33:9-35:18
+51            <action android:name="android.intent.action.SENDTO" />
+51-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:34:13-67
+51-->[ch.acra:acra-mail:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\b0d4e9ecbc0a11cd4a8a726a1272211e\transformed\acra-mail-5.12.0\AndroidManifest.xml:34:21-64
+52        </intent>
+53    </queries>
+54
+55    <!-- TV Support Features -->
+56    <uses-feature
+56-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:31:5-33:36
+57        android:name="android.software.leanback"
+57-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:32:9-49
+58        android:required="false" />
+58-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:33:9-33
+59    <uses-feature
+59-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:34:5-36:36
+60        android:name="android.hardware.touchscreen"
+60-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:35:9-52
+61        android:required="false" />
+61-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:36:9-33
+62    <uses-feature
+62-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:37:5-39:36
+63        android:name="android.hardware.wifi"
+63-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:38:9-45
+64        android:required="false" />
+64-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:39:9-33
+65
+66    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
+66-->[:business:playlist] C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\.build\_business_playlist\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:9:5-90
+66-->[:business:playlist] C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\.build\_business_playlist\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:9:22-87
+67    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+67-->[:business:channel] C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\.build\_business_channel\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:5-95
+67-->[:business:channel] C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\.build\_business_channel\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:22-92
+68
+69    <permission
+69-->[androidx.core:core:1.16.0] C:\Users\Walter\.gradle\caches\8.12\transforms\17f0490c9fef10d752ead2e97473e81a\transformed\core-1.16.0\AndroidManifest.xml:22:5-24:47
+70        android:name="com.m3u.android.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+70-->[androidx.core:core:1.16.0] C:\Users\Walter\.gradle\caches\8.12\transforms\17f0490c9fef10d752ead2e97473e81a\transformed\core-1.16.0\AndroidManifest.xml:23:9-81
+71        android:protectionLevel="signature" />
+71-->[androidx.core:core:1.16.0] C:\Users\Walter\.gradle\caches\8.12\transforms\17f0490c9fef10d752ead2e97473e81a\transformed\core-1.16.0\AndroidManifest.xml:24:9-44
+72
+73    <uses-permission android:name="com.m3u.android.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+73-->[androidx.core:core:1.16.0] C:\Users\Walter\.gradle\caches\8.12\transforms\17f0490c9fef10d752ead2e97473e81a\transformed\core-1.16.0\AndroidManifest.xml:26:5-97
+73-->[androidx.core:core:1.16.0] C:\Users\Walter\.gradle\caches\8.12\transforms\17f0490c9fef10d752ead2e97473e81a\transformed\core-1.16.0\AndroidManifest.xml:26:22-94
+74
+75    <application
+75-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:41:5-169:19
+76        android:name="com.m3u.universal.M3UApplication"
+76-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:42:9-39
+77        android:allowBackup="true"
+77-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:43:9-35
+78        android:appCategory="video"
+78-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:44:9-36
+79        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+79-->[androidx.core:core:1.16.0] C:\Users\Walter\.gradle\caches\8.12\transforms\17f0490c9fef10d752ead2e97473e81a\transformed\core-1.16.0\AndroidManifest.xml:28:18-86
+80        android:banner="@mipmap/ic_launcher"
+80-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:45:9-45
+81        android:dataExtractionRules="@xml/data_extraction_rules"
+81-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:46:9-65
+82        android:debuggable="true"
+83        android:enableOnBackInvokedCallback="true"
+83-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:47:9-51
+84        android:extractNativeLibs="false"
+85        android:fullBackupContent="@xml/backup_rules"
+85-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:48:9-54
+86        android:hardwareAccelerated="true"
+86-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:49:9-43
+87        android:icon="@mipmap/ic_launcher"
+87-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:50:9-43
+88        android:label="@string/app_name"
+88-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:51:9-41
+89        android:networkSecurityConfig="@xml/network_security_config"
+89-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:56:9-69
+90        android:requestLegacyExternalStorage="true"
+90-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:52:9-52
+91        android:supportsRtl="true"
+91-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:53:9-35
+92        android:theme="@style/Theme.M3U.Starting"
+92-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:54:9-50
+93        android:usesCleartextTraffic="true" >
+93-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:55:9-44
+94        <activity
+94-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:59:9-83:20
+95            android:name="com.m3u.universal.MainActivity"
+95-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:60:13-41
+96            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|locale|layoutDirection"
+96-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:61:13-114
+97            android:exported="true"
+97-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:62:13-36
+98            android:launchMode="singleTask" >
+98-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:63:13-44
+99            <intent-filter>
+99-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:64:13-68:29
+100                <action android:name="android.intent.action.MAIN" />
+100-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:65:17-69
+100-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:65:25-66
+101
+102                <category android:name="android.intent.category.LAUNCHER" />
+102-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:66:17-77
+102-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:66:27-74
+103                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+103-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:67:17-86
+103-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:67:27-83
+104            </intent-filter>
+105            <intent-filter>
+105-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:69:13-73:29
+106                <action android:name="android.intent.action.SEND" />
+106-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:70:17-69
+106-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:70:25-66
+107
+108                <category android:name="android.intent.category.DEFAULT" />
+108-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:17-76
+108-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:27-73
+109
+110                <data android:mimeType="text/plain" />
+110-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+110-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:23-52
+111            </intent-filter>
+112            <intent-filter>
+112-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:74:13-78:29
+113                <action android:name="android.intent.action.SEND" />
+113-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:70:17-69
+113-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:70:25-66
+114
+115                <category android:name="android.intent.category.DEFAULT" />
+115-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:17-76
+115-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:27-73
+116
+117                <data android:mimeType="application/json" />
+117-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+117-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:23-52
+118            </intent-filter>
+119
+120            <meta-data
+120-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:80:13-82:53
+121                android:name="android.app.shortcuts"
+121-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:81:17-53
+122                android:resource="@xml/shortcuts" />
+122-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:82:17-50
+123        </activity>
+124
+125        <provider
+126            android:name="androidx.core.content.FileProvider"
+126-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:87:13-62
+127            android:authorities="com.m3uplay.native.provider"
+127-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:88:13-62
+128            android:exported="false"
+128-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:89:13-37
+129            android:grantUriPermissions="true" >
+129-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:90:13-47
+130            <meta-data
+130-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:91:13-93:54
+131                android:name="android.support.FILE_PROVIDER_PATHS"
+131-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:92:17-67
+132                android:resource="@xml/file_paths" />
+132-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:93:17-51
+133        </provider>
+134
+135        <!-- Extension Debug Activity -->
+136        <activity
+136-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:97:9-108:20
+137            android:name="com.m3u.universal.extension.ExtensionDebugActivity"
+137-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:98:13-61
+138            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|locale|layoutDirection"
+138-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:99:13-114
+139            android:exported="true"
+139-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:100:13-36
+140            android:label="Extension Debug"
+140-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:101:13-44
+141            android:launchMode="singleTop"
+141-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:102:13-43
+142            android:theme="@style/Theme.M3U" >
+142-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:103:13-45
+143            <intent-filter>
+143-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:104:13-107:29
+144                <action android:name="android.intent.action.VIEW" />
+144-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:105:17-69
+144-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:105:25-66
+145
+146                <category android:name="android.intent.category.DEFAULT" />
+146-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:17-76
+146-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:27-73
+147            </intent-filter>
+148        </activity>
+149
+150        <!-- Removed legacy smartphone activities not present in this module -->
+151        <activity
+151-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:111:9-117:48
+152            android:name="com.m3u.universal.ui.player.PlayerActivity"
+152-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:112:13-53
+153            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|locale|layoutDirection"
+153-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:113:13-114
+154            android:exported="false"
+154-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:114:13-37
+155            android:launchMode="singleTop"
+155-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:115:13-43
+156            android:supportsPictureInPicture="true"
+156-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:116:13-52
+157            android:theme="@style/Theme.M3U" />
+157-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:117:13-45
+158        <activity
+158-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:119:9-124:48
+159            android:name="com.m3u.universal.ui.player.WebPlayerActivity"
+159-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:120:13-56
+160            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|locale|layoutDirection"
+160-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:121:13-114
+161            android:exported="false"
+161-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:122:13-37
+162            android:launchMode="singleTop"
+162-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:123:13-43
+163            android:theme="@style/Theme.M3U" />
+163-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:124:13-45
+164
+165        <service
+165-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:126:9-131:46
+166            android:name="com.m3u.core.extension.RemoteService"
+166-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:127:13-64
+167            android:exported="true"
+167-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:128:13-36
+168            android:foregroundServiceType="dataSync|mediaPlayback"
+168-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:129:13-67
+169            android:process=":remote" />
+169-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:130:13-38
+170        <service
+170-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:133:9-136:34
+171            android:name="androidx.work.impl.foreground.SystemForegroundService"
+171-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:134:13-81
+172            android:directBootAware="false"
+172-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:55:13-44
+173            android:enabled="@bool/enable_system_foreground_service_default"
+173-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:56:13-77
+174            android:exported="false"
+174-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:57:13-37
+175            android:foregroundServiceType="dataSync" />
+175-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:135:13-53
+176
+177        <provider
+178            android:name="androidx.startup.InitializationProvider"
+178-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:139:13-67
+179            android:authorities="com.m3u.android.androidx-startup"
+179-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:140:13-68
+180            android:exported="false" >
+180-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:141:13-37
+181            <meta-data
+181-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:143:13-145:52
+182                android:name="com.m3u.universal.startup.ComposeInitializer"
+182-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:144:17-76
+183                android:value="androidx.startup" />
+183-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:145:17-49
+184            <meta-data
+184-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Walter\.gradle\caches\8.12\transforms\afb9a9cf9d31f537328d70b0a73d6ab7\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+185                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+185-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Walter\.gradle\caches\8.12\transforms\afb9a9cf9d31f537328d70b0a73d6ab7\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
+186                android:value="androidx.startup" />
+186-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Walter\.gradle\caches\8.12\transforms\afb9a9cf9d31f537328d70b0a73d6ab7\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
+187            <meta-data
+187-->[androidx.lifecycle:lifecycle-process:2.9.1] C:\Users\Walter\.gradle\caches\8.12\transforms\d4b9edda9e1f2964079cf7722736e23e\transformed\lifecycle-process-2.9.1\AndroidManifest.xml:29:13-31:52
+188                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+188-->[androidx.lifecycle:lifecycle-process:2.9.1] C:\Users\Walter\.gradle\caches\8.12\transforms\d4b9edda9e1f2964079cf7722736e23e\transformed\lifecycle-process-2.9.1\AndroidManifest.xml:30:17-78
+189                android:value="androidx.startup" />
+189-->[androidx.lifecycle:lifecycle-process:2.9.1] C:\Users\Walter\.gradle\caches\8.12\transforms\d4b9edda9e1f2964079cf7722736e23e\transformed\lifecycle-process-2.9.1\AndroidManifest.xml:31:17-49
+190            <meta-data
+190-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:29:13-31:52
+191                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+191-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:30:17-85
+192                android:value="androidx.startup" />
+192-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:31:17-49
+193        </provider>
+194        <provider
+195            android:name="androidx.core.content.FileProvider"
+195-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:87:13-62
+196            android:authorities="com.m3u.android.provider"
+196-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:88:13-62
+197            android:exported="false"
+197-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:89:13-37
+198            android:grantUriPermissions="true" >
+198-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:90:13-47
+199            <meta-data
+199-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:91:13-93:54
+200                android:name="android.support.FILE_PROVIDER_PATHS"
+200-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:92:17-67
+201                android:resource="@xml/filepaths" />
+201-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:93:17-51
+202        </provider>
+203
+204        <!-- Removed legacy Glance receiver not present in this module -->
+205
+206
+207        <!-- Removed legacy boot receiver not present in this module -->
+208
+209        <profileable android:shell="true" />
+209-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:166:9-168:36
+209-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:167:13-33
+210
+211        <activity
+211-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:21:9-26:52
+212            android:name="com.chuckerteam.chucker.internal.ui.MainActivity"
+212-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:22:13-76
+213            android:label="@string/chucker_name"
+213-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:23:13-49
+214            android:launchMode="singleTask"
+214-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:24:13-44
+215            android:taskAffinity="com.chuckerteam.chucker.task"
+215-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:25:13-64
+216            android:theme="@style/Chucker.Theme" />
+216-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:26:13-49
+217        <activity
+217-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:27:9-30:52
+218            android:name="com.chuckerteam.chucker.internal.ui.transaction.TransactionActivity"
+218-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:28:13-95
+219            android:parentActivityName="com.chuckerteam.chucker.internal.ui.MainActivity"
+219-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:29:13-90
+220            android:theme="@style/Chucker.Theme" />
+220-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:30:13-49
+221
+222        <service
+222-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:32:9-35:72
+223            android:name="com.chuckerteam.chucker.internal.support.ClearDatabaseService"
+223-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:33:13-89
+224            android:exported="false"
+224-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:34:13-37
+225            android:permission="android.permission.BIND_JOB_SERVICE" />
+225-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:35:13-69
+226
+227        <receiver
+227-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:37:9-39:40
+228            android:name="com.chuckerteam.chucker.internal.support.ClearDatabaseJobIntentServiceReceiver"
+228-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:38:13-106
+229            android:exported="false" />
+229-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:39:13-37
+230
+231        <provider
+231-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:41:9-49:20
+232            android:name="com.chuckerteam.chucker.internal.support.ChuckerFileProvider"
+232-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:42:13-88
+233            android:authorities="com.m3u.android.com.chuckerteam.chucker.provider"
+233-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:43:13-84
+234            android:exported="false"
+234-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:44:13-37
+235            android:grantUriPermissions="true" >
+235-->[com.github.chuckerteam.chucker:library:4.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\4f2fd3f0a50d8a02259d69adba81ec78\transformed\library-4.1.0\AndroidManifest.xml:45:13-47
+236            <meta-data
+236-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:91:13-93:54
+237                android:name="android.support.FILE_PROVIDER_PATHS"
+237-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:92:17-67
+238                android:resource="@xml/chucker_provider_paths" />
+238-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:93:17-51
+239        </provider>
+240
+241        <activity
+241-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:23:9-28:62
+242            android:name="androidx.glance.appwidget.action.ActionTrampolineActivity"
+242-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:24:13-85
+243            android:enabled="true"
+243-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:25:13-35
+244            android:excludeFromRecents="true"
+244-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:26:13-46
+245            android:exported="false"
+245-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:27:13-37
+246            android:theme="@android:style/Theme.NoDisplay" />
+246-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:28:13-59
+247        <activity
+247-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:29:9-36:81
+248            android:name="androidx.glance.appwidget.action.InvisibleActionTrampolineActivity"
+248-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:30:13-94
+249            android:enabled="true"
+249-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:31:13-35
+250            android:exported="false"
+250-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:32:13-37
+251            android:launchMode="singleInstance"
+251-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:33:13-48
+252            android:noHistory="true"
+252-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:34:13-37
+253            android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
+253-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:35:13-91
+254            android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline" />
+254-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:36:13-78
+255
+256        <receiver
+256-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:38:9-41:40
+257            android:name="androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver"
+257-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:39:13-92
+258            android:enabled="true"
+258-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:40:13-35
+259            android:exported="false" />
+259-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:41:13-37
+260        <receiver
+260-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:42:9-45:40
+261            android:name="androidx.glance.appwidget.UnmanagedSessionReceiver"
+261-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:43:13-78
+262            android:enabled="true"
+262-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:44:13-35
+263            android:exported="false" />
+263-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:45:13-37
+264        <receiver
+264-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:46:9-53:20
+265            android:name="androidx.glance.appwidget.MyPackageReplacedReceiver"
+265-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:47:13-79
+266            android:enabled="true"
+266-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:48:13-35
+267            android:exported="false" >
+267-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:49:13-37
+268            <intent-filter>
+268-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:50:13-52:29
+269                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+269-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:51:17-84
+269-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:51:25-81
+270            </intent-filter>
+271        </receiver>
+272
+273        <service
+273-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:55:9-58:72
+274            android:name="androidx.glance.appwidget.GlanceRemoteViewsService"
+274-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:56:13-78
+275            android:exported="true"
+275-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:57:13-36
+276            android:permission="android.permission.BIND_REMOTEVIEWS" />
+276-->[androidx.glance:glance-appwidget:1.1.1] C:\Users\Walter\.gradle\caches\8.12\transforms\441108ed5fdfcfdb12a4f12be70a4e52\transformed\glance-appwidget-1.1.1\AndroidManifest.xml:58:13-69
+277        <service
+277-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:39:9-45:35
+278            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+278-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:40:13-88
+279            android:directBootAware="false"
+279-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:41:13-44
+280            android:enabled="@bool/enable_system_alarm_service_default"
+280-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:42:13-72
+281            android:exported="false" />
+281-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:43:13-37
+282        <service
+282-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:46:9-52:35
+283            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+283-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:47:13-84
+284            android:directBootAware="false"
+284-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:48:13-44
+285            android:enabled="@bool/enable_system_job_service_default"
+285-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:49:13-70
+286            android:exported="true"
+286-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:50:13-36
+287            android:permission="android.permission.BIND_JOB_SERVICE" />
+287-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:51:13-69
+288
+289        <receiver
+289-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:61:9-66:35
+290            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+290-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:62:13-88
+291            android:directBootAware="false"
+291-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:63:13-44
+292            android:enabled="true"
+292-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:64:13-35
+293            android:exported="false" />
+293-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:65:13-37
+294        <receiver
+294-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:67:9-77:20
+295            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+295-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:68:13-106
+296            android:directBootAware="false"
+296-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:69:13-44
+297            android:enabled="false"
+297-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:70:13-36
+298            android:exported="false" >
+298-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:71:13-37
+299            <intent-filter>
+299-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:73:13-76:29
+300                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+300-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:74:17-87
+300-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:74:25-84
+301                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+301-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:75:17-90
+301-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:75:25-87
+302            </intent-filter>
+303        </receiver>
+304        <receiver
+304-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:78:9-88:20
+305            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+305-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:79:13-104
+306            android:directBootAware="false"
+306-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:80:13-44
+307            android:enabled="false"
+307-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:81:13-36
+308            android:exported="false" >
+308-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:82:13-37
+309            <intent-filter>
+309-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:84:13-87:29
+310                <action android:name="android.intent.action.BATTERY_OKAY" />
+310-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:85:17-77
+310-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:85:25-74
+311                <action android:name="android.intent.action.BATTERY_LOW" />
+311-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:86:17-76
+311-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:86:25-73
+312            </intent-filter>
+313        </receiver>
+314        <receiver
+314-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:89:9-99:20
+315            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+315-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:90:13-104
+316            android:directBootAware="false"
+316-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:91:13-44
+317            android:enabled="false"
+317-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:92:13-36
+318            android:exported="false" >
+318-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:93:13-37
+319            <intent-filter>
+319-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:95:13-98:29
+320                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+320-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:96:17-83
+320-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:96:25-80
+321                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+321-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:97:17-82
+321-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:97:25-79
+322            </intent-filter>
+323        </receiver>
+324        <receiver
+324-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:100:9-109:20
+325            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+325-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:101:13-103
+326            android:directBootAware="false"
+326-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:102:13-44
+327            android:enabled="false"
+327-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:103:13-36
+328            android:exported="false" >
+328-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:104:13-37
+329            <intent-filter>
+329-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:106:13-108:29
+330                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+330-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:107:17-79
+330-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:107:25-76
+331            </intent-filter>
+332        </receiver>
+333        <receiver
+333-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:110:9-121:20
+334            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+334-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:111:13-88
+335            android:directBootAware="false"
+335-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:112:13-44
+336            android:enabled="false"
+336-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:113:13-36
+337            android:exported="false" >
+337-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:114:13-37
+338            <intent-filter>
+338-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:116:13-120:29
+339                <action android:name="android.intent.action.BOOT_COMPLETED" />
+339-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:117:17-79
+339-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:117:25-76
+340                <action android:name="android.intent.action.TIME_SET" />
+340-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:118:17-73
+340-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:118:25-70
+341                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+341-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:119:17-81
+341-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:119:25-78
+342            </intent-filter>
+343        </receiver>
+344        <receiver
+344-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:122:9-131:20
+345            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+345-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:123:13-99
+346            android:directBootAware="false"
+346-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:124:13-44
+347            android:enabled="@bool/enable_system_alarm_service_default"
+347-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:125:13-72
+348            android:exported="false" >
+348-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:126:13-37
+349            <intent-filter>
+349-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:128:13-130:29
+350                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+350-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:129:17-98
+350-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:129:25-95
+351            </intent-filter>
+352        </receiver>
+353        <receiver
+353-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:132:9-142:20
+354            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+354-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:133:13-78
+355            android:directBootAware="false"
+355-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:134:13-44
+356            android:enabled="true"
+356-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:135:13-35
+357            android:exported="true"
+357-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:136:13-36
+358            android:permission="android.permission.DUMP" >
+358-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:137:13-57
+359            <intent-filter>
+359-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:139:13-141:29
+360                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+360-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:140:17-88
+360-->[androidx.work:work-runtime:2.10.2] C:\Users\Walter\.gradle\caches\8.12\transforms\7c191da0a1ffe8091f3d28cd6ce8ae6d\transformed\work-runtime-2.10.2\AndroidManifest.xml:140:25-85
+361            </intent-filter>
+362        </receiver>
+363
+364        <service
+364-->[androidx.room:room-runtime-android:2.7.2] C:\Users\Walter\.gradle\caches\8.12\transforms\c85927a831ccffa8f10506cb9892939b\transformed\room-runtime-release\AndroidManifest.xml:24:9-28:63
+365            android:name="androidx.room.MultiInstanceInvalidationService"
+365-->[androidx.room:room-runtime-android:2.7.2] C:\Users\Walter\.gradle\caches\8.12\transforms\c85927a831ccffa8f10506cb9892939b\transformed\room-runtime-release\AndroidManifest.xml:25:13-74
+366            android:directBootAware="true"
+366-->[androidx.room:room-runtime-android:2.7.2] C:\Users\Walter\.gradle\caches\8.12\transforms\c85927a831ccffa8f10506cb9892939b\transformed\room-runtime-release\AndroidManifest.xml:26:13-43
+367            android:exported="false" />
+367-->[androidx.room:room-runtime-android:2.7.2] C:\Users\Walter\.gradle\caches\8.12\transforms\c85927a831ccffa8f10506cb9892939b\transformed\room-runtime-release\AndroidManifest.xml:27:13-37
+368
+369        <receiver
+369-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:25:9-28:39
+370            android:name="org.acra.receiver.NotificationBroadcastReceiver"
+370-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:26:13-75
+371            android:exported="false"
+371-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:27:13-37
+372            android:process=":acra" />
+372-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:28:13-36
+373
+374        <activity
+374-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:30:9-36:39
+375            android:name="org.acra.receiver.NotificationActivity"
+375-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:31:13-66
+376            android:enabled="@bool/acra_enable_notification_activity"
+376-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:32:13-70
+377            android:excludeFromRecents="true"
+377-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:33:13-46
+378            android:exported="false"
+378-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:34:13-37
+379            android:noHistory="true"
+379-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:35:13-37
+380            android:process=":acra" />
+380-->[ch.acra:acra-notification:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\606b35218c7ceef3a953f949145c62fc\transformed\acra-notification-5.12.0\AndroidManifest.xml:36:13-36
+381
+382        <service
+382-->[androidx.core:core-remoteviews:1.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\d7f04eb3a1e9bd73a193fe69c5de7745\transformed\core-remoteviews-1.1.0\AndroidManifest.xml:24:9-27:63
+383            android:name="androidx.core.widget.RemoteViewsCompatService"
+383-->[androidx.core:core-remoteviews:1.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\d7f04eb3a1e9bd73a193fe69c5de7745\transformed\core-remoteviews-1.1.0\AndroidManifest.xml:25:13-73
+384            android:permission="android.permission.BIND_REMOTEVIEWS" />
+384-->[androidx.core:core-remoteviews:1.1.0] C:\Users\Walter\.gradle\caches\8.12\transforms\d7f04eb3a1e9bd73a193fe69c5de7745\transformed\core-remoteviews-1.1.0\AndroidManifest.xml:26:13-69
+385
+386        <uses-library
+386-->[androidx.window:window:1.4.0-rc01] C:\Users\Walter\.gradle\caches\8.12\transforms\c6695cadedbd22a6a5a24afd66425bac\transformed\window-1.4.0-rc01\AndroidManifest.xml:23:9-25:40
+387            android:name="androidx.window.extensions"
+387-->[androidx.window:window:1.4.0-rc01] C:\Users\Walter\.gradle\caches\8.12\transforms\c6695cadedbd22a6a5a24afd66425bac\transformed\window-1.4.0-rc01\AndroidManifest.xml:24:13-54
+388            android:required="false" />
+388-->[androidx.window:window:1.4.0-rc01] C:\Users\Walter\.gradle\caches\8.12\transforms\c6695cadedbd22a6a5a24afd66425bac\transformed\window-1.4.0-rc01\AndroidManifest.xml:25:13-37
+389        <uses-library
+389-->[androidx.window:window:1.4.0-rc01] C:\Users\Walter\.gradle\caches\8.12\transforms\c6695cadedbd22a6a5a24afd66425bac\transformed\window-1.4.0-rc01\AndroidManifest.xml:26:9-28:40
+390            android:name="androidx.window.sidecar"
+390-->[androidx.window:window:1.4.0-rc01] C:\Users\Walter\.gradle\caches\8.12\transforms\c6695cadedbd22a6a5a24afd66425bac\transformed\window-1.4.0-rc01\AndroidManifest.xml:27:13-51
+391            android:required="false" />
+391-->[androidx.window:window:1.4.0-rc01] C:\Users\Walter\.gradle\caches\8.12\transforms\c6695cadedbd22a6a5a24afd66425bac\transformed\window-1.4.0-rc01\AndroidManifest.xml:28:13-37
+392
+393        <provider
+393-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:32:9-40:20
+394            android:name="leakcanary.internal.LeakCanaryFileProvider"
+394-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:33:13-70
+395            android:authorities="com.squareup.leakcanary.fileprovider.com.m3u.android"
+395-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:34:13-88
+396            android:exported="false"
+396-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:35:13-37
+397            android:grantUriPermissions="true" >
+397-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:36:13-47
+398            <meta-data
+398-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:91:13-93:54
+399                android:name="android.support.FILE_PROVIDER_PATHS"
+399-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:92:17-67
+400                android:resource="@xml/leak_canary_file_paths" />
+400-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:93:17-51
+401        </provider>
+402
+403        <activity
+403-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:42:9-73:20
+404            android:name="leakcanary.internal.activity.LeakActivity"
+404-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:43:13-69
+405            android:exported="true"
+405-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:44:13-36
+406            android:icon="@mipmap/leak_canary_icon"
+406-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:45:13-52
+407            android:label="@string/leak_canary_display_activity_label"
+407-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:46:13-71
+408            android:taskAffinity="com.squareup.leakcanary.com.m3u.android"
+408-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:47:13-76
+409            android:theme="@style/leak_canary_LeakCanary.Base" >
+409-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:48:13-63
+410            <intent-filter android:label="@string/leak_canary_import_hprof_file" >
+410-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:49:13-72:29
+410-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:49:28-81
+411                <action android:name="android.intent.action.VIEW" />
+411-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:105:17-69
+411-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:105:25-66
+412
+413                <category android:name="android.intent.category.DEFAULT" />
+413-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:17-76
+413-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:71:27-73
+414                <category android:name="android.intent.category.BROWSABLE" />
+414-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:53:17-78
+414-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:53:27-75
+415
+416                <data android:scheme="file" />
+416-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+417                <data android:scheme="content" />
+417-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+418                <data android:mimeType="*/*" />
+418-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+418-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:23-52
+419                <data android:host="*" />
+419-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+420                <data android:pathPattern=".*\\.hprof" />
+420-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+421                <data android:pathPattern=".*\\..*\\.hprof" />
+421-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+422                <data android:pathPattern=".*\\..*\\..*\\.hprof" />
+422-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+423                <data android:pathPattern=".*\\..*\\..*\\..*\\.hprof" />
+423-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+424                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.hprof" />
+424-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+425                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.hprof" />
+425-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+426                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.hprof" />
+426-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:72:17-55
+427                <!--
+428            Since hprof isn't a standard MIME type, we have to declare such patterns.
+429            Most file providers will generate URIs including their own package name,
+430            which contains `.` characters that must be explicitly escaped in pathPattern.
+431            @see https://stackoverflow.com/a/31028507/703646
+432                -->
+433            </intent-filter>
+434        </activity>
+435
+436        <activity-alias
+436-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:75:9-92:26
+437            android:name="leakcanary.internal.activity.LeakLauncherActivity"
+437-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:76:13-77
+438            android:banner="@drawable/leak_canary_tv_icon"
+438-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:77:13-59
+439            android:enabled="@bool/leak_canary_add_launcher_icon"
+439-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:78:13-66
+440            android:exported="true"
+440-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:79:13-36
+441            android:icon="@mipmap/leak_canary_icon"
+441-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:80:13-52
+442            android:label="@string/leak_canary_display_activity_label"
+442-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:81:13-71
+443            android:targetActivity="leakcanary.internal.activity.LeakActivity"
+443-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:82:13-79
+444            android:taskAffinity="com.squareup.leakcanary.com.m3u.android"
+444-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:83:13-76
+445            android:theme="@style/leak_canary_LeakCanary.Base" >
+445-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:84:13-63
+446            <intent-filter>
+446-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:64:13-68:29
+447                <action android:name="android.intent.action.MAIN" />
+447-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:65:17-69
+447-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:65:25-66
+448
+449                <category android:name="android.intent.category.LAUNCHER" />
+449-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:66:17-77
+449-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:66:27-74
+450                <!-- Android TV launcher intent -->
+451                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+451-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:67:17-86
+451-->C:\Users\Walter\Downloads\IPTV-PLAYER-BETA-main\app\universal\src\main\AndroidManifest.xml:67:27-83
+452            </intent-filter>
+453        </activity-alias>
+454
+455        <activity
+455-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:94:9-100:68
+456            android:name="leakcanary.internal.RequestPermissionActivity"
+456-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:95:13-73
+457            android:excludeFromRecents="true"
+457-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:96:13-46
+458            android:icon="@mipmap/leak_canary_icon"
+458-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:97:13-52
+459            android:label="@string/leak_canary_storage_permission_activity_label"
+459-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:98:13-82
+460            android:taskAffinity="com.squareup.leakcanary.com.m3u.android"
+460-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:99:13-76
+461            android:theme="@style/leak_canary_Theme.Transparent" />
+461-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:100:13-65
+462
+463        <receiver android:name="leakcanary.internal.NotificationReceiver" />
+463-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:102:9-77
+463-->[com.squareup.leakcanary:leakcanary-android-core:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\8c75f58c9fa0437a3e6e8d5c453bf7d1\transformed\leakcanary-android-core-2.14\AndroidManifest.xml:102:19-74
+464
+465        <provider
+465-->[com.squareup.leakcanary:leakcanary-object-watcher-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\ed12b87859775a8f521d618cf76edca3\transformed\leakcanary-object-watcher-android-2.14\AndroidManifest.xml:8:9-12:40
+466            android:name="leakcanary.internal.MainProcessAppWatcherInstaller"
+466-->[com.squareup.leakcanary:leakcanary-object-watcher-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\ed12b87859775a8f521d618cf76edca3\transformed\leakcanary-object-watcher-android-2.14\AndroidManifest.xml:9:13-78
+467            android:authorities="com.m3u.android.leakcanary-installer"
+467-->[com.squareup.leakcanary:leakcanary-object-watcher-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\ed12b87859775a8f521d618cf76edca3\transformed\leakcanary-object-watcher-android-2.14\AndroidManifest.xml:10:13-72
+468            android:enabled="@bool/leak_canary_watcher_auto_install"
+468-->[com.squareup.leakcanary:leakcanary-object-watcher-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\ed12b87859775a8f521d618cf76edca3\transformed\leakcanary-object-watcher-android-2.14\AndroidManifest.xml:11:13-69
+469            android:exported="false" />
+469-->[com.squareup.leakcanary:leakcanary-object-watcher-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\ed12b87859775a8f521d618cf76edca3\transformed\leakcanary-object-watcher-android-2.14\AndroidManifest.xml:12:13-37
+470        <provider
+470-->[com.squareup.leakcanary:plumber-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\725c5a6b1c95eb3c0c3ff4fd503bc31a\transformed\plumber-android-2.14\AndroidManifest.xml:8:9-12:40
+471            android:name="leakcanary.internal.PlumberInstaller"
+471-->[com.squareup.leakcanary:plumber-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\725c5a6b1c95eb3c0c3ff4fd503bc31a\transformed\plumber-android-2.14\AndroidManifest.xml:9:13-64
+472            android:authorities="com.m3u.android.plumber-installer"
+472-->[com.squareup.leakcanary:plumber-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\725c5a6b1c95eb3c0c3ff4fd503bc31a\transformed\plumber-android-2.14\AndroidManifest.xml:10:13-69
+473            android:enabled="@bool/leak_canary_plumber_auto_install"
+473-->[com.squareup.leakcanary:plumber-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\725c5a6b1c95eb3c0c3ff4fd503bc31a\transformed\plumber-android-2.14\AndroidManifest.xml:11:13-69
+474            android:exported="false" />
+474-->[com.squareup.leakcanary:plumber-android:2.14] C:\Users\Walter\.gradle\caches\8.12\transforms\725c5a6b1c95eb3c0c3ff4fd503bc31a\transformed\plumber-android-2.14\AndroidManifest.xml:12:13-37
+475
+476        <service
+476-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:24:9-28:39
+477            android:name="org.acra.sender.LegacySenderService"
+477-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:25:13-63
+478            android:enabled="@bool/acra_enable_legacy_service"
+478-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:26:13-63
+479            android:exported="false"
+479-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:27:13-37
+480            android:process=":acra" />
+480-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:28:13-36
+481        <service
+481-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:29:9-34:39
+482            android:name="org.acra.sender.JobSenderService"
+482-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:30:13-60
+483            android:enabled="@bool/acra_enable_job_service"
+483-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:31:13-60
+484            android:exported="false"
+484-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:32:13-37
+485            android:permission="android.permission.BIND_JOB_SERVICE"
+485-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:33:13-69
+486            android:process=":acra" />
+486-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:34:13-36
+487
+488        <provider
+488-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:36:9-42:51
+489            android:name="org.acra.attachment.AcraContentProvider"
+489-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:37:13-67
+490            android:authorities="com.m3u.android.acra"
+490-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:38:13-56
+491            android:exported="false"
+491-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:39:13-37
+492            android:grantUriPermissions="true"
+492-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:40:13-47
+493            android:process=":acra" />
+493-->[ch.acra:acra-core:5.12.0] C:\Users\Walter\.gradle\caches\8.12\transforms\def4910c392cec6a6bfda7dee57233da\transformed\acra-core-5.12.0\AndroidManifest.xml:41:13-36
+494
+495        <receiver
+495-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:34:9-52:20
+496            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+496-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:35:13-76
+497            android:directBootAware="false"
+497-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:36:13-44
+498            android:enabled="true"
+498-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:37:13-35
+499            android:exported="true"
+499-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:38:13-36
+500            android:permission="android.permission.DUMP" >
+500-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:39:13-57
+501            <intent-filter>
+501-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:40:13-42:29
+502                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+502-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:41:17-91
+502-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:41:25-88
+503            </intent-filter>
+504            <intent-filter>
+504-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:43:13-45:29
+505                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+505-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:44:17-85
+505-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:44:25-82
+506            </intent-filter>
+507            <intent-filter>
+507-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:46:13-48:29
+508                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+508-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:47:17-88
+508-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:47:25-85
+509            </intent-filter>
+510            <intent-filter>
+510-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:49:13-51:29
+511                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+511-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:50:17-95
+511-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Walter\.gradle\caches\8.12\transforms\4d27946e0287116c366e643b2af80ed6\transformed\profileinstaller-1.4.1\AndroidManifest.xml:50:25-92
+512            </intent-filter>
+513        </receiver>
+514    </application>
+515
+516</manifest>

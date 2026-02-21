@@ -1,0 +1,140 @@
+# Nome do Workflow: Pipeline Profissional Android
+# Descrição: Este workflow automatiza o processo de build e validação de um projeto Android.
+# Ele é acionado por pushes na branch principal com alterações relevantes ou manualmente.
+# O processo é dividido em etapas claras para fácil acompanhamento na interface do GitHub.
+
+name: Android Professional Pipeline
+
+# Gatilhos (Triggers) para executar o workflow
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - '**.kt'        # Arquivos Kotlin
+      - '**.gradle*'   # Arquivos de build do Gradle
+      - '**.xml'       # Arquivos de recursos e manifestos
+      - 'gradle/**'    # Configurações do Gradle
+  workflow_dispatch: # Permite execução manual pela interface do GitHub
+
+# Controle de Concorrência: Cancela execuções antigas se um novo push for feito.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest # Máquina virtual que executará o job
+    timeout-minutes: 45     # Tempo máximo para a execução do job
+
+    steps:
+      # ETAPA 1: OBTENÇÃO DO CÓDIGO-FONTE
+      # Baixa o código do repositório para a máquina virtual de execução.
+      - name: 1. Checkout do Código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # Baixa apenas o commit mais recente para agilizar o processo.
+
+      # ETAPA 2: CONFIGURAÇÃO DO AMBIENTE DE BUILD
+      # Instala o Java Development Kit (JDK) necessário para o Gradle e o Android.
+      - name: 2. Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle' # Habilita o cache automático do Gradle.
+
+      # Instala o Android SDK e as ferramentas de build necessárias.
+      - name: 3. Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ETAPA 3: OTIMIZAÇÃO DE PERFORMANCE (CACHE)
+      # Armazena em cache as dependências do Gradle e compilações do Kotlin para acelerar builds futuros.
+      - name: 4. Cache de Dependências Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .gradle/kotlin
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      # ETAPA 4: CONFIGURAÇÃO DO GRADLE
+      # Prepara o ambiente para a execução do Gradle, definindo propriedades de performance e localização do SDK.
+      - name: 5. Configurar Propriedades do Gradle
+        run: |
+          echo "🔧 Configurando ambiente Gradle..."
+          chmod +x gradlew # Dá permissão de execução ao Gradle Wrapper.
+          echo "sdk.dir=$ANDROID_HOME" > local.properties # Cria o arquivo local.properties apontando para o SDK.
+          mkdir -p ~/.gradle
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties # Ativa build paralelo.
+          echo "org.gradle.caching=true" >> ~/.gradle/gradle.properties   # Ativa cache do Gradle.
+          echo "✅ Configuração do Gradle concluída."
+
+      # ETAPA 5: VALIDAÇÃO DE QUALIDADE DO CÓDIGO
+      # Executa a análise de Lint para verificar potenciais erros e problemas de qualidade no código.
+      - name: 6. Executar Análise de Lint
+        run: |
+          echo "🔍 Iniciando análise de Lint..."
+          ./gradlew lintDebug --stacktrace
+          echo "✅ Análise de Lint concluída."
+
+      # ETAPA 6: COMPILAÇÃO E GERAÇÃO DOS BINÁRIOS (APKs)
+      # Compila o código e gera os pacotes de aplicação (APKs) para as variantes debug.
+      - name: 7. Compilar APKs Debug
+        run: |
+          echo "🛠️ Iniciando a compilação dos APKs..."
+          ./gradlew :app:universal:assembleDebug :app:m3u-extension:assembleDebug \
+            --no-daemon \
+            -Dkotlin.incremental=true \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseParallelGC"
+          echo "✅ Compilação finalizada com sucesso."
+
+      # ETAPA 7: PREPARAÇÃO DOS ARTEFATOS PARA UPLOAD
+      # Organiza os APKs gerados em um diretório temporário para facilitar o upload.
+      - name: 8. Preparar Artefatos para Upload
+        run: |
+          echo "📦 Preparando os binários gerados..."
+          mkdir -p output_staging
+          # O comando 'find' é robusto para localizar todos os APKs, independentemente do local exato de geração.
+          find . -name "*.apk" -type f -exec cp {} output_staging/ \;
+          echo "Arquivos encontrados para upload:"
+          ls -lh output_staging/
+
+      # ETAPA 8: PERSISTÊNCIA DOS ARTEFATOS
+      # Faz o upload dos APKs para que possam ser baixados como um artefato da execução.
+      - name: 9. Fazer Upload dos APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-app-production-ready
+          path: output_staging/*.apk
+          retention-days: 2
+          compression-level: 9
+          if-no-files-found: error # Falha o job se nenhum arquivo for encontrado.
+
+      # ETAPA 9: GERAÇÃO DE RESUMO DA EXECUÇÃO
+      # Cria um resumo visual no final da página do Job, listando os artefatos e seus tamanhos.
+      # A condição 'if: always()' garante que esta etapa execute mesmo que outras falhem.
+      - name: 10. 📋 Gerar Resumo da Build
+        if: always()
+        run: |
+          echo "## 🚀 Resumo da Build Android" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          # Verifica se o diretório de saída existe e não está vazio.
+          if [ -d "output_staging" ] && [ "$(ls -A output_staging)" ]; then
+            echo "### ✅ Build Concluída com Sucesso!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### Artefatos (APKs) Gerados:" >> $GITHUB_STEP_SUMMARY
+            echo "| Nome do Arquivo | Tamanho |" >> $GITHUB_STEP_SUMMARY
+            echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+            # Itera sobre os arquivos no diretório para criar a tabela no resumo.
+            for file in output_staging/*; do
+              filename=$(basename "$file")
+              filesize=$(ls -lh "$file" | awk '{print $5}')
+              echo "| $filename | $filesize |" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "### ❌ Falha na Build" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Nenhum artefato APK foi encontrado. Verifique os logs das etapas anteriores para mais detalhes." >> $GITHUB_STEP_SUMMARY
+          fi

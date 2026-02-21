@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FFFBFE</color>
+    <color name="icon_end">#61B34F</color>
+    <color name="icon_start">#CEB951</color>
+    <color name="onBackground">#1C1B1F</color>
+    <string name="app_name" translatable="false">M3Uplay Native</string>
+    <style name="Theme.M3U" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowActivityTransitions">false</item>
+    </style>
+    <style name="Theme.M3U.Extension" parent="android:Theme.Material.Light.NoActionBar"/>
+</resources>

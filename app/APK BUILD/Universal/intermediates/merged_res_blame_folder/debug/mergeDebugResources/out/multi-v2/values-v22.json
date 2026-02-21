@@ -1,0 +1,38 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.m3u.universal-mergeDebugResources-116:/values-v22/values-v22.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Walter\\.gradle\\caches\\8.12\\transforms\\8f4addb3ef9b29b7132e16a8e5d93c9a\\transformed\\appcompat-1.7.1\\res\\values-v22\\values-v22.xml",
+                    "from": {
+                        "startLines": "2,3,4,9",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,130,217,487",
+                        "endLines": "2,3,8,13",
+                        "endColumns": "74,86,12,12",
+                        "endOffsets": "125,212,482,764"
+                    },
+                    "to": {
+                        "startLines": "4,5,6,11",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "165,240,327,597",
+                        "endLines": "4,5,10,15",
+                        "endColumns": "74,86,12,12",
+                        "endOffsets": "235,322,592,874"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Walter\\.gradle\\caches\\8.12\\transforms\\def4910c392cec6a6bfda7dee57233da\\transformed\\acra-core-5.12.0\\res\\values-v22\\values-v22.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,108",
+                        "endColumns": "52,56",
+                        "endOffsets": "103,160"
+                    }
+                }
+            ]
+        }
+    ]
+}

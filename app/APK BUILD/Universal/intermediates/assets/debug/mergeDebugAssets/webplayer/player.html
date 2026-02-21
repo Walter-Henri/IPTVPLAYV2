@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>IPTV Web Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .error-message {
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-family: sans-serif;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <video id="video" controls autoplay playsinline></video>
+    <div id="error" class="error-message">
+        <p>Erro ao carregar o vídeo.</p>
+        <p id="error-details"></p>
+    </div>
+    <div id="loading" class="error-message" style="display: none;">
+        <p>Conexão interrompida. Reconectando...</p>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const errorDiv = document.getElementById('error');
+        const errorDetails = document.getElementById('error-details');
+        const loadingDiv = document.getElementById('loading');
+        
+        // --- Navigation Logic ---
+        let startY = 0;
+        let isGesturing = false;
+
+        // Touch Gestures
+        window.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].pageY;
+            isGesturing = true;
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            if (!isGesturing) return;
+            const endY = e.changedTouches[0].pageY;
+            const diff = startY - endY;
+            
+            // Threshold for swipe (e.g., 50px)
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    // Swipe Up -> Next
+                    requestNext();
+                } else {
+                    // Swipe Down -> Previous
+                    requestPrevious();
+                }
+            }
+            isGesturing = false;
+        }, { passive: true });
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'ChannelUp':
+                    requestNext();
+                    break;
+                case 'ArrowDown':
+                case 'ChannelDown':
+                    requestPrevious();
+                    break;
+            }
+        });
+
+        function requestNext() {
+            showTransition("Próximo canal...");
+            if (window.AndroidBackend && window.AndroidBackend.next) {
+                window.AndroidBackend.next();
+            } else {
+                console.log("Next requested (AndroidBackend not found)");
+            }
+        }
+
+        function requestPrevious() {
+            showTransition("Canal anterior...");
+            if (window.AndroidBackend && window.AndroidBackend.previous) {
+                window.AndroidBackend.previous();
+            } else {
+                console.log("Previous requested (AndroidBackend not found)");
+            }
+        }
+
+        function showLoading(msg) {
+            loadingDiv.querySelector('p').innerText = msg;
+            loadingDiv.style.display = 'block';
+        }
+
+        let transitionTimeout;
+        function showTransition(msg) {
+            showLoading(msg);
+            
+            // Hide after 2 seconds if no load happens
+            clearTimeout(transitionTimeout);
+            transitionTimeout = setTimeout(() => {
+                loadingDiv.style.display = 'none';
+            }, 2000);
+        }
+
+        function playStream(url, headers) {
+            console.log("Iniciando reprodução: " + url);
+            
+            if (loadingDiv.style.display === 'none') {
+                showLoading("Carregando...");
+            }
+            
+            if (Hls.isSupported()) {
+                const config = {
+                    xhrSetup: function (xhr, url) {
+                        xhr.withCredentials = false;
+                        if (headers) {
+                            for (const [key, value] of Object.entries(headers)) {
+                                xhr.setRequestHeader(key, value);
+                            }
+                        }
+                    },
+                    manifestLoadingMaxRetry: 100, // Aumentar retentativas de manifesto
+                    manifestLoadingRetryDelay: 1000,
+                    levelLoadingMaxRetry: 100,
+                    levelLoadingRetryDelay: 1000,
+                    fragLoadingMaxRetry: 100,
+                    fragLoadingRetryDelay: 500,
+                    enableWorker: true,
+                    lowLatencyMode: false, // IPTV costuma ter delay alto, low latency pode ser instável
+                    backBufferLength: 60 // Manter buffer para evitar travamentos
+                };
+
+                const hls = new Hls(config);
+                hls.loadSource(url);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    loadingDiv.style.display = 'none';
+                    video.play().catch(e => console.error("Erro ao dar play:", e));
+                });
+
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        console.log("Fatal error detected:", data.type, data.details);
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.error("Erro de rede fatal, tentando recuperar...");
+                                showLoading("Conexão interrompida. Reconectando...");
+                                setTimeout(() => hls.startLoad(), 2000);
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.error("Erro de mídia fatal, tentando recuperar...");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                console.error("Erro fatal crítico, reiniciando o player...");
+                                setTimeout(() => {
+                                    try {
+                                        hls.destroy();
+                                    } catch (e) { }
+                                    playStream(url, headers);
+                                }, 3000);
+                                break;
+                        }
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.addEventListener('loadedmetadata', function () {
+                    video.play().catch(e => {
+                        console.error("Erro ao dar play nativo:", e);
+                        setTimeout(() => video.play(), 2000);
+                    });
+                });
+                video.addEventListener('error', function () {
+                    console.error("Erro no player nativo, tentando recarregar...");
+                    setTimeout(() => {
+                        video.src = url;
+                        video.load();
+                        video.play();
+                    }, 3000);
+                });
+            } else {
+                showError("HLS não suportado neste navegador.");
+            }
+        }
+
+        // Previnir que o WebView mostre tela branca em erros globais de rede
+        window.onerror = function (msg, url, line, col, error) {
+            console.error("Erro global capturado:", msg);
+            return true; // Suprimir erros no console do WebView
+        };
+
+
+        function showError(msg) {
+            errorDiv.style.display = 'block';
+            errorDetails.innerText = msg;
+        }
+
+        // Interface para o Android chamar
+        window.AndroidPlayer = {
+            loadUrl: function (url, headersJson) {
+                let headers = null;
+                if (headersJson) {
+                    try {
+                        headers = JSON.parse(headersJson);
+                    } catch (e) {
+                        console.error("Failed to parse headers", e);
+                    }
+                }
+                playStream(url, headers);
+            }
+        };
+
+        // Tentar pegar URL da query string como fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const streamUrl = urlParams.get('url');
+        if (streamUrl) {
+            playStream(streamUrl);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.M3U" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowActivityTransitions">false</item>
+    </style>
+</resources>
