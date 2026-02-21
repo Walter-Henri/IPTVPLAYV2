@@ -1,74 +1,67 @@
-<h1 align="center">M3Uplay Native</h1>
+<h1 align="center">IPTV PLAY V2</h1>
 <p align="center">
-  Um reprodutor de mídia de código aberto para Android, focado em desempenho e usabilidade.
+  Um reprodutor de mídia nativo e profissional para Android, focado em performance, design premium e automação.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/Walter-Henri/IPTV-PLAYER-BETA?color=blue&label=Versão">
+  <img src="https://img.shields.io/github/v/release/Walter-Henri/IPTVPLAYV2?color=blue&label=Versão">
   <img src="https://img.shields.io/badge/Android-8.0%2B-brightgreen?logo=android">
-  <img src="https://img.shields.io/github/license/Walter-Henri/IPTV-PLAYER-BETA?color=orange">
+  <img src="https://img.shields.io/github/actions/workflow/status/Walter-Henri/IPTVPLAYV2/android-unified-build.yml?label=Build&logo=github">
+  <img src="https://img.shields.io/github/license/Walter-Henri/IPTVPLAYV2?color=orange">
 </p>
 
-**M3Uplay Native** é um player de mídia de alto desempenho desenvolvido para proporcionar a melhor experiência de streaming no Android. Construído do zero com foco em simplicidade, velocidade e design moderno, utilizando as tecnologias mais recentes do ecossistema Android.
+**IPTV PLAY V2** é a evolução do player de mídia nativo para Android. Reconstruído para ser escalável, seguro e totalmente automatizado, oferecendo uma experiência de streaming fluida tanto em dispositivos móveis quanto em Android TV.
 
 ---
 
-## ✨ Funcionalidades
+## ✨ Funcionalidades Profissionais
 
-- 📱 **Interface Moderna:** Construído 100% com Jetpack Compose, seguindo as diretrizes do Material Design.
-- ⚡ **Performance:** Carregamento otimizado de listas e navegação fluida.
-- 📺 **Suporte a Android TV:** Interface totalmente adaptada para navegação com controle remoto (D-PAD).
-- 🛠 **Arquitetura Robusta:** Projeto multi-módulo seguindo o padrão MVVM.
-- 📦 **Minimalista:** Código limpo, focado nos recursos essenciais para uma experiência de qualidade.
+- 📱 **Interface Premium:** Construída com **Jetpack Compose** e **Haze (Glassmorphism)** para um visual moderno e translúcido.
+- ⚡ **Performance Nativa:** Motor Media3/ExoPlayer otimizado para baixo buffering e suporte a HLS, DASH, RTSP e RTMP.
+- 📺 **Android TV Ready:** Experiência completa de 10 pés com suporte total a D-PAD (controle remoto).
+- 🧩 **Extensão M3U:** Módulo separado para processamento avançado de links e integração com Python (Chaquopy).
+- 🛠 **Arquitetura Multi-Módulo:** Separação clara de responsabilidades (`core`, `data`, `business`, `i18n`).
+- 🚀 **CI/CD Integrado:** Build e assinatura automática via GitHub Actions para cada push na branch principal.
 
-## 📸 Screenshots
+## 🛡️ Segurança e Build Profissional
 
-<!-- 
-TODO: Adicionar screenshots do aplicativo.
-Crie uma pasta `.github/images/` no seu repositório e adicione as imagens aqui.
--->
-
-| Tela Inicial | Player |
-|--------------|--------|
-| *adicione a imagem `home.png`* | *adicione a imagem `player.png`* |
-
-
-## ⬇️ Download
-
-A seção de releases do GitHub ainda não contém arquivos. Após compilar o projeto, você pode fazer o upload dos APKs na seção de "Releases" do seu repositório.
+O projeto segue as melhores práticas de segurança para o GitHub:
+- **Zero Secrets no Repo:** Arquivos sensíveis como `meu-app.keystore` e `local.properties` são ignorados via `.gitignore`.
+- **Assinatura via GitHub Secrets:** O processo de assinatura de produção é feito de forma segura e automatizada durante o workflow de CI/CD usando secrets encriptados.
 
 ## 🛠 Stack Tecnológica
 
-- **Linguagem:** Kotlin (100%)
-- **UI Toolkit:** Jetpack Compose
-- **Arquitetura:** MVVM (Model-View-ViewModel) com múltiplos módulos (`core`, `data`, `business`, etc.)
-- **Injeção de Dependência:** Hilt
-- **Media Engine:** Media3 / ExoPlayer
-- **Componentes AndroidX:** Lifecycle, Room, WorkManager, etc.
+- **Linguagem:** Kotlin 2.1+
+- **UI Toolkit:** Jetpack Compose (100%)
+- **Arquitetura:** Clean Architecture + MVVM
+- **Injeção de Dependências:** Hilt
+- **Extração de Mídia:** yt-dlp & Streamlink integration
+- **Assinatura:** Automatizada via GitHub Actions (v2)
 
-## 🚀 Como Compilar (Build)
+## 🚀 Como Compilar e Automatizar
 
-Este projeto utiliza o Gradle. Para compilar o aplicativo, você pode executar o seguinte comando na raiz do projeto:
+### 1. Automação no GitHub (Recomendado)
+Sempre que você fizer um `git push`, o GitHub Actions irá:
+1. Compilar o app.
+2. Assinar os APKs (Universal e Extension).
+3. Gerar um artefato pronto para download na aba **Actions**.
 
-### Pré-requisitos
-- JDK 21 ou superior
-- Android SDK
-
-### Comando de Build
+### 2. Build Local
+Para compilar manualmente na sua máquina:
 
 ```bash
-# Para gerar um APK de depuração (debug)
-./gradlew :app:universal:assembleDebug
+# Dar permissão ao wrapper
+chmod +x gradlew
+
+# Gerar APK Universal (Smartphone + TV)
+./gradlew :app:universal:assembleRelease
+
+# Gerar APK de Extensão
+./gradlew :app:m3u-extension:assembleRelease
 ```
 
-O APK gerado estará localizado em `IPTV-PLAYER-BETA/app/universal/build2/outputs/apk/debug/`.
-
-Para um APK de produção (release), você precisará configurar o arquivo `local.properties` com as informações da sua chave de assinatura, conforme especificado no `app/universal/build.gradle.kts`.
-
-## 🤝 Contribuição e Suporte
-
-1. Abra uma **Issue** para relatar bugs ou sugerir melhorias.
-2. Deixe uma ⭐️ no projeto para ajudar no crescimento.
+## ⬇️ Download
+Você pode baixar os APKs assinados após o término de cada build na aba [Actions](https://github.com/Walter-Henri/IPTVPLAYV2/actions) do seu repositório.
 
 ## 📜 Licença
 
