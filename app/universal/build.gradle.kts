@@ -55,8 +55,8 @@ android {
                 ?: localProperties["RELEASE_STORE_FILE"] as? String
                 ?: "meu-app.keystore"
 
-            val storeFileObj = if (java.io.File(storeFilePath).isAbsolute) {
-                java.io.File(storeFilePath)
+            val storeFileObj = if (File(storeFilePath).isAbsolute) {
+                File(storeFilePath)
             } else {
                 rootProject.file(storeFilePath)
             }
