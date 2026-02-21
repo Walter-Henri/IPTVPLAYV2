@@ -12,18 +12,18 @@ build2/
 .vs/
 .vscode/
 
-# Android
+# Android Security (NUNCA SUBIR ESSES ARQUIVOS)
 local.properties
 *.apk
 *.aab
 *.dex
 *.class
-
-# Keystore (manter keystores fora do repositório)
 *.keystore
 *.jks
 release.keystore
 meu-app.keystore
+debug.keystore
+signing.properties
 
 # Kotlin / Compiler caches
 .kotlin/
