@@ -1,18 +1,11 @@
-# Pipeline de Build Profissional - IPTV PLAY V2
-# Compatível com: GitHub Actions (ubuntu-latest, 7GB RAM) + Local Windows
-# Gera APKs Release assinados com a keystore configurada nos Secrets.
+# Pipeline Ultra-Lean - IPTV PLAY V2
+# Foco: Estabilidade e Baixo Consumo de Memória (Mínimo de Recursos)
 
-name: Android Production Build
+name: Android Production Build (Lean)
 
 on:
   push:
     branches: [ main, master ]
-    paths:
-      - '**.kt'
-      - '**.gradle*'
-      - '**.xml'
-      - 'gradle/**'
-      - '.github/workflows/android-unified-build.yml'
   workflow_dispatch:
 
 concurrency:
@@ -21,12 +14,11 @@ concurrency:
 
 jobs:
   build:
-    name: Build & Sign APKs
+    name: Build & Sign APKs (Sequential)
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
     steps:
-      # ─────────────── SETUP ───────────────
       - name: 1. Checkout do Código
         uses: actions/checkout@v4
         with:
@@ -42,130 +34,50 @@ jobs:
       - name: 3. Configurar Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: 4. Cache Gradle e Dependências
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
-          restore-keys: gradle-${{ runner.os }}-
-
-      # ─────────────── ASSINATURA ───────────────
-      - name: 5. Preparar Keystore de Assinatura
+      - name: 4. Preparar Keystore
         run: |
-          echo "🔐 Configurando keystore..."
           if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
-            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > "$GITHUB_WORKSPACE/release-signing.keystore"
-            echo "KEYSTORE_PATH=$GITHUB_WORKSPACE/release-signing.keystore" >> $GITHUB_ENV
-            echo "✅ Keystore decodificada dos Secrets."
-          elif [ -f "meu-app.keystore" ]; then
-            echo "KEYSTORE_PATH=$GITHUB_WORKSPACE/meu-app.keystore" >> $GITHUB_ENV
-            echo "⚠️ Usando meu-app.keystore do repositório (fallback)."
+            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> local.properties
           else
-            echo "❌ ERRO: Nenhuma keystore encontrada!" && exit 1
+            echo "RELEASE_STORE_FILE=../../meu-app.keystore" >> local.properties
           fi
+          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> local.properties
+          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> local.properties
+          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> local.properties
 
-      # ─────────────── AMBIENTE ───────────────
-      - name: 6. Configurar Ambiente de Build
+      - name: 5. Build Módulo Universal (Sequential Step 1)
         run: |
           chmod +x gradlew
-
-          # Definir o SDK path para o Gradle
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
-
-          # Injetar credenciais de assinatura via local.properties
-          STORE_PASS="${{ secrets.RELEASE_STORE_PASSWORD }}"
-          KEY_ALIAS="${{ secrets.RELEASE_KEY_ALIAS }}"
-          KEY_PASS="${{ secrets.RELEASE_KEY_PASSWORD }}"
-
-          # Usar valores padrão se os Secrets não estiverem configurados
-          echo "RELEASE_STORE_FILE=${KEYSTORE_PATH}" >> local.properties
-          echo "RELEASE_STORE_PASSWORD=${STORE_PASS:-Wa97951211@}" >> local.properties
-          echo "RELEASE_KEY_ALIAS=${KEY_ALIAS:-meu_alias}" >> local.properties
-          echo "RELEASE_KEY_PASSWORD=${KEY_PASS:-Wa97951211@}" >> local.properties
-
-          # Sobrescrever gradle.properties para o ambiente CI com mais memória
-          # GitHub Actions tem 7GB de RAM disponíveis no runner ubuntu-latest
-          cat > gradle.properties << 'EOF'
-          org.gradle.jvmargs=-Xms512m -Xmx5g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -Dfile.encoding=UTF-8
-          kotlin.daemon.jvm.options=-Xmx2g -XX:MaxMetaspaceSize=512m
-          org.gradle.daemon=false
-          org.gradle.workers.max=2
-          org.gradle.caching=true
-          org.gradle.parallel=true
-          org.gradle.configuration-cache=false
-          kotlin.incremental=false
-          android.useAndroidX=true
-          android.enableJetifier=false
-          android.enableR8.fullMode=true
-          org.gradle.vfs.watch=false
-          ndkVersion=23.1.7779620
-          EOF
-
-      # ─────────────── BUILD ───────────────
-      - name: 7. Build APK Universal (Smartphone + TV)
-        run: |
-          echo "🏗️ Compilando app:universal..."
+          echo "🏗️ Compilando Universal..."
           ./gradlew :app:universal:assembleRelease \
             --no-daemon \
-            --stacktrace \
+            --no-parallel \
+            -Dorg.gradle.workers.max=1 \
+            -Dorg.gradle.jvmargs="-Xmx3g" \
             --console=plain
 
-      - name: 8. Build APK Extension
+      - name: 6. Limpar Cache Temporário (Save Disk/RAM)
+        run: ./gradlew clean :app:universal:assembleRelease --no-daemon 2>/dev/null || true
+
+      - name: 7. Build Módulo Extension (Sequential Step 2)
         run: |
-          echo "🧩 Compilando app:m3u-extension..."
+          echo "🏗️ Compilando Extension..."
           ./gradlew :app:m3u-extension:assembleRelease \
             --no-daemon \
-            --stacktrace \
+            --no-parallel \
+            -Dorg.gradle.workers.max=1 \
+            -Dorg.gradle.jvmargs="-Xmx3g" \
             --console=plain
 
-      # ─────────────── ARTEFATOS ───────────────
-      - name: 9. Coletar APKs Gerados
+      - name: 8. Coletar e Upload Artefatos
         run: |
           mkdir -p final_apks
-          echo "📦 APKs encontrados:"
-          find . -path "*/build/outputs/apk/release/*.apk" -not -path "*/build/python/*" | while read apk; do
-            echo "  → $apk"
-            cp "$apk" "final_apks/$(basename "$apk")"
-          done
-          ls -lh final_apks/ || echo "⚠️ Nenhum APK gerado!"
+          find . -path "*/outputs/apk/release/*.apk" -exec cp {} final_apks/ \;
+          ls -lh final_apks/
 
-      - name: 10. Upload APKs
+      - name: 9. Upload Final
         uses: actions/upload-artifact@v4
         with:
-          name: IPTVPLAYV2-Release-APKs
+          name: IPTVPLAYV2-Lean-APKs
           path: final_apks/*.apk
-          retention-days: 7
-          if-no-files-found: error
-
-      # ─────────────── RELATÓRIO ───────────────
-      - name: 11. 📋 Relatório Final
-        if: always()
-        run: |
-          echo "## 📱 IPTV PLAY V2 - Relatório de Build" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | Informação |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔨 Runner | ubuntu-latest |" >> $GITHUB_STEP_SUMMARY
-          echo "| ☕ Java | 21 (Temurin) |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🕐 Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ -d "final_apks" ] && [ "$(ls -A final_apks 2>/dev/null)" ]; then
-            echo "### ✅ APKs Gerados com Sucesso!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "| Módulo | Arquivo | Tamanho |" >> $GITHUB_STEP_SUMMARY
-            echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
-            for file in final_apks/*; do
-              name=$(basename "$file")
-              size=$(ls -lh "$file" | awk '{print $5}')
-              [[ "$name" == *"extension"* ]] && module="🧩 Extension" || module="📱 Universal"
-              echo "| $module | \`$name\` | **$size** |" >> $GITHUB_STEP_SUMMARY
-            done
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "> ✅ APKs assinados e prontos para distribuição. Baixe na aba **Artifacts** acima." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ❌ Build FALHOU" >> $GITHUB_STEP_SUMMARY
-            echo "Nenhum APK foi gerado. Revise os logs das etapas 7 e 8." >> $GITHUB_STEP_SUMMARY
-          fi
