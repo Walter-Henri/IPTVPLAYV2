@@ -1,12 +1,19 @@
-# Pipeline Ultra-Eficiente - IPTV PLAY V2
-# Foco: Economia de Cota do GitHub (Minutos) e Estabilidade Sequencial.
-# Agrupa os builds em um único "Job" para evitar o custo de inicialização duplicado (Setup Java/SDK).
+# ============================================================================
+# Pipeline de Build Android — IPTV PLAY V2
+# ============================================================================
+# - Job único (economia de minutos): Setup compartilhado entre universal + extension
+# - Python 3.11 configurado para Chaquopy (m3u-extension)
+# - NDK 23.1.7779620 instalado (match com gradle.properties)
+# - Secrets OBRIGATÓRIOS — nenhum fallback hardcoded
+# ============================================================================
 
-name: Android Production Build (Sequential Economy)
+name: Android Production Build
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
 
 concurrency:
@@ -15,65 +22,136 @@ concurrency:
 
 jobs:
   build:
+<<<<<<< HEAD
     name: Build All APKs (One by One)
+=======
+    name: Build All APKs (Universal + Extension)
+>>>>>>> 543e0a8 (build: fix CI workflow and update Chaquopy pip versions)
     runs-on: ubuntu-latest
-    timeout-minutes: 90 # Tempo total generoso, mas o build deve ser mais rápido agora
-    
+    timeout-minutes: 90
+
     steps:
-      # 1. Configuração Única (Economiza ~3-5 minutos de setup duplicado)
-      - name: 1. Checkout do Código
+      # ── 1. Código ──────────────────────────────────────────────
+      - name: "1. Checkout do Código"
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: 2. Configurar JDK 21
+      # ── 2. Python 3.11 (OBRIGATÓRIO para Chaquopy/m3u-extension) ──
+      - name: "2. Configurar Python 3.11 (Chaquopy)"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "2b. Verificar Python"
+        run: |
+          echo "🐍 Python: $(python3 --version)"
+          echo "📍 Path: $(which python3)"
+
+      # ── 3. JDK 21 ─────────────────────────────────────────────
+      - name: "3. Configurar JDK 21"
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'gradle'
+          distribution: "temurin"
+          java-version: "21"
+          cache: "gradle"
 
-      - name: 3. Configurar Android SDK
+      # ── 4. Android SDK + NDK ───────────────────────────────────
+      - name: "4. Configurar Android SDK"
         uses: android-actions/setup-android@v3
 
-      # 2. Preparação de Segredos
-      - name: 4. Preparar Keystore e Propriedades
+      - name: "4b. Instalar NDK 23.1.7779620"
         run: |
-          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
-            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/release.keystore" >> $GITHUB_ENV
-          else
-            echo "RELEASE_STORE_FILE=$GITHUB_WORKSPACE/meu-app.keystore" >> $GITHUB_ENV
-          fi
-          echo "RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
-          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS || 'meu_alias' }}" >> $GITHUB_ENV
-          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD || 'Wa97951211@' }}" >> $GITHUB_ENV
+          echo "📦 Instalando NDK..."
+          sdkmanager --install "ndk;23.1.7779620"
+          echo "✅ NDK instalado em: $ANDROID_HOME/ndk/23.1.7779620"
 
-      # 3. Build Unificado e Sequencial (Economiza cota e tempo de inicialização)
-      - name: 5. Compilar Todos os APKs (Smartphone + Extensões)
+      # ── 5. Validação de Secrets ────────────────────────────────
+      - name: "5. Validar Secrets de Assinatura"
+        run: |
+          missing=""
+          [ -z "$SECRET_KEYSTORE" ]      && missing="$missing RELEASE_KEYSTORE_BASE64"
+          [ -z "$SECRET_STORE_PASS" ]    && missing="$missing RELEASE_STORE_PASSWORD"
+          [ -z "$SECRET_KEY_ALIAS" ]     && missing="$missing RELEASE_KEY_ALIAS"
+          [ -z "$SECRET_KEY_PASS" ]      && missing="$missing RELEASE_KEY_PASSWORD"
+
+          if [ -n "$missing" ]; then
+            echo "============================================="
+            echo "❌ ERRO: Secrets ausentes no GitHub:$missing"
+            echo "============================================="
+            echo ""
+            echo "Acesse: Settings → Secrets and variables → Actions"
+            echo "e configure os seguintes Repository Secrets:"
+            echo ""
+            echo "  RELEASE_KEYSTORE_BASE64  → base64 do arquivo .keystore"
+            echo "  RELEASE_STORE_PASSWORD   → senha do keystore"
+            echo "  RELEASE_KEY_ALIAS        → alias da chave"
+            echo "  RELEASE_KEY_PASSWORD     → senha da chave"
+            echo ""
+            echo "Para gerar o base64 do keystore (Linux/macOS):"
+            echo "  base64 -w 0 meu-app.keystore"
+            echo ""
+            echo "Para gerar o base64 do keystore (Windows PowerShell):"
+            echo '  [Convert]::ToBase64String([IO.File]::ReadAllBytes("meu-app.keystore"))'
+            exit 1
+          fi
+          echo "✅ Todos os secrets de assinatura estão configurados."
+        env:
+          SECRET_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          SECRET_STORE_PASS: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          SECRET_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          SECRET_KEY_PASS: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
+      # ── 6. Preparar Keystore ───────────────────────────────────
+      - name: "6. Decodificar Keystore"
+        run: echo "$KEYSTORE_BASE64" | base64 -d > "$GITHUB_WORKSPACE/release.keystore"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+
+      # ── 7. Compilação ─────────────────────────────────────────
+      - name: "7. Compilar Todos os APKs"
         run: |
           chmod +x gradlew
           echo "🏗️ Iniciando Compilação Global..."
-          ./gradlew :app:universal:assembleRelease :app:m3u-extension:assembleRelease \
+          echo "   → :app:universal:assembleRelease"
+          echo "   → :app:m3u-extension:assembleRelease"
+          echo ""
+          ./gradlew \
+            :app:universal:assembleRelease \
+            :app:m3u-extension:assembleRelease \
             --parallel \
             --console=plain \
+            --stacktrace \
             -Dorg.gradle.workers.max=2 \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
+            '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m'
         env:
-          RELEASE_STORE_FILE: ${{ env.RELEASE_STORE_FILE }}
-          RELEASE_STORE_PASSWORD: ${{ env.RELEASE_STORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
+          RELEASE_STORE_FILE: ${{ github.workspace }}/release.keystore
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      # 4. Coleta Unificada de Resultados
-      - name: 6. Coletar e Upload de APKs
+      # ── 8. Coleta de APKs ──────────────────────────────────────
+      - name: "8. Coletar APKs Gerados"
         run: |
           mkdir -p final_output
-          echo "📦 Organizando APKs para download..."
+
+          echo "📦 Procurando APKs gerados..."
           find . -path "*/build/outputs/apk/release/*.apk" -exec cp {} final_output/ \;
+
+          count=$(find final_output -name "*.apk" | wc -l)
+          echo ""
+          echo "════════════════════════════════════════════"
+          echo "  📊 Total: $count APK(s) gerado(s)"
+          echo "════════════════════════════════════════════"
           ls -lh final_output/
 
-      - name: 7. Publicar Artefatos
+          if [ "$count" -eq 0 ]; then
+            echo "❌ Nenhum APK encontrado! Verifique os logs do build."
+            exit 1
+          fi
+
+      # ── 9. Upload ──────────────────────────────────────────────
+      - name: "9. Publicar Artefatos"
         uses: actions/upload-artifact@v4
         with:
           name: IPTVPLAYV2-Signed-APKs

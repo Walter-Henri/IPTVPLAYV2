@@ -39,12 +39,13 @@ android {
         python {
             version "3.11"
             pip {
-                // Versões fixas garantem build mais rápido (cache) e maior estabilidade
-                install "yt-dlp==2025.2.4"
-                install "streamlink==6.11.0"
-                install "certifi==2024.12.14"
-                install "urllib3==2.3.0"
-                install "requests==2.32.3"
+                // Sem versão fixa: Chaquopy resolve a versão mais recente compatível
+                // Versões fixas como yt-dlp==2025.2.4 NÃO existem no repo Chaquopy
+                install "yt-dlp"
+                install "streamlink"
+                install "certifi"
+                install "urllib3"
+                install "requests"
             }
         }
     }
