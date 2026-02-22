@@ -225,17 +225,18 @@ class YouTubeExtractorV2(private val context: Context) {
             
             val requestBuilder = Request.Builder()
                 .url(url)
-                .head() // HEAD request é mais rápido
+                .get() // GET com Range é mais confiável que HEAD (que é bloqueado em muitos servidores)
+                .addHeader("Range", "bytes=0-1024") 
             
             headers.forEach { (key, value) ->
                 requestBuilder.addHeader(key, value)
             }
             
             val response = client.newCall(requestBuilder.build()).execute()
-            val isValid = response.isSuccessful
+            val isValid = response.isSuccessful || response.code == 206
             
             if (isValid) {
-                Log.d(TAG, "✓ Validação HEAD bem-sucedida: ${response.code}")
+                Log.d(TAG, "✓ Validação GET/Range bem-sucedida: ${response.code}")
             } else {
                 Log.w(TAG, "⚠ Validação falhou: ${response.code}")
             }

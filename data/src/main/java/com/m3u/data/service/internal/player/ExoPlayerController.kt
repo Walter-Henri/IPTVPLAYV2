@@ -1,6 +1,7 @@
 package com.m3u.data.service.internal.player
 
 import android.content.Context
+import android.os.Bundle
 import android.view.Surface
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -86,6 +87,13 @@ class ExoPlayerController(
         }
         val mediaItem = MediaItem.Builder()
             .setUri(url)
+            .setMediaMetadata(
+                androidx.media3.common.MediaMetadata.Builder()
+                    .setExtras(Bundle().apply {
+                        headers.forEach { (k, v) -> putString(k, v) }
+                    })
+                    .build()
+            )
             .build()
         
         val mediaSource = mediaSourceFactory.createMediaSource(mediaItem)

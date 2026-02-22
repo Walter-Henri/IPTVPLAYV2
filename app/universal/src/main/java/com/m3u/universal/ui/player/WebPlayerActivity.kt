@@ -294,28 +294,21 @@ class WebPlayerActivity : ComponentActivity() {
                 }
             }
             
-            // Recupera cookies e User-Agent da extensão
-            val extensionCookies = getExtensionCookies()
-            val extensionUserAgent = getExtensionUserAgent()
-            
-            // Adiciona cookies da extensão se disponíveis
-            if (extensionCookies.isNotEmpty()) {
-                val existingCookies = headersMap["Cookie"] ?: ""
-                val extensionCookieString = extensionCookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
-                headersMap["Cookie"] = if (existingCookies.isNotEmpty()) {
-                    "$existingCookies; $extensionCookieString"
-                } else {
-                    extensionCookieString
-                }
-            }
-            
-            // Usa User-Agent da extensão se não houver um específico
-            if (!headersMap.containsKey("User-Agent") && extensionUserAgent.isNotBlank()) {
-                headersMap["User-Agent"] = extensionUserAgent
-            }
-            
-            // Armazena headers para uso no interceptor
+            // Armazena headers mapeados da URL (Kodi Format)
+            // Estes headers foram injetados pela extensão no formato url|Key=Value
             currentHeaders = headersMap.toMap()
+
+            // INJEÇÃO DE COOKIES NATIVA: Crucial para o player nativo do WebView e HLS.js
+            // Diferente do XHR (JS), o CookieManager consegue injetar cookies persistentes.
+            val cookieManager = android.webkit.CookieManager.getInstance()
+            cookieManager.setAcceptCookie(true)
+            cookieManager.setAcceptThirdPartyCookies(webView, true)
+            
+            headersMap["Cookie"]?.let { cookieString ->
+                android.util.Log.d("WebPlayer", "Injetando cookies para: $safeUrl")
+                cookieManager.setCookie(safeUrl, cookieString)
+                cookieManager.flush()
+            }
 
             // Configurar User-Agent no WebView (Nativo)
             val userAgent = headersMap["User-Agent"] 
@@ -364,53 +357,9 @@ class WebPlayerActivity : ComponentActivity() {
         return if (index == -1) this else this.substring(0, index)
     }
 
-    /**
-     * Recupera cookies armazenados pela extensão
-     */
-    private fun getExtensionCookies(): Map<String, String> {
-        // FIXME: Hardcoded path usage is unsafe and violates Android Sandbox protections.
-        // Needs a ContentProvider or Intent-based sharing mechanism.
-        // Disabling for now to prevent unnecessary errors.
-        return emptyMap()
-        /*
-        return try {
-            val extensionCacheDir = java.io.File("/data/data/com.m3u.extension/cache")
-            val cookieFile = java.io.File(extensionCacheDir, "browser_cookies.json")
-            if (cookieFile.exists()) {
-                val cookieJson = cookieFile.readText()
-                val type = object : com.google.gson.reflect.TypeToken<Map<String, String>>() {}.type
-                com.google.gson.Gson().fromJson(cookieJson, type)
-            } else {
-                emptyMap()
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("WebPlayer", "Erro ao recuperar cookies da extensão: ${e.message}")
-            emptyMap()
-        }
-        */
-    }
+    private fun getExtensionCookies(): Map<String, String> = emptyMap()
 
-    /**
-     * Recupera User-Agent armazenado pela extensão
-     */
-    private fun getExtensionUserAgent(): String {
-        // FIXME: Hardcoded path usage is unsafe.
-        return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        /*
-        return try {
-            val extensionCacheDir = java.io.File("/data/data/com.m3u.extension/cache")
-            val uaFile = java.io.File(extensionCacheDir, "user_agent.txt")
-            if (uaFile.exists()) {
-                uaFile.readText()
-            } else {
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("WebPlayer", "Erro ao recuperar User-Agent da extensão: ${e.message}")
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        }
-        */
-    }
+    private fun getExtensionUserAgent(): String = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
     private inner class AndroidBackend {
         @JavascriptInterface

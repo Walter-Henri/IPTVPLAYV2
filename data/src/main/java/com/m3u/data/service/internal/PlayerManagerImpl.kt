@@ -422,11 +422,15 @@ class PlayerManagerImpl @Inject constructor(
         
         // Merge with dynamic headers from APP 2 (Youtube Extractor)
         val dynamicHeaders = com.m3u.core.foundation.JsonHeaderRegistry.getHeadersForUrl(sanitizedUrl)
-        var userAgent = getUserAgent(url, playlist.value)
+        
+        // CORREÇÃO: Priorizar User-Agent vindo dos headers (Extensão) em vez de re-parsear a URL sanitizada
+        var userAgent = baseHeaders["User-Agent"] 
+            ?: baseHeaders.entries.find { it.key.equals("User-Agent", true) }?.value
+            ?: getUserAgent(url, playlist.value)
         
         timber.d("=== HEADER RESOLUTION DEBUG ===")
         timber.d("URL: ${sanitizedUrl.take(60)}...")
-        timber.d("Base headers from URL: ${baseHeaders.keys}")
+        timber.d("Base headers count: ${baseHeaders.size}")
         timber.d("Dynamic headers from Registry: ${dynamicHeaders?.keys ?: "NONE"}")
         
         val headers = if (dynamicHeaders != null) {
@@ -448,8 +452,9 @@ class PlayerManagerImpl @Inject constructor(
                 if (sanitizedUrl.contains("googlevideo.com") || sanitizedUrl.contains("youtube.com") || sanitizedUrl.contains("youtu.be")) {
                     if (!containsKey("Referer")) put("Referer", "https://www.youtube.com/")
                     if (!containsKey("Origin")) put("Origin", "https://www.youtube.com")
-                    if (!containsKey("User-Agent")) put("User-Agent", userAgent ?: "")
                 }
+                // Garante que o User-Agent resolvido (da extensão ou fallback) esteja presente
+                put("User-Agent", userAgent ?: "")
             }
         }
         
