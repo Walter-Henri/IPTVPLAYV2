@@ -22,11 +22,7 @@ concurrency:
 
 jobs:
   build:
-<<<<<<< HEAD
-    name: Build All APKs (One by One)
-=======
     name: Build All APKs (Universal + Extension)
->>>>>>> 543e0a8 (build: fix CI workflow and update Chaquopy pip versions)
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
