@@ -12,8 +12,6 @@ name: Android Production Build
 on:
   push:
     branches: [main, master]
-  pull_request:
-    branches: [main, master]
   workflow_dispatch:
 
 concurrency:
@@ -66,31 +64,45 @@ jobs:
       - name: "5. Validar Secrets de Assinatura"
         run: |
           missing=""
-          [ -z "$SECRET_KEYSTORE" ]      && missing="$missing RELEASE_KEYSTORE_BASE64"
-          [ -z "$SECRET_STORE_PASS" ]    && missing="$missing RELEASE_STORE_PASSWORD"
-          [ -z "$SECRET_KEY_ALIAS" ]     && missing="$missing RELEASE_KEY_ALIAS"
-          [ -z "$SECRET_KEY_PASS" ]      && missing="$missing RELEASE_KEY_PASSWORD"
+
+          if [ -z "$SECRET_KEYSTORE" ]; then
+            echo "⚠️  RELEASE_KEYSTORE_BASE64 está vazio ou não definido"
+            missing="$missing RELEASE_KEYSTORE_BASE64"
+          else
+            echo "✅ RELEASE_KEYSTORE_BASE64 OK (${#SECRET_KEYSTORE} chars)"
+          fi
+
+          if [ -z "$SECRET_STORE_PASS" ]; then
+            echo "⚠️  RELEASE_STORE_PASSWORD está vazio ou não definido"
+            missing="$missing RELEASE_STORE_PASSWORD"
+          else
+            echo "✅ RELEASE_STORE_PASSWORD OK"
+          fi
+
+          if [ -z "$SECRET_KEY_ALIAS" ]; then
+            echo "⚠️  RELEASE_KEY_ALIAS está vazio ou não definido"
+            missing="$missing RELEASE_KEY_ALIAS"
+          else
+            echo "✅ RELEASE_KEY_ALIAS OK (valor: $SECRET_KEY_ALIAS)"
+          fi
+
+          if [ -z "$SECRET_KEY_PASS" ]; then
+            echo "⚠️  RELEASE_KEY_PASSWORD está vazio ou não definido"
+            missing="$missing RELEASE_KEY_PASSWORD"
+          else
+            echo "✅ RELEASE_KEY_PASSWORD OK"
+          fi
 
           if [ -n "$missing" ]; then
+            echo ""
             echo "============================================="
             echo "❌ ERRO: Secrets ausentes no GitHub:$missing"
             echo "============================================="
-            echo ""
             echo "Acesse: Settings → Secrets and variables → Actions"
-            echo "e configure os seguintes Repository Secrets:"
-            echo ""
-            echo "  RELEASE_KEYSTORE_BASE64  → base64 do arquivo .keystore"
-            echo "  RELEASE_STORE_PASSWORD   → senha do keystore"
-            echo "  RELEASE_KEY_ALIAS        → alias da chave"
-            echo "  RELEASE_KEY_PASSWORD     → senha da chave"
-            echo ""
-            echo "Para gerar o base64 do keystore (Linux/macOS):"
-            echo "  base64 -w 0 meu-app.keystore"
-            echo ""
-            echo "Para gerar o base64 do keystore (Windows PowerShell):"
-            echo '  [Convert]::ToBase64String([IO.File]::ReadAllBytes("meu-app.keystore"))'
             exit 1
           fi
+
+          echo ""
           echo "✅ Todos os secrets de assinatura estão configurados."
         env:
           SECRET_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
