@@ -1,379 +1,493 @@
-"""
-YouTube HLS Stream Extractor - v5.0
-Integrado com YouTubeWebViewTokenManager do Android
+package com.m3u.extension.youtube
 
-Recebe tokens extraídos diretamente do WebView do dispositivo:
-- User-Agent real
-- Cookies de sessão
-- visitor_data (do ytcfg)
-- PO Token (Proof of Origin Token)
-- clientVersion, apiKey
+import android.content.Context
+import android.util.Log
+import com.chaquo.python.Python
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.TimeUnit
 
-Com esses tokens, o yt-dlp autentica como se fosse o browser real
-do dispositivo → sem 403.
-"""
+/**
+ * YouTubeExtractorV2
+ *
+ * Versão integrada com YouTubeWebViewTokenManager.
+ *
+ * A cada extração:
+ * 1. WebView oculto navega para youtube.com
+ * 2. JavaScript extrai: cookies, visitor_data, PO Token, UA real
+ * 3. Todos os tokens são passados para o Python (extractor_v2.py)
+ * 4. yt-dlp usa os mesmos tokens que o YouTube espera → sem 403
+ *
+ * Os tokens ficam em cache por 45 min (duração típica de validade do PO Token).
+ * Os streams ficam em cache por 5 h (URLs do YouTube expiram em ~6 h).
+ */
+class YouTubeExtractorV2(private val context: Context) {
 
-import json
-import sys
-import time
-import os
-import tempfile
-from urllib.parse import urlparse
-import http.client
-import ssl
-
-print("=== EXTRACTOR V2 (WebView Tokens) ===", file=sys.stderr)
-
-try:
-    import yt_dlp
-    print(f"✓ yt_dlp: {yt_dlp.version.__version__}", file=sys.stderr)
-except ImportError:
-    print("❌ yt_dlp não encontrado!", file=sys.stderr)
-    sys.exit(1)
-
-
-# ──────────────────────────────────────────────────────────────
-# CORE: construir opções com tokens do WebView
-# ──────────────────────────────────────────────────────────────
-
-def build_opts_with_webview_tokens(tokens: dict, cookies_file: str = None) -> dict:
-    """
-    Constrói opções do yt-dlp usando os tokens capturados do WebView Android.
-
-    tokens = {
-        "userAgent": "...",
-        "visitorData": "...",
-        "visitorInfoLive": "...",
-        "poToken": "...",
-        "clientVersion": "...",
-        "apiKey": "...",
-        "hl": "pt",
-        "gl": "BR"
-    }
-    """
-    ua = tokens.get("userAgent", "")
-    visitor_data = tokens.get("visitorData", "")
-    po_token = tokens.get("poToken", "")
-    client_version = tokens.get("clientVersion", "")
-    hl = tokens.get("hl", "pt")
-    gl = tokens.get("gl", "BR")
-
-    has_po_token = bool(po_token and po_token.strip())
-    has_visitor_data = bool(visitor_data and visitor_data.strip())
-
-    print(f"Tokens recebidos do WebView:", file=sys.stderr)
-    print(f"  UA: {ua[:60]}...", file=sys.stderr)
-    print(f"  visitorData: {'✓' if has_visitor_data else '✗'}", file=sys.stderr)
-    print(f"  poToken: {'✓' if has_po_token else '✗'}", file=sys.stderr)
-    print(f"  clientVersion: {client_version or '?'}", file=sys.stderr)
-
-    # Com PO Token → usar web (mais estável, requer token)
-    # Sem PO Token → tv_embedded ainda funciona em muitos casos
-    if has_po_token:
-        player_clients = ["web"]
-        print("→ player_client: web (com PO Token)", file=sys.stderr)
-    elif has_visitor_data:
-        player_clients = ["tv_embedded", "ios"]
-        print("→ player_client: tv_embedded/ios (com visitorData)", file=sys.stderr)
-    else:
-        player_clients = ["tv_embedded", "ios", "android_embedded"]
-        print("→ player_client: tv_embedded/ios/android (sem tokens)", file=sys.stderr)
-
-    opts = {
-        "quiet": True,
-        "no_warnings": True,
-        "format": "best[protocol^=m3u8]/best",
-        "socket_timeout": 30,
-        "nocheckcertificate": True,
-        "geo_bypass": True,
-        "user_agent": ua,
-        "http_headers": {
-            "User-Agent": ua,
-            "Accept": "*/*",
-            "Accept-Language": f"{hl},{hl[:2]};q=0.9,en-US;q=0.7",
-            "Referer": "https://www.youtube.com/",
-            "Origin": "https://www.youtube.com",
-        },
-        "extractor_args": {
-            "youtube": {
-                "player_client": player_clients,
-                "skip": ["dash"],
-            }
-        },
-        "noplaylist": True,
+    companion object {
+        private const val TAG = "YouTubeExtractorV2"
+        private const val STREAM_CACHE_TTL_MS  = 5 * 60 * 60 * 1000L  // 5 h
+        private const val TOKEN_CACHE_TTL_MS   = 45 * 60 * 1000L       // 45 min
     }
 
-    # Adicionar PO Token
-    if has_po_token:
-        opts["extractor_args"]["youtube"]["po_token"] = [f"web+{po_token}"]
+    private val python: Python by lazy { Python.getInstance() }
+    private val tokenManager by lazy { YouTubeWebViewTokenManager(context) }
+    private val cacheDir: File by lazy {
+        File(context.cacheDir, "yt_streams_v3").apply { mkdirs() }
+    }
 
-    # Adicionar visitor_data
-    if has_visitor_data:
-        opts["extractor_args"]["youtube"]["visitor_data"] = [visitor_data]
+    // ──────────────────────────────────────────────────────────────
+    // DATA CLASSES
+    // ──────────────────────────────────────────────────────────────
 
-    # Cookies
-    if cookies_file and os.path.exists(cookies_file):
-        opts["cookiefile"] = cookies_file
-        print(f"  cookies: ✓ (arquivo: {cookies_file})", file=sys.stderr)
+    data class ExtractionResult(
+        val success: Boolean,
+        val m3u8Url: String?,
+        val headers: Map<String, String>,
+        val method: String?,
+        val error: String?
+    )
 
-    return opts
+    // ──────────────────────────────────────────────────────────────
+    // MÉTODO PRINCIPAL
+    // ──────────────────────────────────────────────────────────────
 
+    /**
+     * Extrai stream M3U8 de um canal YouTube.
+     *
+     * @param name          Nome do canal
+     * @param url           URL do YouTube (canal, vídeo ao vivo, etc.)
+     * @param logo          URL da logo (opcional)
+     * @param group         Grupo da playlist (opcional)
+     * @param forceRefresh  Se true, ignora cache de tokens e de stream
+     */
+    suspend fun extractChannel(
+        name: String,
+        url: String,
+        logo: String? = null,
+        group: String? = null,
+        forceRefresh: Boolean = false
+    ): ExtractionResult = withContext(Dispatchers.IO) {
 
-# ──────────────────────────────────────────────────────────────
-# EXTRAÇÃO DE URL HLS
-# ──────────────────────────────────────────────────────────────
+        Log.d(TAG, "\n════════════════════════════════")
+        Log.d(TAG, "Extraindo: $name")
+        Log.d(TAG, "URL: $url")
 
-def extract_best_hls(info: dict) -> tuple:
-    """Retorna (url, tipo) do melhor stream HLS disponível."""
-
-    # 1. Master playlist (melhor)
-    manifest = info.get("hls_manifest_url") or info.get("hlsManifestUrl")
-    if manifest:
-        return manifest, "hls_manifest"
-
-    # 2. Formatos m3u8
-    formats = info.get("formats", [])
-    hls = [
-        f for f in formats
-        if f.get("protocol") in ("m3u8", "m3u8_native")
-        or ".m3u8" in f.get("url", "")
-    ]
-
-    if hls:
-        hls.sort(key=lambda f: (f.get("height") or 0, f.get("tbr") or 0), reverse=True)
-        combined = [f for f in hls if f.get("acodec") != "none" and f.get("vcodec") != "none"]
-        best = (combined or hls)[0]
-        return best["url"], "hls_format"
-
-    # 3. URL direta
-    return info.get("url", ""), "direct"
-
-
-# ──────────────────────────────────────────────────────────────
-# VALIDAÇÃO
-# ──────────────────────────────────────────────────────────────
-
-def validate_url(url: str, headers: dict, timeout: int = 10) -> tuple:
-    """Retorna (ok: bool, status_code: int)."""
-    if not url:
-        return False, 0
-    try:
-        parsed = urlparse(url)
-        ctx = ssl._create_unverified_context()
-        conn = http.client.HTTPSConnection(parsed.netloc, timeout=timeout, context=ctx)
-        path = parsed.path + ("?" + parsed.query if parsed.query else "")
-        conn.request("HEAD", path, headers=headers)
-        resp = conn.getresponse()
-        conn.close()
-        ok = resp.status in (200, 206, 301, 302, 307, 308)
-        print(f"  Validação HTTP {resp.status} → {'✓' if ok else '✗'}", file=sys.stderr)
-        return ok, resp.status
-    except Exception as e:
-        print(f"  Erro na validação: {e}", file=sys.stderr)
-        return False, 0
-
-
-# ──────────────────────────────────────────────────────────────
-# EXTRAÇÃO DE CANAL
-# ──────────────────────────────────────────────────────────────
-
-def extract_channel(channel: dict, tokens: dict, cookies_file: str = None) -> dict:
-    url = channel.get("url", "")
-    name = channel.get("name", url)
-
-    print(f"\n{'─'*50}", file=sys.stderr)
-    print(f"Canal: {name}", file=sys.stderr)
-    print(f"URL: {url}", file=sys.stderr)
-
-    if not url:
-        return _fail(channel, name, "URL vazia")
-
-    ua = tokens.get("userAgent", "Mozilla/5.0")
-    attempts = []
-
-    # ── Tentativa 1: com tokens do WebView ──────────────────────
-    print(f"\n[1/2] Usando tokens do WebView Android...", file=sys.stderr)
-    try:
-        t0 = time.time()
-        opts = build_opts_with_webview_tokens(tokens, cookies_file)
-
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-
-        m3u8_url, url_type = extract_best_hls(info)
-        ms = int((time.time() - t0) * 1000)
-
-        if m3u8_url:
-            headers = {
-                "User-Agent": ua,
-                "Referer": "https://www.youtube.com/",
-                "Origin": "https://www.youtube.com",
+        // 1. Verificar cache de stream
+        if (!forceRefresh) {
+            getCachedStream(url)?.let {
+                Log.d(TAG, "✓ Stream em cache válido")
+                return@withContext it
             }
-            # Incluir cookies se disponíveis
-            cookies_raw = tokens.get("cookies", "")
-            if cookies_raw:
-                headers["Cookie"] = cookies_raw
+        }
 
-            ok, status = validate_url(m3u8_url, headers)
-            attempts.append({"method": "webview_tokens", "ok": ok, "status": status, "ms": ms})
+        // 2. Capturar tokens via WebView (ou usar cache de tokens)
+        Log.d(TAG, "Capturando tokens via WebView...")
+        val tokens = withContext(Dispatchers.Main) {
+            tokenManager.fetchTokens(forceRefresh)
+        }
 
-            if ok:
-                print(f"✅ SUCESSO com tokens WebView ({url_type}, {ms}ms)", file=sys.stderr)
-                return _ok(channel, name, m3u8_url, headers, "webview_tokens", url_type, attempts)
-            else:
-                print(f"✗ HTTP {status} — tokens podem ter expirado", file=sys.stderr)
+        Log.d(TAG, "Tokens obtidos:")
+        Log.d(TAG, "  UA: ${tokens.userAgent.take(60)}...")
+        Log.d(TAG, "  Cookies: ${if (tokens.hasCookies) "✓ ${tokens.cookies.length} chars" else "✗"}")
+        Log.d(TAG, "  visitorData: ${if (tokens.hasVisitorData) "✓" else "✗"}")
+        Log.d(TAG, "  poToken: ${if (tokens.hasPoToken) "✓" else "✗"}")
 
-    except Exception as e:
-        ms = int((time.time() - t0) * 1000)
-        print(f"✗ Falha: {str(e)[:120]}", file=sys.stderr)
-        attempts.append({"method": "webview_tokens", "ok": False, "error": str(e)[:120], "ms": ms})
+        // 3. Extrair via Python com todos os tokens
+        val result = extractWithPython(name, url, logo, group, tokens)
 
-    # ── Tentativa 2: fallback tv_embedded sem tokens ──────────────
-    print(f"\n[2/2] Fallback: tv_embedded sem tokens...", file=sys.stderr)
-    try:
-        t0 = time.time()
-        fallback_ua = (
-            "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "SamsungBrowser/4.0 Chrome/76.0.3809.146 TV Safari/537.36"
-        )
-        opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "format": "best[protocol^=m3u8]/best",
-            "socket_timeout": 30,
-            "nocheckcertificate": True,
-            "http_headers": {
-                "User-Agent": fallback_ua,
-                "Referer": "https://www.youtube.com/",
-            },
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["tv_embedded"],
-                    "skip": ["dash"],
+        // 4. Cachear resultado bem-sucedido
+        if (result.success) {
+            cacheStream(url, result)
+        }
+
+        result
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // EXTRAÇÃO PYTHON
+    // FIX: extractWithPython é suspend para poder chamar
+    //      retryWithFreshTokens (que também é suspend)
+    // ──────────────────────────────────────────────────────────────
+
+    private suspend fun extractWithPython(
+        name: String,
+        url: String,
+        logo: String?,
+        group: String?,
+        tokens: YouTubeWebViewTokenManager.YouTubeTokens
+    ): ExtractionResult {
+
+        val ts = System.currentTimeMillis()
+        val inputFile   = File(cacheDir, "input_$ts.json")
+        val outputFile  = File(cacheDir, "output_$ts.json")
+        val cookiesFile = File(cacheDir, "cookies_$ts.txt")
+
+        try {
+            // Montar JSON de entrada para o Python
+            val inputJson = JSONObject().apply {
+                put("channels", org.json.JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("name", name)
+                        put("url", url)
+                        put("logo", logo ?: "")
+                        put("group", group ?: "YouTube")
+                    })
+                })
+                put("tokens", JSONObject().apply {
+                    put("userAgent",      tokens.userAgent)
+                    put("visitorData",    tokens.visitorData)
+                    put("visitorInfoLive",tokens.visitorInfoLive)
+                    put("poToken",        tokens.poToken)
+                    put("clientVersion",  tokens.clientVersion)
+                    put("apiKey",         tokens.apiKey)
+                    put("hl",             tokens.hl)
+                    put("gl",             tokens.gl)
+                })
+            }
+            inputFile.writeText(inputJson.toString())
+
+            // Salvar cookies em formato Netscape (necessário para yt-dlp)
+            if (tokens.hasCookies) {
+                cookiesFile.writeText(buildNetscapeCookies(tokens.cookies))
+            }
+
+            // Chamar extrator Python
+            val module = python.getModule("extractor_v2")
+            module.callAttr(
+                "extract",
+                inputFile.absolutePath,
+                outputFile.absolutePath,
+                if (tokens.hasCookies) cookiesFile.absolutePath else null,
+                tokens.userAgent
+            )
+
+            // Ler resultado
+            if (!outputFile.exists()) {
+                return ExtractionResult(false, null, emptyMap(), null,
+                    "Python não gerou arquivo de saída")
+            }
+
+            val outputJson = JSONObject(outputFile.readText())
+            val channels = outputJson.getJSONArray("channels")
+
+            if (channels.length() == 0) {
+                return ExtractionResult(false, null, emptyMap(), null, "Sem resultados")
+            }
+
+            val ch = channels.getJSONObject(0)
+            if (!ch.getBoolean("success")) {
+                return ExtractionResult(
+                    success = false,
+                    m3u8Url = null,
+                    headers = emptyMap(),
+                    method = null,
+                    error = ch.optString("error", "Falha desconhecida")
+                )
+            }
+
+            // Montar headers para o player
+            val headers = mutableMapOf<String, String>()
+            ch.optJSONObject("headers")?.let { h ->
+                h.keys().forEach { key -> headers[key] = h.getString(key) }
+            }
+
+            // Garantir headers críticos
+            if (!headers.containsKey("User-Agent")) headers["User-Agent"] = tokens.userAgent
+            if (!headers.containsKey("Referer"))    headers["Referer"]    = "https://www.youtube.com/"
+            if (!headers.containsKey("Origin"))     headers["Origin"]     = "https://www.youtube.com"
+            if (tokens.hasCookies && !headers.containsKey("Cookie")) {
+                headers["Cookie"] = tokens.cookies
+            }
+
+            val m3u8   = ch.getString("m3u8")
+            val method = ch.optString("extraction_method", "unknown")
+
+            Log.d(TAG, "✅ Extração bem-sucedida!")
+            Log.d(TAG, "   Método: $method")
+            Log.d(TAG, "   M3U8: ${m3u8.take(60)}...")
+
+            // Validar stream antes de retornar
+            val valid = validateStream(m3u8, headers)
+            if (!valid) {
+                Log.w(TAG, "⚠ Stream inválido — tokens desatualizados, tentando novamente...")
+                // Chama função suspend corretamente — FIX do erro de compilação linha 211
+                return retryWithFreshTokens(name, url, logo, group)
+            }
+
+            return ExtractionResult(
+                success = true,
+                m3u8Url = m3u8,
+                headers = headers,
+                method  = method,
+                error   = null
+            )
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Erro Python: ${e.message}", e)
+            return ExtractionResult(false, null, emptyMap(), null, e.message)
+        } finally {
+            inputFile.delete()
+            outputFile.delete()
+            cookiesFile.delete()
+        }
+    }
+
+    /**
+     * Segunda tentativa com tokens forçados (ignora cache).
+     * Chamada automaticamente quando a validação falha.
+     */
+    private suspend fun retryWithFreshTokens(
+        name: String,
+        url: String,
+        logo: String?,
+        group: String?
+    ): ExtractionResult = withContext(Dispatchers.Main) {
+        Log.d(TAG, "↩ Recapturando tokens frescos e tentando novamente...")
+        tokenManager.clearCache()
+        val freshTokens = tokenManager.fetchTokens(forceRefresh = true)
+        withContext(Dispatchers.IO) {
+            extractWithPython(name, url, logo, group, freshTokens)
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // VALIDAÇÃO DE STREAM
+    // ──────────────────────────────────────────────────────────────
+
+    private fun validateStream(url: String, headers: Map<String, String>): Boolean {
+        return try {
+            val client = OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .followRedirects(true)
+                .build()
+
+            val req = Request.Builder().url(url).head()
+            headers.forEach { (k, v) ->
+                try { req.header(k, v) } catch (_: Exception) { }
+            }
+
+            val resp = client.newCall(req.build()).execute()
+            val code = resp.code
+            resp.close()
+
+            Log.d(TAG, "Validação HTTP $code")
+            code in 200..399 || code == 206
+
+        } catch (e: Exception) {
+            Log.w(TAG, "Erro na validação: ${e.message}")
+            // Aceitar URLs do googlevideo mesmo sem validação de rede
+            url.contains("googlevideo.com") || url.contains(".m3u8")
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // CACHE DE STREAM (arquivos JSON no cacheDir)
+    // ──────────────────────────────────────────────────────────────
+
+    private fun cacheStream(url: String, result: ExtractionResult) {
+        val file = File(cacheDir, "stream_${url.hashCode()}.json")
+        try {
+            file.writeText(JSONObject().apply {
+                put("success",   result.success)
+                put("m3u8Url",   result.m3u8Url ?: "")
+                put("headers",   JSONObject(result.headers as Map<*, *>))
+                put("method",    result.method ?: "")
+                put("error",     result.error ?: "")
+                put("timestamp", System.currentTimeMillis())
+            }.toString())
+        } catch (e: Exception) {
+            Log.w(TAG, "Erro ao salvar cache de stream: ${e.message}")
+        }
+    }
+
+    private fun getCachedStream(url: String): ExtractionResult? {
+        val file = File(cacheDir, "stream_${url.hashCode()}.json")
+        if (!file.exists()) return null
+        return try {
+            val json = JSONObject(file.readText())
+            val age  = System.currentTimeMillis() - json.getLong("timestamp")
+            if (age > STREAM_CACHE_TTL_MS) return null
+
+            val headers = mutableMapOf<String, String>()
+            json.optJSONObject("headers")?.let { h ->
+                h.keys().forEach { k -> headers[k] = h.getString(k) }
+            }
+
+            ExtractionResult(
+                success  = json.getBoolean("success"),
+                m3u8Url  = json.optString("m3u8Url").takeIf { it.isNotEmpty() },
+                headers  = headers,
+                method   = json.optString("method"),
+                error    = json.optString("error").takeIf { it.isNotEmpty() }
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // LIMPEZA DE CACHE
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Remove streams expirados do cache de arquivos.
+     * Chamado pelo ExtensionService periodicamente.
+     */
+    fun clearOldCache() {
+        val now = System.currentTimeMillis()
+        var removidos = 0
+        cacheDir.listFiles()?.forEach { file ->
+            if (!file.name.startsWith("stream_")) return@forEach
+            try {
+                val json = JSONObject(file.readText())
+                val age  = now - json.getLong("timestamp")
+                if (age > STREAM_CACHE_TTL_MS) {
+                    file.delete()
+                    removidos++
                 }
-            },
-            "noplaylist": True,
-        }
-
-        if cookies_file and os.path.exists(cookies_file):
-            opts["cookiefile"] = cookies_file
-
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-
-        m3u8_url, url_type = extract_best_hls(info)
-        ms = int((time.time() - t0) * 1000)
-
-        if m3u8_url:
-            headers = {
-                "User-Agent": fallback_ua,
-                "Referer": "https://www.youtube.com/",
+            } catch (e: Exception) {
+                // Arquivo corrompido — remover
+                file.delete()
+                removidos++
             }
-            ok, status = validate_url(m3u8_url, headers)
-            attempts.append({"method": "tv_embedded_fallback", "ok": ok, "status": status, "ms": ms})
-
-            if ok:
-                print(f"✅ SUCESSO com tv_embedded fallback ({ms}ms)", file=sys.stderr)
-                return _ok(channel, name, m3u8_url, headers, "tv_embedded_fallback", url_type, attempts)
-
-    except Exception as e:
-        print(f"✗ Fallback também falhou: {str(e)[:80]}", file=sys.stderr)
-        attempts.append({"method": "tv_embedded_fallback", "ok": False, "error": str(e)[:80]})
-
-    print(f"\n❌ FALHA TOTAL: {name}", file=sys.stderr)
-    return _fail(channel, name, "Todos os métodos falharam", attempts)
-
-
-def _ok(ch, name, url, headers, method, url_type, attempts):
-    return {
-        "name": name, "logo": ch.get("logo", ""), "group": ch.get("group", "YouTube"),
-        "success": True, "m3u8": url, "headers": headers,
-        "extraction_method": method, "url_type": url_type,
-        "attempts": attempts, "error": None,
-    }
-
-def _fail(ch, name, error, attempts=None):
-    return {
-        "name": name, "logo": ch.get("logo", "") if ch else "",
-        "group": ch.get("group", "YouTube") if ch else "YouTube",
-        "success": False, "m3u8": None, "headers": {},
-        "attempts": attempts or [], "error": error,
-    }
-
-
-# ──────────────────────────────────────────────────────────────
-# EXTRAÇÃO EM LOTE (chamada pelo Kotlin via Chaquopy)
-# ──────────────────────────────────────────────────────────────
-
-def extract(input_path: str, output_path: str,
-            cookies_file: str = None,
-            device_user_agent: str = None) -> None:
-    """
-    Ponto de entrada chamado pelo YouTubeExtractorV3.kt.
-
-    O input_path agora contém um objeto "tokens" além dos "channels":
-    {
-        "channels": [...],
-        "tokens": {
-            "userAgent": "...",
-            "visitorData": "...",
-            "poToken": "...",
-            ...
         }
+        Log.d(TAG, "clearOldCache: $removidos arquivo(s) removido(s)")
     }
-    """
-    if not os.path.exists(input_path):
-        print(f"❌ Arquivo não encontrado: {input_path}", file=sys.stderr)
-        return
 
-    with open(input_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    /**
+     * Remove todo o cache: streams + tokens WebView.
+     */
+    fun clearAllCache() {
+        tokenManager.clearCache()
+        cacheDir.listFiles()?.forEach { it.delete() }
+        Log.d(TAG, "Cache completo limpo")
+    }
 
-    channels = data.get("channels", [])
-    tokens = data.get("tokens", {})
+    // ──────────────────────────────────────────────────────────────
+    // RELATÓRIO / DIAGNÓSTICO
+    // ──────────────────────────────────────────────────────────────
 
-    # Garantir que o UA do device_user_agent seja usado se tokens estiver vazio
-    if device_user_agent and not tokens.get("userAgent"):
-        tokens["userAgent"] = device_user_agent
+    /**
+     * Gera string de relatório do estado atual do extrator.
+     * Chamado pelo ExtensionService e pela MainActivity.
+     */
+    fun generateReport(): String {
+        val now            = System.currentTimeMillis()
+        val allFiles       = cacheDir.listFiles() ?: emptyArray()
+        val streamFiles    = allFiles.filter { it.name.startsWith("stream_") }
+        val activeStreams   = streamFiles.count { f ->
+            try {
+                val age = now - JSONObject(f.readText()).getLong("timestamp")
+                age <= STREAM_CACHE_TTL_MS
+            } catch (e: Exception) { false }
+        }
 
-    yt_channels = [
-        ch for ch in channels
-        if "youtube.com" in ch.get("url", "") or "youtu.be" in ch.get("url", "")
-    ]
+        // Verificar cache de tokens
+        val tokenFile   = File(context.cacheDir, "yt_webview_tokens.json")
+        val tokenStatus = if (tokenFile.exists()) {
+            try {
+                val age = now - JSONObject(tokenFile.readText()).getLong("timestamp")
+                if (age <= TOKEN_CACHE_TTL_MS) {
+                    val minLeft = ((TOKEN_CACHE_TTL_MS - age) / 60_000).toInt()
+                    "✅ Válido (~$minLeft min restantes)"
+                } else {
+                    "⚠️ Expirado"
+                }
+            } catch (e: Exception) { "⚠️ Inválido" }
+        } else {
+            "❌ Não capturado"
+        }
 
-    print(f"\n{'='*50}", file=sys.stderr)
-    print(f"EXTRAÇÃO V5: {len(yt_channels)} canais", file=sys.stderr)
-    print(f"poToken: {'✓' if tokens.get('poToken') else '✗'}", file=sys.stderr)
-    print(f"visitorData: {'✓' if tokens.get('visitorData') else '✗'}", file=sys.stderr)
-    print(f"cookies: {'✓' if tokens.get('cookies') else '✗'}", file=sys.stderr)
-    print(f"{'='*50}\n", file=sys.stderr)
+        val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
 
-    results = []
-    success_count = 0
-
-    for i, channel in enumerate(yt_channels, 1):
-        print(f"[{i}/{len(yt_channels)}]", file=sys.stderr, end=" ")
-        result = extract_channel(channel, tokens, cookies_file)
-        results.append(result)
-        if result.get("success"):
-            success_count += 1
-
-    output_data = {
-        "channels": results,
-        "stats": {
-            "total": len(yt_channels),
-            "success": success_count,
-            "failed": len(yt_channels) - success_count,
-            "timestamp": time.time(),
-            "had_po_token": bool(tokens.get("poToken")),
-            "had_visitor_data": bool(tokens.get("visitorData")),
+        return buildString {
+            appendLine("══════════════════════════════════")
+            appendLine("  YouTubeExtractorV2 — Relatório")
+            appendLine("══════════════════════════════════")
+            appendLine("Data/Hora   : ${fmt.format(Date(now))}")
+            appendLine("PO Token    : $tokenStatus")
+            appendLine("Streams     : $activeStreams ativos / ${streamFiles.size} total em cache")
+            appendLine("Cache Dir   : ${cacheDir.absolutePath}")
+            appendLine("Dir tamanho : ${cacheDir.listFiles()?.size ?: 0} arquivos")
+            appendLine("══════════════════════════════════")
         }
     }
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, ensure_ascii=False, indent=2)
+    /**
+     * Salva o relatório em arquivo no cacheDir para inspeção externa.
+     * @param ctx Context necessário para determinar o caminho de saída
+     */
+    fun saveReport(ctx: Context) {
+        try {
+            val report  = generateReport()
+            val outFile = File(ctx.cacheDir, "youtube_extractor_report.txt")
+            outFile.writeText(report)
+            Log.d(TAG, "Relatório salvo em: ${outFile.absolutePath}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Erro ao salvar relatório: ${e.message}")
+        }
+    }
 
-    print(f"\n{'='*50}", file=sys.stderr)
-    print(f"CONCLUÍDO: {success_count}/{len(yt_channels)} ✅", file=sys.stderr)
-    print(f"{'='*50}", file=sys.stderr)
+    /**
+     * Retorna um resumo de uma linha do estado do extrator.
+     * Usado em logs rápidos e na UI (MainActivity).
+     */
+    fun getQuickSummary(): String {
+        val now        = System.currentTimeMillis()
+        val streamFiles = cacheDir.listFiles()
+            ?.filter { it.name.startsWith("stream_") }
+            ?: emptyList()
+        val active = streamFiles.count { f ->
+            try {
+                val age = now - JSONObject(f.readText()).getLong("timestamp")
+                age <= STREAM_CACHE_TTL_MS
+            } catch (e: Exception) { false }
+        }
+
+        val tokenFile  = File(context.cacheDir, "yt_webview_tokens.json")
+        val tokenOk    = tokenFile.exists() && try {
+            val age = now - JSONObject(tokenFile.readText()).getLong("timestamp")
+            age <= TOKEN_CACHE_TTL_MS
+        } catch (e: Exception) { false }
+
+        return "Token:${if (tokenOk) "OK" else "NO"} | Streams ativos:$active/${streamFiles.size}"
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // HELPERS
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Converte string de cookies do CookieManager para formato Netscape
+     * que o yt-dlp lê via --cookies.
+     *
+     * Formato por linha: domain TAB include-subdomains TAB path TAB secure TAB expiry TAB name TAB value
+     */
+    private fun buildNetscapeCookies(rawCookies: String): String {
+        val sb = StringBuilder("# Netscape HTTP Cookie File\n")
+        sb.appendLine("# Gerado automaticamente pelo YouTubeExtractorV2")
+        sb.appendLine()
+
+        rawCookies.split(";").forEach { pair ->
+            val trimmed = pair.trim()
+            val eqIdx   = trimmed.indexOf('=')
+            if (eqIdx < 0) return@forEach
+
+            val name  = trimmed.substring(0, eqIdx).trim()
+            val value = trimmed.substring(eqIdx + 1).trim()
+
+            // .youtube.com  TRUE  /  TRUE  2147483647  name  value
+            sb.appendLine(".youtube.com\tTRUE\t/\tTRUE\t2147483647\t$name\t$value")
+        }
+
+        return sb.toString()
+    }
+}
