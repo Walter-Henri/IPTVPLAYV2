@@ -122,9 +122,6 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
     val successNames by preferences.successChannels.collectAsState(initial = emptyList())
     val failNames by preferences.failedChannels.collectAsState(initial = emptyList())
     
-    // Logs State
-    val logs by LogManager.logs.collectAsState(initial = emptyList<LogManager.LogEntry>())
-    
     var timeToNextRun by remember { mutableStateOf("Calculando...") }
     var showDetails by remember { mutableStateOf(false) }
     
@@ -142,12 +139,11 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                 val nextRunMap = lastRunTime + TimeUnit.HOURS.toMillis(4)
                 val diff = nextRunMap - System.currentTimeMillis()
                 if (diff <= 0) {
-                    timeToNextRun = "Execução iminente"
+                    timeToNextRun = "Sincronização pendente"
                 } else {
                     val hours = TimeUnit.MILLISECONDS.toHours(diff)
                     val minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60
-                    val seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60
-                    timeToNextRun = String.format("%02d:%01d:%02d", hours, minutes, seconds)
+                    timeToNextRun = String.format("%02dh %01dm", hours, minutes)
                 }
             }
             delay(1000)
@@ -206,18 +202,18 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                 ) {
                     Column {
                         Text(
-                            text = "M3U EXTENSÃO",
+                            text = "EXTRATOR PRO",
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.Black,
-                                letterSpacing = 3.sp
+                                letterSpacing = 2.sp
                             ),
                             color = Color(0xFF00E5FF)
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(10.dp).background(Color(0xFF00FF88), CircleShape).shadow(4.dp, CircleShape))
-                            Spacer(Modifier.width(10.dp))
+                            Box(modifier = Modifier.size(8.dp).background(Color(0xFF00FF88), CircleShape))
+                            Spacer(Modifier.width(8.dp))
                             Text(
-                                text = "SISTEMA OPERACIONAL",
+                                text = "ENGINE V2.1 ACTIVE",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 color = Color(0xFF00FF88),
                                 letterSpacing = 1.sp
@@ -246,13 +242,13 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                     hazeState = hazeState
                 )
 
-                // Stats Grid
+                // Compact Stats & Logs
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     StatsCardPremium(
-                        title = "SUCESSOS",
+                        title = "OK",
                         value = successCount.toString(),
                         icon = Icons.Filled.Verified,
                         color = Color(0xFF00FF88),
@@ -260,7 +256,7 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                         modifier = Modifier.weight(1f)
                     )
                     StatsCardPremium(
-                        title = "FALHAS",
+                        title = "FAIL",
                         value = failureCount.toString(),
                         icon = Icons.Filled.ErrorOutline,
                         color = Color(0xFFFF3D00),
@@ -268,15 +264,6 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                         modifier = Modifier.weight(1f)
                     )
                 }
-
-                // Log Console
-                LogConsole(
-                    logs = logs as? List<LogManager.LogEntry> ?: emptyList(),
-                    hazeState = hazeState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(280.dp)
-                )
 
                 // Botão para ver relatório detalhado
                 var showExtractionReport by remember { mutableStateOf(false) }
@@ -308,25 +295,34 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                         title = { Text("Relatório de Extração", color = Color(0xFF00E5FF)) },
                         text = {
                             Box(modifier = Modifier.heightIn(max = 400.dp)) {
-                                val scroll = rememberScrollState()
-                                Text(
-                                    text = reportContent,
-                                    modifier = Modifier.verticalScroll(scroll),
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontFamily = FontFamily.Monospace,
-                                        fontSize = 11.sp
-                                    ),
-                                    color = Color.White.copy(alpha = 0.8f)
-                                )
-                            }
+                                 val scroll = rememberScrollState()
+                                 Text(
+                                     text = reportContent,
+                                     modifier = Modifier
+                                         .verticalScroll(scroll)
+                                         .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                         .padding(12.dp),
+                                     style = MaterialTheme.typography.bodySmall.copy(
+                                         fontFamily = FontFamily.Monospace,
+                                         fontSize = 11.sp,
+                                         lineHeight = 16.sp
+                                     ),
+                                     color = Color(0xFF00FF88).copy(alpha = 0.9f)
+                                 )
+                             }
                         },
                         confirmButton = {
-                            TextButton(onClick = { showExtractionReport = false }) {
-                                Text("FECHAR", color = Color(0xFF00FF88))
+                            Button(
+                                onClick = { showExtractionReport = false },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF), contentColor = Color.Black),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("COMPREENDIDO", fontWeight = FontWeight.Black)
                             }
                         },
-                        containerColor = Color(0xFF1E1E1E),
-                        shape = RoundedCornerShape(24.dp)
+                        containerColor = Color(0xFF0A0A0A),
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier.border(1.dp, Color(0xFF00E5FF).copy(alpha = 0.3f), RoundedCornerShape(28.dp))
                     )
                 }
 
@@ -336,6 +332,41 @@ fun DashboardScreen(preferences: ExtensionPreferences) {
                     hazeState = hazeState,
                     onFormatChange = { scope.launch { preferences.setFormat(it) } }
                 )
+
+                // Recent Channels Preview (Feedback Fluid)
+                if (successNames.isNotEmpty() || failNames.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color.White.copy(alpha = 0.05f))
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            "PROCESSAMENTOS RECENTES", 
+                            style = MaterialTheme.typography.labelSmall, 
+                            color = Color(0xFF00FF88),
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        
+                        val combined = (successNames.take(3) + failNames.take(3)).take(5)
+                        combined.forEach { channel ->
+                             val isSuccess = successNames.contains(channel)
+                             ChannelResultItemPremium(channel, isSuccess)
+                        }
+                        
+                        if (successNames.size + failNames.size > 5) {
+                            Text(
+                                "+ ${successNames.size + failNames.size - 5} canais ocultos",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(100.dp))
             }
@@ -361,7 +392,7 @@ fun StatusCardPremium(status: String, nextRun: String, hazeState: dev.chrisbanes
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(160.dp)
             .clip(RoundedCornerShape(32.dp))
             .hazeChild(state = hazeState, shape = RoundedCornerShape(32.dp))
             .background(Color.White.copy(alpha = 0.12f))
@@ -465,81 +496,7 @@ fun StatsCardPremium(title: String, value: String, icon: ImageVector, color: Col
     }
 }
 
-@Composable
-fun LogConsole(logs: List<LogManager.LogEntry>, hazeState: dev.chrisbanes.haze.HazeState, modifier: Modifier = Modifier) {
-    val listState = rememberLazyListState()
-    
-    // Auto-scroll to bottom
-    LaunchedEffect(logs) {
-        if (logs.isNotEmpty()) {
-            listState.animateScrollToItem(logs.size - 1)
-        }
-    }
 
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .hazeChild(state = hazeState, shape = RoundedCornerShape(24.dp))
-            .background(Color.Black.copy(alpha = 0.8f))
-            .border(1.2.dp, Color(0xFF00E5FF).copy(alpha = 0.3f), RoundedCornerShape(24.dp))
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.Terminal, null, modifier = Modifier.size(16.dp), tint = Color(0xFF00FF88))
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    "CONSOLA DE EXECUÇÃO", 
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Black, letterSpacing = 2.sp), 
-                    color = Color.White
-                )
-            }
-            
-            if (logs.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color(0xFF00FF88), strokeWidth = 2.dp)
-                        Spacer(Modifier.height(12.dp))
-                        Text("AGUARDANDO LOGS...", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.4f))
-                    }
-                }
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    items(logs) { entry ->
-                        Row {
-                            Text(
-                                text = "λ",
-                                style = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 11.sp, fontWeight = FontWeight.Bold),
-                                color = Color(0xFF00FF88)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = entry.message,
-                                style = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 11.sp),
-                                color = when(entry.level) {
-                                    LogManager.LogLevel.ERROR -> Color(0xFFFF3D00)
-                                    LogManager.LogLevel.WARN -> Color(0xFFFFC107)
-                                    LogManager.LogLevel.DEBUG -> Color(0xFF00B0FF)
-                                    else -> Color.White.copy(alpha = 0.8f)
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun ConfigurationCardPremium(currentFormat: String, hazeState: dev.chrisbanes.haze.HazeState, onFormatChange: (String) -> Unit) {
@@ -578,7 +535,7 @@ fun ConfigurationCardPremium(currentFormat: String, hazeState: dev.chrisbanes.ha
             AnimatedVisibility(visible = expanded) {
                 Column(Modifier.padding(top = 16.dp)) {
                     Text(
-                        "MÉTODO DE EXTRAÇÃO (REGEX/JSON)", 
+                        "FORMATO DE EXTRAÇÃO (YT-DLP)", 
                         style = MaterialTheme.typography.labelSmall, 
                         color = Color.Gray,
                         fontWeight = FontWeight.Bold

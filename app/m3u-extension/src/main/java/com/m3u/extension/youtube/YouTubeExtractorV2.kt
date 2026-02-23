@@ -3,6 +3,7 @@ package com.m3u.extension.youtube
 import android.content.Context
 import android.util.Log
 import com.chaquo.python.Python
+import com.m3u.extension.preferences.ExtensionPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -72,42 +73,50 @@ class YouTubeExtractorV2(private val context: Context) {
         url: String,
         logo: String? = null,
         group: String? = null,
-        forceRefresh: Boolean = false
+        forceRefresh: Boolean = false,
+        format: String? = null
     ): ExtractionResult = withContext(Dispatchers.IO) {
 
         Log.d(TAG, "\n════════════════════════════════")
-        Log.d(TAG, "Extraindo: $name")
-        Log.d(TAG, "URL: $url")
+        Log.d(TAG, "🚀 EXPERT EXTRACTION: $name")
+        Log.d(TAG, "═════════ TRACE START ══════════")
 
         // 1. Verificar cache de stream
         if (!forceRefresh) {
             getCachedStream(url)?.let {
-                Log.d(TAG, "✓ Stream em cache válido")
+                Log.d(TAG, "✓ Stream em cache disponível")
                 return@withContext it
             }
         }
 
-        // 2. Capturar tokens via WebView (ou usar cache de tokens)
-        Log.d(TAG, "Capturando tokens via WebView...")
-        val tokens = withContext(Dispatchers.Main) {
+        // 2. Extração (Primeira Tentativa)
+        var result = runExtractionProcess(name, url, logo, group, tokens = null, format = format, forceRefresh = forceRefresh)
+
+        // 3. SMART RETRY: 1 tentativa se falhou
+        if (!result.success) {
+            Log.w(TAG, "⚠ Falha na primeira tentativa ($name). Iniciando SMART RETRY...")
+            result = runExtractionProcess(name, url, logo, group, tokens = null, format = format, forceRefresh = true)
+        }
+
+        // 4. Cachear resultado final
+        cacheStream(url, result, name)
+
+        Log.d(TAG, "══════════ TRACE END ═══════════")
+        result
+    }
+
+    /**
+     * Helper para orquestrar captura de tokens e chamada do Python.
+     */
+    private suspend fun runExtractionProcess(
+        name: String, url: String, logo: String?, group: String?, 
+        tokens: YouTubeWebViewTokenManager.YouTubeTokens?,
+        format: String?, forceRefresh: Boolean
+    ): ExtractionResult {
+        val finalTokens = tokens ?: withContext(Dispatchers.Main) {
             tokenManager.fetchTokens(forceRefresh)
         }
-
-        Log.d(TAG, "Tokens obtidos:")
-        Log.d(TAG, "  UA: ${tokens.userAgent.take(60)}...")
-        Log.d(TAG, "  Cookies: ${if (tokens.hasCookies) "✓ ${tokens.cookies.length} chars" else "✗"}")
-        Log.d(TAG, "  visitorData: ${if (tokens.hasVisitorData) "✓" else "✗"}")
-        Log.d(TAG, "  poToken: ${if (tokens.hasPoToken) "✓" else "✗"}")
-
-        // 3. Extrair via Python com todos os tokens
-        val result = extractWithPython(name, url, logo, group, tokens)
-
-        // 4. Cachear resultado bem-sucedido
-        if (result.success) {
-            cacheStream(url, result)
-        }
-
-        result
+        return extractWithPython(name, url, logo, group, finalTokens, format)
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -121,7 +130,8 @@ class YouTubeExtractorV2(private val context: Context) {
         url: String,
         logo: String?,
         group: String?,
-        tokens: YouTubeWebViewTokenManager.YouTubeTokens
+        tokens: YouTubeWebViewTokenManager.YouTubeTokens,
+        format: String? = null
     ): ExtractionResult {
 
         val ts = System.currentTimeMillis()
@@ -147,8 +157,9 @@ class YouTubeExtractorV2(private val context: Context) {
                     put("poToken",        tokens.poToken)
                     put("clientVersion",  tokens.clientVersion)
                     put("apiKey",         tokens.apiKey)
-                    put("hl",             tokens.hl)
-                    put("gl",             tokens.gl)
+                    put("hl",              tokens.hl)
+                    put("gl",              tokens.gl)
+                    put("format",          format ?: "best[protocol^=m3u8]/best")
                 })
             }
             inputFile.writeText(inputJson.toString())
@@ -205,6 +216,15 @@ class YouTubeExtractorV2(private val context: Context) {
             if (tokens.hasCookies && !headers.containsKey("Cookie")) {
                 headers["Cookie"] = tokens.cookies
             }
+            
+            // Adicionar tokens internos para o player principal se necessário
+            if (tokens.clientVersion.isNotBlank()) {
+                headers["X-YouTube-Client-Name"] = "1"
+                headers["X-YouTube-Client-Version"] = tokens.clientVersion
+            }
+            if (tokens.visitorData.isNotBlank()) {
+                headers["X-Goog-Visitor-Id"] = tokens.visitorData
+            }
 
             val m3u8   = ch.getString("m3u8")
             val method = ch.optString("extraction_method", "unknown")
@@ -217,8 +237,7 @@ class YouTubeExtractorV2(private val context: Context) {
             val valid = validateStream(m3u8, headers)
             if (!valid) {
                 Log.w(TAG, "⚠ Stream inválido — tokens desatualizados, tentando novamente...")
-                // Chama função suspend corretamente — FIX do erro de compilação linha 211
-                return retryWithFreshTokens(name, url, logo, group)
+                return retryWithFreshTokens(name, url, logo, group, format)
             }
 
             return ExtractionResult(
@@ -247,13 +266,14 @@ class YouTubeExtractorV2(private val context: Context) {
         name: String,
         url: String,
         logo: String?,
-        group: String?
+        group: String?,
+        format: String? = null
     ): ExtractionResult = withContext(Dispatchers.Main) {
         Log.d(TAG, "↩ Recapturando tokens frescos e tentando novamente...")
         tokenManager.clearCache()
         val freshTokens = tokenManager.fetchTokens(forceRefresh = true)
         withContext(Dispatchers.IO) {
-            extractWithPython(name, url, logo, group, freshTokens)
+            extractWithPython(name, url, logo, group, freshTokens, format)
         }
     }
 
@@ -269,17 +289,28 @@ class YouTubeExtractorV2(private val context: Context) {
                 .followRedirects(true)
                 .build()
 
-            val req = Request.Builder().url(url).head()
+            // Usar GET com timeout baixo em vez de HEAD (alguns servidores YT negam HEAD sem tokens perfeitos)
+            val req = Request.Builder().url(url).get()
             headers.forEach { (k, v) ->
                 try { req.header(k, v) } catch (_: Exception) { }
             }
 
-            val resp = client.newCall(req.build()).execute()
+            // Limitar download para não gastar dados na validação
+            val clientLimited = client.newBuilder()
+                .addNetworkInterceptor { chain ->
+                    val originalResponse = chain.proceed(chain.request())
+                    originalResponse.newBuilder()
+                        .body(originalResponse.body) // Verificamos apenas o status
+                        .build()
+                }.build()
+
+            val resp = clientLimited.newCall(req.build()).execute()
             val code = resp.code
+            val isSuccess = code in 200..399 || code == 206
             resp.close()
 
-            Log.d(TAG, "Validação HTTP $code")
-            code in 200..399 || code == 206
+            Log.d(TAG, "Validação HTTP $code -> ${if (isSuccess) "OK" else "FAIL"}")
+            isSuccess
 
         } catch (e: Exception) {
             Log.w(TAG, "Erro na validação: ${e.message}")
@@ -292,10 +323,11 @@ class YouTubeExtractorV2(private val context: Context) {
     // CACHE DE STREAM (arquivos JSON no cacheDir)
     // ──────────────────────────────────────────────────────────────
 
-    private fun cacheStream(url: String, result: ExtractionResult) {
+    private fun cacheStream(url: String, result: ExtractionResult, name: String) {
         val file = File(cacheDir, "stream_${url.hashCode()}.json")
         try {
             file.writeText(JSONObject().apply {
+                put("name",      name)
                 put("success",   result.success)
                 put("m3u8Url",   result.m3u8Url ?: "")
                 put("headers",   JSONObject(result.headers as Map<*, *>))
@@ -383,11 +415,11 @@ class YouTubeExtractorV2(private val context: Context) {
         val now            = System.currentTimeMillis()
         val allFiles       = cacheDir.listFiles() ?: emptyArray()
         val streamFiles    = allFiles.filter { it.name.startsWith("stream_") }
-        val activeStreams   = streamFiles.count { f ->
-            try {
-                val age = now - JSONObject(f.readText()).getLong("timestamp")
-                age <= STREAM_CACHE_TTL_MS
-            } catch (e: Exception) { false }
+        
+        // Calcular estatísticas rápidas
+        val activeCount = streamFiles.count { f ->
+            try { now - JSONObject(f.readText()).getLong("timestamp") <= STREAM_CACHE_TTL_MS } 
+            catch (e: Exception) { false }
         }
 
         // Verificar cache de tokens
@@ -397,43 +429,66 @@ class YouTubeExtractorV2(private val context: Context) {
                 val age = now - JSONObject(tokenFile.readText()).getLong("timestamp")
                 if (age <= TOKEN_CACHE_TTL_MS) {
                     val minLeft = ((TOKEN_CACHE_TTL_MS - age) / 60_000).toInt()
-                    "✅ Válido (~$minLeft min restantes)"
-                } else {
-                    "⚠️ Expirado"
-                }
-            } catch (e: Exception) { "⚠️ Inválido" }
-        } else {
-            "❌ Não capturado"
-        }
+                    "✅ VÁLIDO (~$minLeft min)"
+                } else "⚠️ EXPIRADO"
+            } catch (e: Exception) { "⚠️ INVÁLIDO" }
+        } else "❌ AUSENTE"
 
-        val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+        val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
         return buildString {
-            appendLine("══════════════════════════════════")
-            appendLine("  YouTubeExtractorV2 — Relatório")
-            appendLine("══════════════════════════════════")
-            appendLine("Data/Hora   : ${fmt.format(Date(now))}")
-            appendLine("PO Token    : $tokenStatus")
-            appendLine("Streams     : $activeStreams ativos / ${streamFiles.size} total em cache")
-            appendLine("Cache Dir   : ${cacheDir.absolutePath}")
-            appendLine("Dir tamanho : ${cacheDir.listFiles()?.size ?: 0} arquivos")
-            appendLine("══════════════════════════════════")
+            appendLine("╔═════════════════════════════════════════════╗")
+            appendLine("║      YOUTUBE EXTRACTOR PRO — ANALYTICS      ║")
+            appendLine("╠═════════════════════════════════════════════╣")
+            appendLine("  MOTOR V2.1  : ATIVO")
+            appendLine("  TOKEN STATUS: $tokenStatus")
+            appendLine("  STREAMS ATIVOS: $activeCount / ${streamFiles.size}")
+            appendLine("╚═════════════════════════════════════════════╝")
+            appendLine()
+            appendLine("ÚLTIMOS PROCESSAMENTOS:")
+            appendLine("───────────────────────────────────────────────")
+            
+            if (streamFiles.isEmpty()) {
+                appendLine("   (Nenhum canal processado)")
+            } else {
+                streamFiles.sortedByDescending { it.lastModified() }
+                    .take(15) // Mostrar os últimos 15
+                    .forEach { file ->
+                        try {
+                            val json = JSONObject(file.readText())
+                            val success = json.getBoolean("success")
+                            val name = json.optString("name", "Desconhecido")
+                            val time = fmt.format(Date(json.getLong("timestamp")))
+                            val method = json.optString("method", "-")
+                            
+                            if (success) {
+                                appendLine(" ✅ $name | $method @ $time")
+                            } else {
+                                val err = json.optString("error", "Erro").take(40)
+                                appendLine(" ❌ $name | Falha: $err... @ $time")
+                            }
+                        } catch (_: Exception) {}
+                    }
+            }
+            appendLine("───────────────────────────────────────────────")
+            appendLine("FILTRO DE QUALIDADE: ${ExtensionPreferences.DEFAULT_FORMAT.take(20)}...")
         }
     }
 
     /**
      * Salva o relatório em arquivo no cacheDir para inspeção externa.
-     * @param ctx Context necessário para determinar o caminho de saída
+     * @return O arquivo onde o relatório foi salvo
      */
-    fun saveReport(ctx: Context) {
+    fun saveReport(): File {
+        val report  = generateReport()
+        val outFile = File(context.cacheDir, "youtube_extractor_report.txt")
         try {
-            val report  = generateReport()
-            val outFile = File(ctx.cacheDir, "youtube_extractor_report.txt")
             outFile.writeText(report)
             Log.d(TAG, "Relatório salvo em: ${outFile.absolutePath}")
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao salvar relatório: ${e.message}")
         }
+        return outFile
     }
 
     /**

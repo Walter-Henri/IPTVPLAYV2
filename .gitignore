@@ -1,5 +1,5 @@
 # Gradle
-# .gradle/ (Removido do ignore a pedido do usuário)
+.gradle/
 build/
 build2/
 **/build/
@@ -30,6 +30,16 @@ signing.properties
 **/*.log
 hs_err_pid*.log
 replay_pid*.log
+
+# Heavy Debug Files
+*.hprof
+*.txt
+!README.md
+!PLANO.txt
+!ARCHITECTURE.md
+!CODEBASE.md
+!GEMINI.md
+!CONTRIBUTING.md
 
 # Generated sources
 **/build/generated/

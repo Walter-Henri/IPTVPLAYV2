@@ -37,35 +37,17 @@ except ImportError:
 # ──────────────────────────────────────────────────────────────
 
 def build_opts_with_webview_tokens(tokens: dict, cookies_file: str = None) -> dict:
-    """
-    Constrói opções do yt-dlp usando os tokens capturados do WebView Android.
-
-    tokens = {
-        "userAgent": "...",
-        "visitorData": "...",
-        "visitorInfoLive": "...",
-        "poToken": "...",
-        "clientVersion": "...",
-        "apiKey": "...",
-        "hl": "pt",
-        "gl": "BR"
-    }
-    """
     ua = tokens.get("userAgent", "")
     visitor_data = tokens.get("visitorData", "")
     po_token = tokens.get("poToken", "")
     client_version = tokens.get("clientVersion", "")
     hl = tokens.get("hl", "pt")
-    gl = tokens.get("gl", "BR")
+    fmt = tokens.get("format", "best[protocol^=m3u8]/best")
 
     has_po_token = bool(po_token and po_token.strip())
     has_visitor_data = bool(visitor_data and visitor_data.strip())
-
-    print(f"Tokens recebidos do WebView:", file=sys.stderr)
-    print(f"  UA: {ua[:60]}...", file=sys.stderr)
-    print(f"  visitorData: {'✓' if has_visitor_data else '✗'}", file=sys.stderr)
-    print(f"  poToken: {'✓' if has_po_token else '✗'}", file=sys.stderr)
-    print(f"  clientVersion: {client_version or '?'}", file=sys.stderr)
+    
+    print(f"Formato: {fmt}", file=sys.stderr)
 
     # Com PO Token → usar web (mais estável, requer token)
     # Sem PO Token → tv_embedded ainda funciona em muitos casos
@@ -82,7 +64,7 @@ def build_opts_with_webview_tokens(tokens: dict, cookies_file: str = None) -> di
     opts = {
         "quiet": True,
         "no_warnings": True,
-        "format": "best[protocol^=m3u8]/best",
+        "format": fmt,
         "socket_timeout": 30,
         "nocheckcertificate": True,
         "geo_bypass": True,

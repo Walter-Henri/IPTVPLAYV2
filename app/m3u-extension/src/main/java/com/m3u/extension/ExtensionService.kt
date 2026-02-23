@@ -12,6 +12,7 @@ import com.m3u.extension.logic.YouTubeInteractor
 import com.m3u.extension.logic.BrowserUtils
 import com.m3u.extension.util.LogManager
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
@@ -335,11 +336,13 @@ class ExtensionService : Service() {
             Log.d(TAG, "🎯 Detectado YouTube, usando ExtractorV2 para: $name")
             
             try {
+                val currentFormat = preferences.format.first()
                 val v2Result = extractorV2.extractChannel(
                     name = name,
                     url = url,
                     logo = logo,
-                    group = group
+                    group = group,
+                    format = currentFormat
                 )
                 
                 if (v2Result.success && v2Result.m3u8Url != null) {

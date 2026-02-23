@@ -65,7 +65,6 @@ class YouTubeWebViewTokenManager(private val context: Context) {
                     }
                     try {
                         result.sessionToken = localStorage.getItem('yt-player-session-token') || '';
-                        result.datSync = localStorage.getItem('yt-dat-sync') || '';
                     } catch(e) {}
                     return JSON.stringify(result);
                 } catch(e) {

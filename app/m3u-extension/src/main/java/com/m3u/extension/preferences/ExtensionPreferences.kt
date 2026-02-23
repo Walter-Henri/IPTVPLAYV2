@@ -26,7 +26,7 @@ class ExtensionPreferences(private val context: Context) {
         
         // Default: Prioritize HLS Master Playlist (96/95) for multi-quality support in ExoPlayer.
         // Fallback to best available m3u8 stream.
-        const val DEFAULT_FORMAT = "bestvideo[protocol^=m3u8]+bestaudio/best[protocol^=m3u8]/best"
+        const val DEFAULT_FORMAT = "manifest[protocol^=m3u8]+bestaudio/best[protocol^=m3u8]/best"
     }
 
     val format: Flow<String> = context.dataStore.data
