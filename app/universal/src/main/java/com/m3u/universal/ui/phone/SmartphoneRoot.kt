@@ -225,22 +225,39 @@ fun SmartphoneRoot(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .background(MaterialTheme.colorScheme.background)
+                        .background(
+                            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.background,
+                                    PremiumColors.GradientStart.copy(alpha = 0.05f),
+                                    MaterialTheme.colorScheme.background
+                                )
+                            )
+                        )
                 ) {
-                    when (currentTab) {
-                        0 -> ChannelRowsScreen(
-                            playbackManager = playbackManager,
-                            activePlaylistUrl = state.activePlaylistUrl
-                        )
-                        1 -> com.m3u.universal.ui.favorite.FavoritesScreen(
-                            onPlay = { id -> playbackManager.launchPlayerActivity(id, fullScreen = true) }
-                        )
-                        2 -> SmartphoneRecentsScreen(
-                            onPlay = { id -> playbackManager.launchPlayerActivity(id, fullScreen = true) }
-                        )
-                        4 -> com.m3u.universal.ui.extension.ExtensionIntegrationScreen(
-                            onPlay = { id -> playbackManager.launchPlayerActivity(id.toInt(), fullScreen = true) }
-                        )
+                    AnimatedContent(
+                        targetState = currentTab,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300))
+                        },
+                        label = "tab_transition"
+                    ) { targetTab ->
+                        when (targetTab) {
+                            0 -> ChannelRowsScreen(
+                                playbackManager = playbackManager,
+                                activePlaylistUrl = state.activePlaylistUrl
+                            )
+                            1 -> com.m3u.universal.ui.favorite.FavoritesScreen(
+                                onPlay = { id -> playbackManager.launchPlayerActivity(id, fullScreen = true) }
+                            )
+                            2 -> SmartphoneRecentsScreen(
+                                onPlay = { id -> playbackManager.launchPlayerActivity(id, fullScreen = true) }
+                            )
+                            4 -> com.m3u.universal.ui.extension.ExtensionIntegrationScreen(
+                                onPlay = { id -> playbackManager.launchPlayerActivity(id.toInt(), fullScreen = true) }
+                            )
+                        }
                     }
                 }
             }

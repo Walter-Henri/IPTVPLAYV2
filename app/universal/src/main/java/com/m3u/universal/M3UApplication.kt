@@ -78,6 +78,11 @@ class M3UApplication : Application(), WorkConfiguration.Provider, ImageLoaderFac
         } catch (e: Exception) {
             Timber.e(e, "Failed to initialize WorkManager")
         }
+
+        // Restaurar tokens de sessão (UA, Cookies, PO Token) salvos pela extensão
+        // Isso garante que streams YouTube funcionem mesmo após reinicialização do app
+        com.m3u.core.foundation.IdentityRegistry.init(this)
+        Timber.d("IdentityRegistry initialized — ${if (com.m3u.core.foundation.IdentityRegistry.hasValidIdentity()) "tokens disponíveis" else "aguardando tokens da extensão"}")
     }
 
     /**

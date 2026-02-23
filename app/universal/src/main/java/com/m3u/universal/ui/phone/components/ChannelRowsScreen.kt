@@ -39,12 +39,26 @@ fun ChannelRowsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            placeholder = { Text("Buscar canais...", fontSize = 14.sp) },
-            leadingIcon = { Icon(Icons.Default.Search, null, modifier = Modifier.size(20.dp)) },
-            shape = RoundedCornerShape(12.dp),
+            placeholder = { 
+                Text(
+                    "Buscar em ${selectedCategory.lowercase()}...", 
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                ) 
+            },
+            leadingIcon = { 
+                Icon(
+                    Icons.Default.Search, 
+                    null, 
+                    modifier = Modifier.size(20.dp),
+                    tint = PremiumColors.Accent
+                ) 
+            },
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+                focusedBorderColor = PremiumColors.Accent.copy(alpha = 0.5f),
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                 focusedContainerColor = MaterialTheme.colorScheme.surface
             ),
             singleLine = true
