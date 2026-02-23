@@ -426,6 +426,7 @@ class PlayerManagerImpl @Inject constructor(
         // CORREÇÃO: Priorizar User-Agent vindo dos headers (Extensão) em vez de re-parsear a URL sanitizada
         var userAgent = baseHeaders["User-Agent"] 
             ?: baseHeaders.entries.find { it.key.equals("User-Agent", true) }?.value
+            ?: com.m3u.core.foundation.IdentityRegistry.getUserAgent() // Check global identity
             ?: getUserAgent(url, playlist.value)
         
         timber.d("=== HEADER RESOLUTION DEBUG ===")
@@ -445,6 +446,8 @@ class PlayerManagerImpl @Inject constructor(
                     if (!containsKey("Origin")) put("Origin", "https://www.youtube.com")
                     if (!containsKey("User-Agent")) put("User-Agent", userAgent ?: "")
                 }
+                // Apply global identity override if missing
+                com.m3u.core.foundation.IdentityRegistry.applyTo(this, sanitizedUrl)
             }
         } else {
             timber.d("⚠ No headers in Registry, using URL headers only")
@@ -455,11 +458,16 @@ class PlayerManagerImpl @Inject constructor(
                 }
                 // Garante que o User-Agent resolvido (da extensão ou fallback) esteja presente
                 put("User-Agent", userAgent ?: "")
+                // Apply global identity override if missing
+                com.m3u.core.foundation.IdentityRegistry.applyTo(this, sanitizedUrl)
             }
         }
         
         timber.d("Final headers: ${headers.keys}")
-        timber.d("Final User-Agent: ${headers["User-Agent"]?.take(40)}...")
+        timber.d("Final User-Agent: ${headers["User-Agent"]?.take(60)}...")
+        if (headers.containsKey("Cookie")) {
+            timber.d("✓ Cookie injected: ${headers["Cookie"]?.length} chars")
+        }
 
         // Fix: Force recreation if we have custom headers (crucial for YouTube/IPTV with rotated headers)
         // or if the engine changed. Reusing the controller reuses the DataSourceFactory with OLD headers.
@@ -1119,7 +1127,7 @@ class PlayerManagerImpl @Inject constructor(
         val userAgent = kodiUrlOptions[KodiAdaptions.HTTP_OPTION_UA] 
             ?: kodiUrlOptions.entries.firstOrNull { it.key.equals(KodiAdaptions.HTTP_OPTION_UA, ignoreCase = true) }?.value
             ?: playlist?.userAgent
-        return userAgent ?: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+        return userAgent ?: com.m3u.data.iptv.HeaderProvider.getUserAgent()
     }
 
     private fun getRequestHeaders(channelUrl: String, playlist: Playlist?): Map<String, String> {

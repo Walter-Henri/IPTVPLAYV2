@@ -7,7 +7,7 @@ object HeaderProvider {
     
     fun getDefaultHeaders(): Map<String, String> {
         return mapOf(
-            "User-Agent" to DEFAULT_USER_AGENT,
+            "User-Agent" to getUserAgent(),
             "Accept" to "*/*",
             "Accept-Language" to "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
             "Accept-Encoding" to "gzip, deflate, br",
@@ -30,8 +30,12 @@ object HeaderProvider {
             // Ignorar se a URL for inválida
         }
         
+        // Aplicar cookies globais se disponíveis
+        com.m3u.core.foundation.IdentityRegistry.applyTo(headers, url)
+        
         return headers
     }
     
-    fun getUserAgent(): String = DEFAULT_USER_AGENT
+    fun getUserAgent(): String = com.m3u.core.foundation.IdentityRegistry.getUserAgent() 
+        ?: DEFAULT_USER_AGENT
 }

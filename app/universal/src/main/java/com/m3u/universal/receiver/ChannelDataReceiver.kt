@@ -22,30 +22,50 @@ class ChannelDataReceiver : BroadcastReceiver() {
     lateinit var playlistRepository: com.m3u.data.repository.playlist.PlaylistRepository
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "com.m3u.CHANNEL_DATA_READY") {
-            val uri = intent.data
-            if (uri != null) {
-                Log.d(TAG, "Channel data ready received. URI: $uri")
-                
-                // Read content immediately (while permission is granted)
-                scope.launch {
-                    try {
-                        context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                            val content = inputStream.bufferedReader().use { it.readText() }
-                            
-                            // 1. Reactive Header Storage (In-Memory)
-                            JsonHeaderRegistry.loadFromJson(content)
-                            
-                            // 2. Persistent Merger (Database)
-                            val importedCount = playlistRepository.importChannelsJsonBody(content)
-                            Log.d(TAG, "Merged $importedCount channels into database.")
+        val action = intent.action
+        Log.d(TAG, "onReceive: $action")
+        
+        when (action) {
+            "com.m3u.CHANNEL_DATA_READY" -> {
+                val uri = intent.data
+                if (uri != null) {
+                    Log.d(TAG, "Channel data ready received. URI: $uri")
+                    
+                    // Read content immediately (while permission is granted)
+                    scope.launch {
+                        try {
+                            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                                val content = inputStream.bufferedReader().use { it.readText() }
+                                
+                                // 1. Reactive Header Storage (In-Memory)
+                                JsonHeaderRegistry.loadFromJson(content)
+                                
+                                // 2. Persistent Merger (Database)
+                                val importedCount = playlistRepository.importChannelsJsonBody(content)
+                                Log.d(TAG, "Merged $importedCount channels into database.")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to process channel data: ${e.message}")
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to process channel data: ${e.message}")
                     }
+                } else {
+                    Log.w(TAG, "Received CHANNEL_DATA_READY but URI is null.")
                 }
-            } else {
-                Log.w(TAG, "Received CHANNEL_DATA_READY but URI is null.")
+            }
+            "com.m3u.IDENTITY_UPDATE" -> {
+                val ua = intent.getStringExtra("user_agent")
+                val cookies = intent.getStringExtra("cookies")
+                
+                if (ua != null) {
+                    Log.d(TAG, "Identity update received: UA captured")
+                    com.m3u.core.foundation.IdentityRegistry.setUserAgent(ua)
+                }
+                
+                if (cookies != null) {
+                    Log.d(TAG, "Identity update received: Cookies captured")
+                    com.m3u.core.foundation.IdentityRegistry.setCookie("youtube.com", cookies)
+                    com.m3u.core.foundation.IdentityRegistry.setCookie("googlevideo.com", cookies)
+                }
             }
         }
     }

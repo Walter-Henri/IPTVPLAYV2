@@ -118,6 +118,7 @@ class VlcPlayerController(
             // VLC specific headers often use :http-user-agent etc.
             if (k.equals("User-Agent", true)) media.addOption(":http-user-agent=$v")
             if (k.equals("Referer", true)) media.addOption(":http-referrer=$v")
+            if (k.equals("Cookie", true)) media.addOption(":http-cookies=$v")
         }
         mediaPlayer?.media = media
         mediaPlayer?.play()

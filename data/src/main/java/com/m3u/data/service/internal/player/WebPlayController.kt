@@ -123,6 +123,17 @@ class WebPlayController(
         val htmlContent = generatePlayerHTML(url, headers)
         
         scope.launch {
+            // Sincronizar cookies no WebView global
+            val cookieManager = android.webkit.CookieManager.getInstance()
+            headers.forEach { (k, v) ->
+                if (k.equals("Cookie", true)) {
+                    // Define o cookie para a URL do stream e para o domínio local do player
+                    cookieManager.setCookie(url, v)
+                    cookieManager.setCookie("https://player.local", v)
+                }
+            }
+            cookieManager.flush()
+
             webView?.loadDataWithBaseURL(
                 "https://player.local",
                 htmlContent,

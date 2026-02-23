@@ -172,6 +172,7 @@ class YouTubeWebViewTokenManager(private val context: Context) {
             }.also { tokens ->
                 Log.d(TAG, "Tokens capturados:\n$tokens")
                 cacheTokens(tokens)
+                notifyMainApp(tokens)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Timeout ou erro na captura de tokens: ${e.message}")
@@ -405,4 +406,22 @@ class YouTubeWebViewTokenManager(private val context: Context) {
         visitorData = "", visitorInfoLive = "", poToken = "",
         clientVersion = "", apiKey = "", hl = "pt", gl = "BR"
     )
+
+    /**
+     * Notifica o App Universal sobre a nova identidade capturada.
+     */
+    private fun notifyMainApp(tokens: YouTubeTokens) {
+        try {
+            val intent = android.content.Intent("com.m3u.IDENTITY_UPDATE")
+            intent.putExtra("user_agent", tokens.userAgent)
+            intent.putExtra("cookies", tokens.cookies)
+            intent.putExtra("po_token", tokens.poToken)
+            intent.putExtra("visitor_data", tokens.visitorData)
+            intent.setPackage("com.m3u.universal") // Garante que apenas o App Universal receba
+            context.sendBroadcast(intent)
+            Log.d(TAG, "Identidade enviada para o App Universal")
+        } catch (e: Exception) {
+            Log.e(TAG, "Falha ao enviar broadcast de identidade: ${e.message}")
+        }
+    }
 }

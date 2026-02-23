@@ -465,6 +465,25 @@ class ExtensionService : Service() {
             Log.d(TAG, "resolve chamado via AIDL para: $url")
             return try {
                 runBlocking {
+                    // Check if YouTube
+                    if (url.contains("youtube.com") || url.contains("youtu.be")) {
+                        Log.d(TAG, "AIDL resolve: YouTube detected, using ExtractorV2")
+                        val v2Result = extractorV2.extractChannel(
+                            name = "YouTube Stream",
+                            url = url,
+                            forceRefresh = false
+                        )
+                        if (v2Result.success && v2Result.m3u8Url != null) {
+                            return@runBlocking buildString {
+                                append(v2Result.m3u8Url)
+                                if (v2Result.headers.isNotEmpty()) {
+                                    append("|")
+                                    append(v2Result.headers.entries.joinToString("&") { "${it.key}=${it.value}" })
+                                }
+                            }
+                        }
+                    }
+                    
                     val result = resolveAndEnrich(url)
                     result?.kodiUrl
                 }
@@ -561,6 +580,10 @@ class ExtensionService : Service() {
                 val cookieJson = com.google.gson.Gson().toJson(cookies)
                 cookieFile.writeText(cookieJson)
                 Log.d(TAG, "✓ Cookies do navegador capturados e armazenados: ${cookies.size} cookies")
+                
+                // BROADCAST IDENTITY
+                val cookieString = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
+                notifyIdentityUpdate(getStoredUserAgent(), cookieString)
             } else {
                 Log.w(TAG, "⚠ Nenhum cookie capturado do navegador")
             }
@@ -578,8 +601,27 @@ class ExtensionService : Service() {
             val uaFile = java.io.File(cacheDir, "user_agent.txt")
             uaFile.writeText(userAgent)
             Log.d(TAG, "✓ User-Agent capturado e armazenado: ${userAgent.substring(0, 50)}...")
+            
+            // BROADCAST IDENTITY (without cookies yet, or with existing)
+            notifyIdentityUpdate(userAgent, null)
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao capturar User-Agent: ${e.message}")
+        }
+    }
+
+    /**
+     * Notifica o App Universal sobre a nova identidade capturada.
+     */
+    private fun notifyIdentityUpdate(ua: String?, cookies: String?) {
+        try {
+            val intent = Intent("com.m3u.IDENTITY_UPDATE")
+            if (ua != null) intent.putExtra("user_agent", ua)
+            if (cookies != null) intent.putExtra("cookies", cookies)
+            intent.setPackage("com.m3u.universal")
+            sendBroadcast(intent)
+            Log.d(TAG, "Identidade enviada para o App Universal (Broadcast)")
+        } catch (e: Exception) {
+            Log.e(TAG, "Falha ao enviar broadcast de identidade: ${e.message}")
         }
     }
 

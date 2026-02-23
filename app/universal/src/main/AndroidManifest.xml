@@ -166,6 +166,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="com.m3u.CHANNEL_DATA_READY" />
+                <action android:name="com.m3u.IDENTITY_UPDATE" />
             </intent-filter>
         </receiver>
 
