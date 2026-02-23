@@ -23,6 +23,7 @@ jobs:
     name: Build All APKs (Universal + Extension)
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    environment: assinatura de app
 
     steps:
       # ── 1. Código ──────────────────────────────────────────────
