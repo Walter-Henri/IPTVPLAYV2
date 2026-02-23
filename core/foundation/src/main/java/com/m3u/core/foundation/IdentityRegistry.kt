@@ -103,32 +103,50 @@ object IdentityRegistry {
 
     /**
      * Merges registry tokens into [headers] for the given [url].
-     * Existing values in [headers] are NOT overwritten (extension headers take full priority).
+     * For YouTube/Google domains, it ensures critical tokens (Cookies, UA) are correctly applied.
      */
     fun applyTo(headers: MutableMap<String, String>, url: String? = null) {
         val ua = userAgent.get()
-        if (!ua.isNullOrBlank() && headers["User-Agent"].isNullOrBlank()) {
-            headers["User-Agent"] = ua
+        if (!ua.isNullOrBlank()) {
+            // Requirement 1: UA must be consistent. If it's a google domain, enforce our latest UA.
+            val domain = url?.let { extractDomain(it) } ?: ""
+            val isG = domain.contains("youtube") || domain.contains("googlevideo")
+            
+            if (isG || headers["User-Agent"].isNullOrBlank()) {
+                headers["User-Agent"] = ua
+            }
         }
 
         if (url != null) {
             val domain = extractDomain(url)
             val cookie = cookies[domain]
-            if (!cookie.isNullOrBlank() && headers["Cookie"].isNullOrBlank()) {
-                headers["Cookie"] = cookie
+            
+            val isYt = domain.contains("youtube") || domain.contains("googlevideo")
+            
+            if (!cookie.isNullOrBlank()) {
+                // For YouTube, we ALWAYS want the latest valid session cookie
+                if (isYt || headers["Cookie"].isNullOrBlank()) {
+                    headers["Cookie"] = cookie
+                }
             }
 
             // YouTube-specific headers
-            val isYt = domain.contains("youtube") || domain.contains("googlevideo")
             if (isYt) {
                 if (headers["Referer"].isNullOrBlank()) headers["Referer"] = "https://www.youtube.com/"
                 if (headers["Origin"].isNullOrBlank())  headers["Origin"]  = "https://www.youtube.com"
+                
                 visitorData.get()?.takeIf { it.isNotBlank() }?.let {
-                    if (headers["X-Goog-Visitor-Id"].isNullOrBlank()) headers["X-Goog-Visitor-Id"] = it
+                    headers["X-Goog-Visitor-Id"] = it
                 }
+                
                 clientVersion.get()?.takeIf { it.isNotBlank() }?.let {
-                    if (headers["X-YouTube-Client-Name"].isNullOrBlank())    headers["X-YouTube-Client-Name"]    = "1"
-                    if (headers["X-YouTube-Client-Version"].isNullOrBlank()) headers["X-YouTube-Client-Version"] = it
+                    headers["X-YouTube-Client-Name"]    = "1"
+                    headers["X-YouTube-Client-Version"] = it
+                }
+                
+                // PO Token Support (Critical for modern YouTube playback)
+                poToken.get()?.takeIf { it.isNotBlank() }?.let {
+                    headers["X-YouTube-Po-Token"] = it
                 }
             }
         }

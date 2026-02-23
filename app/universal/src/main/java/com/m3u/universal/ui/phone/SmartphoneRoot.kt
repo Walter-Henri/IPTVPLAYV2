@@ -41,6 +41,8 @@ import com.m3u.universal.ui.common.StartupState
 import com.m3u.universal.ui.common.ChannelBrowseViewModel
 import com.m3u.core.foundation.ui.PremiumColors
 import com.m3u.universal.ui.phone.components.*
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)

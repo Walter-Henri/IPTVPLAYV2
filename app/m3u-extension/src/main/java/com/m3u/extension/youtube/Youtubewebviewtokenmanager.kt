@@ -168,25 +168,33 @@ class YouTubeWebViewTokenManager(private val context: Context) {
     // PUBLIC API
     // ──────────────────────────────────────────────────────────────
 
-    suspend fun fetchTokens(forceRefresh: Boolean = false): YouTubeTokens {
-        if (!forceRefresh) {
+    suspend fun fetchTokens(
+        forceRefresh: Boolean = false,
+        targetUrl: String? = null
+    ): YouTubeTokens {
+        // If we have a targetUrl (specific video), we ALWAYS do a new capture to sniff HLS
+        val canUseCache = !forceRefresh && targetUrl == null
+        
+        if (canUseCache) {
             getCachedTokens()?.let {
                 Log.d(TAG, "✓ Tokens em cache (válidos)")
                 return it
             }
         }
-        Log.d(TAG, "Capturando tokens via WebView...")
+        
+        Log.d(TAG, "Capturando tokens via WebView (target: ${targetUrl ?: "home"})...")
         val deferred = CompletableDeferred<YouTubeTokens>()
 
         withContext(Dispatchers.Main) {
-            startCapture(deferred)
+            startCapture(deferred, targetUrl ?: YOUTUBE_URL)
         }
 
         return try {
             withTimeout(WEBVIEW_TIMEOUT_MS + 8_000L) { deferred.await() }
                 .also { tokens ->
                     Log.d(TAG, "Tokens capturados:\n$tokens")
-                    cacheTokens(tokens)
+                    // Only cache if it's the home page (general tokens)
+                    if (targetUrl == null) cacheTokens(tokens)
                     notifyMainApp(tokens)
                 }
         } catch (e: Exception) {
@@ -205,7 +213,7 @@ class YouTubeWebViewTokenManager(private val context: Context) {
     // ──────────────────────────────────────────────────────────────
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun startCapture(deferred: CompletableDeferred<YouTubeTokens>) {
+    private fun startCapture(deferred: CompletableDeferred<YouTubeTokens>, loadUrl: String) {
         val handler = Handler(Looper.getMainLooper())
 
         try {
@@ -298,7 +306,7 @@ class YouTubeWebViewTokenManager(private val context: Context) {
                 }
             }
 
-            webView.loadUrl(YOUTUBE_URL)
+            webView.loadUrl(loadUrl)
 
             // Hard timeout — collect whatever we have
             handler.postDelayed({

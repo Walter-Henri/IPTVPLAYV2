@@ -243,18 +243,43 @@ class PlayerManagerImpl @Inject constructor(
         }
          mainCoroutineScope.launch {
             playbackException.collect { exception ->
-                // SMART FALLBACK: Se o ExoPlayer (0) falhar, tenta VLC (1) AUTOMATICAMENTE
-                if (exception != null && currentPlayerEngine == 0 && retryCount < 1) {
+                if (exception == null) return@collect
+                
+                val currentCommand = mediaCommand.value
+                val currentUrl = channel.value?.url.orEmpty()
+                val isYouTube = currentUrl.contains("googlevideo.com") || 
+                                currentUrl.contains("youtube.com") || 
+                                currentUrl.contains("youtu.be")
+
+                // 1. YouTube 403 Recovery (Session Refresh)
+                if (isYouTube && exception.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && retryCount < 2) {
+                    timber.w("YouTube 403 detectado. Tentando renovação de link e identidade...")
+                    retryCount++
+                    
+                    mainCoroutineScope.launch {
+                        // Limpa o cache de resolução para forçar o extrator
+                        mediaResolver.clearAllCache()
+                        
+                        delay(1000)
+                        if (currentCommand != null) {
+                            play(currentCommand, applyContinueWatching = true)
+                        } else {
+                            playUrl(currentUrl, applyContinueWatching = true)
+                        }
+                    }
+                    return@collect
+                }
+
+                // 2. SMART FALLBACK: Se o ExoPlayer (0) falhar, tenta VLC (1) AUTOMATICAMENTE
+                if (currentPlayerEngine == 0 && retryCount < 1) {
                     timber.w("Playback falhou no ExoPlayer. Tentando fallback inteligente para LibVLC...")
                     retryCount++
-                    val currentCommand = mediaCommand.value
                     if (currentCommand != null) {
                         mainCoroutineScope.launch {
-                            // NÃO mudamos a preferência global, apenas tentamos no motor 1
                             delay(800) 
                             tryPlay(
                                 applyContinueWatching = true,
-                                forceEngine = 1 // Passamos o motor 1 diretamente
+                                forceEngine = 1
                             )
                         }
                     }
@@ -800,6 +825,13 @@ class PlayerManagerImpl @Inject constructor(
                         builder.header("User-Agent", finalUserAgent ?: HeaderProvider.getUserAgent())
                     }
                     
+                    // Explicitly inject registry headers if missing (last-line defense)
+                    val regPo = com.m3u.core.foundation.IdentityRegistry.getPoToken()
+                    if (request.header("X-YouTube-Po-Token").isNullOrBlank() && !regPo.isNullOrBlank()) {
+                        builder.header("X-YouTube-Po-Token", regPo)
+                        timber.v("✓ PO Token registry injection into request")
+                    }
+                    
                     timber.v("→ [Handled] YouTube Request: ${request.method} ${urlString.take(80)}...")
                 }
                 
@@ -1246,20 +1278,30 @@ class PlayerManagerImpl @Inject constructor(
             retryCount++
             
             if (isForbidden) {
-                timber.i("Detectado 403/401 em $url. Rodando identidade (UA)...")
+                timber.i("Detectado 403/401 em $url. Rodando protocolo de recuperação...")
                 
-                val currentHeaders = JsonHeaderRegistry.getHeadersForUrl(url) ?: emptyMap()
-                val currentUA = currentHeaders["User-Agent"] ?: "Mozilla/5.0"
-                val nextUA = IdentityRotator.getNextUA(currentUA)
+                val isYouTube = url.contains("googlevideo.com") || url.contains("youtube.com")
                 
-                val newHeaders = currentHeaders.toMutableMap().apply {
-                    put("User-Agent", nextUA)
-                    if (!containsKey("Referer")) put("Referer", "https://www.youtube.com/")
+                if (isYouTube) {
+                    // For YouTube, rotating UA without refreshing session is counter-productive
+                    // Better to just clear resolver cache and retry (this triggers YouTubeExtractorV2 session refresh)
+                    timber.w("YouTube 403: Ignorando rotação de UA, forçando refresh de sessão na próxima tentativa.")
+                    ioCoroutineScope.launch {
+                        mediaResolver.clearAllCache()
+                    }
+                } else {
+                    val currentHeaders = JsonHeaderRegistry.getHeadersForUrl(url) ?: emptyMap()
+                    val currentUA = currentHeaders["User-Agent"] ?: "Mozilla/5.0"
+                    val nextUA = IdentityRotator.getNextUA(currentUA)
+                    
+                    val newHeaders = currentHeaders.toMutableMap().apply {
+                        put("User-Agent", nextUA)
+                    }
+                    
+                    // Atualiza o registro para a próxima tentativa
+                    JsonHeaderRegistry.setHeadersForUrl(url, newHeaders)
+                    timber.d("Identidade alterada para: ${nextUA.take(30)}...")
                 }
-                
-                // Atualiza o registro para a próxima tentativa
-                JsonHeaderRegistry.setHeadersForUrl(url, newHeaders)
-                timber.d("Identidade alterada para: ${nextUA.take(30)}...")
             }
 
             ioCoroutineScope.launch {

@@ -465,9 +465,15 @@ class ExtensionService : Service() {
             Log.d(TAG, "resolve chamado via AIDL para: $url")
             return try {
                 runBlocking {
-                    // Check if YouTube
-                    if (url.contains("youtube.com") || url.contains("youtu.be")) {
-                        Log.d(TAG, "AIDL resolve: YouTube detected, using ExtractorV2")
+                    // Check if YouTube or GoogleVideo
+                    if (url.contains("youtube.com") || url.contains("youtu.be") || url.contains("googlevideo.com")) {
+                        Log.d(TAG, "AIDL resolve: YouTube/GoogleVideo detected")
+                        
+                        // Se já for um googlevideo.com, vamos apenas retornar para o Player injetar a identidade
+                        if (url.contains("googlevideo.com")) {
+                            return@runBlocking url
+                        }
+                        
                         val v2Result = extractorV2.extractChannel(
                             name = "YouTube Stream",
                             url = url,

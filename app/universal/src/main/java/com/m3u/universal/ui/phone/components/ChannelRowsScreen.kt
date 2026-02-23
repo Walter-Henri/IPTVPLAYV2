@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.m3u.data.service.PlaybackManager
 import com.m3u.universal.ui.common.ChannelBrowseViewModel
+import com.m3u.core.foundation.ui.PremiumColors
 
 @Composable
 fun ChannelRowsScreen(

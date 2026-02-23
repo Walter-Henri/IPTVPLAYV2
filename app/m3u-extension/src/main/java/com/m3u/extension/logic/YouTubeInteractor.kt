@@ -60,6 +60,7 @@ class YouTubeInteractor(private val context: Context) {
     private val resolvers: List<StreamResolver> by lazy {
         listOf(
             DirectLinkResolver(),
+            YouTubeV2Resolver(context),
             YouTubeProMaxResolver(context),
             YtDlpSupportResolver(context)
         ).sortedByDescending { it.priority }

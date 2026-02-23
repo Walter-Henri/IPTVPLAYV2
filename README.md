@@ -19,7 +19,8 @@
 - 📱 **Interface Premium:** Construída com **Jetpack Compose** e **Haze (Glassmorphism)** para um visual moderno e translúcido.
 - ⚡ **Performance Nativa:** Motor Media3/ExoPlayer otimizado para baixo buffering e suporte a HLS, DASH, RTSP e RTMP.
 - 📺 **Android TV Ready:** Experiência completa de 10 pés com suporte total a D-PAD (controle remoto).
-- 🧩 **Extensão M3U:** Módulo separado para processamento avançado de links e integração com Python (Chaquopy).
+- 🧩 **Extensão YouTube Pro:** Módulo avançado com **Chaquopy** (yt-dlp) e **WebView Sniffing** para extração estável de lives.
+- 🛡️ **Bypass de 403**: Protocolo inteligente de injeção de **PO Token** e **Visitor Data** para máxima compatibilidade com o YouTube.
 - 🛠 **Arquitetura Multi-Módulo:** Separação clara de responsabilidades (`core`, `data`, `business`, `i18n`).
 - 🚀 **CI/CD Integrado:** Build e assinatura automática via GitHub Actions para cada push na branch principal.
 

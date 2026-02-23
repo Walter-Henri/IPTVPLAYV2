@@ -86,7 +86,7 @@ class YouTubeExtractorV2(private val context: Context) {
 
         // 2. Fetch WebView tokens (may include a bonus HLS URL from sniffing)
         val tokens = withContext(Dispatchers.Main) {
-            tokenManager.fetchTokens(forceRefresh)
+            tokenManager.fetchTokens(forceRefresh, url)
         }
 
         // 3. If the WebView sniffed an HLS URL, use it directly
@@ -111,7 +111,7 @@ class YouTubeExtractorV2(private val context: Context) {
         if (!result.success) {
             Log.w(TAG, "⚠ Primeira tentativa falhou. Smart retry com tokens frescos...")
             val freshTokens = withContext(Dispatchers.Main) {
-                tokenManager.fetchTokens(forceRefresh = true)
+                tokenManager.fetchTokens(forceRefresh = true, targetUrl = url)
             }
             result = runPythonExtraction(name, url, logo, group, freshTokens, format)
         }
@@ -244,6 +244,7 @@ class YouTubeExtractorV2(private val context: Context) {
             put("Origin",     "https://www.youtube.com")
             if (tokens.hasCookies) put("Cookie", tokens.cookies)
             if (tokens.visitorData.isNotBlank()) put("X-Goog-Visitor-Id", tokens.visitorData)
+            if (tokens.poToken.isNotBlank()) put("X-YouTube-Po-Token", tokens.poToken)
             if (tokens.clientVersion.isNotBlank()) {
                 put("X-YouTube-Client-Name",    "1")
                 put("X-YouTube-Client-Version", tokens.clientVersion)

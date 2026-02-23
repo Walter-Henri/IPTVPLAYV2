@@ -32,14 +32,18 @@ class MediaResolverImpl @Inject constructor(
             val (baseUrl, kodiHeaders) = parseKodiUrl(url)
             
             // Detecta se é um stream direto (m3u8, mpd, ts, mp4) - NÃO precisa de resolução
-            val isDirectStream = baseUrl.contains(".m3u8", ignoreCase = true) ||
+            val looksLikeDirect = baseUrl.contains(".m3u8", ignoreCase = true) ||
                                  baseUrl.contains(".mpd", ignoreCase = true) ||
                                  baseUrl.contains(".ts", ignoreCase = true) ||
                                  baseUrl.contains(".mp4", ignoreCase = true) ||
                                  baseUrl.contains("/manifest", ignoreCase = true) ||
                                  baseUrl.contains("/playlist", ignoreCase = true) ||
-                                 baseUrl.contains("/live/", ignoreCase = true) ||
-                                 baseUrl.contains("/hls/", ignoreCase = true)
+                                 (baseUrl.contains("/live/", ignoreCase = true) && !baseUrl.contains("googlevideo.com")) ||
+                                 (baseUrl.contains("/hls/", ignoreCase = true) && !baseUrl.contains("googlevideo.com"))
+            
+            // Especial: manifests do GoogleVideo SÃO streams, mas precisam de tratamento especial
+            // Então removemos do isDirectStream genérico para cair na resolução com extensão
+            val isDirectStream = looksLikeDirect && !baseUrl.contains("googlevideo.com")
             
             // Se é stream direto, retorna imediatamente sem resolver (evita 403/405)
             if (isDirectStream) {
@@ -59,8 +63,9 @@ class MediaResolverImpl @Inject constructor(
                 )
             }
             
-            // Verifica se é URL do YouTube para usar Extensão
-            if (url.contains("youtube.com") || url.contains("youtu.be")) {
+            // Verifica se é URL do YouTube ou GoogleVideo (manifesto) para usar Extensão
+            // Links do googlevideo.com expiram rápido e precisam de renovação pela extensão
+            if (url.contains("youtube.com") || url.contains("youtu.be") || url.contains("googlevideo.com")) {
                 return@withContext resolveWithExtension(url)
             }
 
