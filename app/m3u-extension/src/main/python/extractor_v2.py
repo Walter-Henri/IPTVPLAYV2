@@ -1,519 +1,379 @@
 """
-YouTube HLS Stream Extractor - Versão Corrigida v3.0
+YouTube HLS Stream Extractor - v5.0
+Integrado com YouTubeWebViewTokenManager do Android
 
-PROBLEMA RAIZ IDENTIFICADO:
-Os links M3U8 do YouTube são "signed URLs" com validade de ~6 horas e são
-vinculados ao IP + User-Agent da extração. Se o player usar um UA diferente
-ou a URL expirar, recebe 404.
+Recebe tokens extraídos diretamente do WebView do dispositivo:
+- User-Agent real
+- Cookies de sessão
+- visitor_data (do ytcfg)
+- PO Token (Proof of Origin Token)
+- clientVersion, apiKey
 
-SOLUÇÃO IMPLEMENTADA:
-1. Capturar o User-Agent REAL do WebView do Android (não um UA fixo)
-2. Passar o MESMO UA para o yt-dlp E registrar no headers do player
-3. Adicionar cookies REAIS do YouTube ao header (obrigatório para algumas regiões)
-4. Usar o cliente 'android_embedded' que gera URLs com maior TTL
-5. Preferir o 'hlsManifestUrl' raiz (master playlist) em vez de stream específico
-
-FLUXO CORRETO:
-ExtensionService captura UA real do WebView
-→ Python extrai com ESSE MESMO UA
-→ URL + headers (UA + Cookie + Referer) registrados no JsonHeaderRegistry
-→ Player usa EXATAMENTE os mesmos headers
+Com esses tokens, o yt-dlp autentica como se fosse o browser real
+do dispositivo → sem 403.
 """
 
 import json
 import sys
 import time
 import os
-import re
+import tempfile
 from urllib.parse import urlparse
 import http.client
 import ssl
 
-print("=== EXTRACTOR V3 - CORREÇÃO 404 ===", file=sys.stderr)
+print("=== EXTRACTOR V2 (WebView Tokens) ===", file=sys.stderr)
 
 try:
     import yt_dlp
     print(f"✓ yt_dlp: {yt_dlp.version.__version__}", file=sys.stderr)
-except ImportError as e:
-    print(f"❌ yt_dlp não encontrado: {e}", file=sys.stderr)
-    yt_dlp = None
-
-try:
-    import streamlink
-    print(f"✓ streamlink: {streamlink.__version__}", file=sys.stderr)
-    STREAMLINK_AVAILABLE = True
 except ImportError:
-    print("⚠ streamlink não disponível", file=sys.stderr)
-    STREAMLINK_AVAILABLE = False
-
-print("===================================", file=sys.stderr)
+    print("❌ yt_dlp não encontrado!", file=sys.stderr)
+    sys.exit(1)
 
 
-# ============================================================
-# CORREÇÃO CRÍTICA: User-Agents que geram URLs com maior TTL
-# O cliente android_embedded tem o melhor comportamento para IPTV
-# O UA DEVE ser passado pelo Kotlin (capturado do WebView real)
-# ============================================================
+# ──────────────────────────────────────────────────────────────
+# CORE: construir opções com tokens do WebView
+# ──────────────────────────────────────────────────────────────
 
-# Usado como FALLBACK se o Kotlin não passar o UA real
-FALLBACK_USER_AGENTS = {
-    # Este é o UA padrão do YouTube no Android TV - gera HLS nativo
-    'android_embedded': (
-        'com.google.android.youtube/17.36.4 '
-        '(Linux; U; Android 11; Build/RP1A.200720.012) gzip'
-    ),
-    # Para extração via web (usa innertube client tv_embedded)
-    'tv_web': (
-        'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'SamsungBrowser/4.0 Chrome/76.0.3809.146 TV Safari/537.36'
-    ),
-    # Chrome no Android - UA real típico de dispositivo
-    'android_chrome': (
-        'Mozilla/5.0 (Linux; Android 12; Pixel 6) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/112.0.0.0 Mobile Safari/537.36'
-    ),
-}
-
-
-def build_ydl_opts(user_agent: str, cookies: str = None, video_format: str = 'best') -> dict:
+def build_opts_with_webview_tokens(tokens: dict, cookies_file: str = None) -> dict:
     """
-    Constrói opções do yt-dlp otimizadas para máxima compatibilidade.
-    
-    CRÍTICO: O user_agent aqui DEVE SER o mesmo que o player vai usar.
-    Se usar UA diferente, o YouTube retorna 403/404 ao tentar reproduzir.
+    Constrói opções do yt-dlp usando os tokens capturados do WebView Android.
+
+    tokens = {
+        "userAgent": "...",
+        "visitorData": "...",
+        "visitorInfoLive": "...",
+        "poToken": "...",
+        "clientVersion": "...",
+        "apiKey": "...",
+        "hl": "pt",
+        "gl": "BR"
+    }
     """
+    ua = tokens.get("userAgent", "")
+    visitor_data = tokens.get("visitorData", "")
+    po_token = tokens.get("poToken", "")
+    client_version = tokens.get("clientVersion", "")
+    hl = tokens.get("hl", "pt")
+    gl = tokens.get("gl", "BR")
+
+    has_po_token = bool(po_token and po_token.strip())
+    has_visitor_data = bool(visitor_data and visitor_data.strip())
+
+    print(f"Tokens recebidos do WebView:", file=sys.stderr)
+    print(f"  UA: {ua[:60]}...", file=sys.stderr)
+    print(f"  visitorData: {'✓' if has_visitor_data else '✗'}", file=sys.stderr)
+    print(f"  poToken: {'✓' if has_po_token else '✗'}", file=sys.stderr)
+    print(f"  clientVersion: {client_version or '?'}", file=sys.stderr)
+
+    # Com PO Token → usar web (mais estável, requer token)
+    # Sem PO Token → tv_embedded ainda funciona em muitos casos
+    if has_po_token:
+        player_clients = ["web"]
+        print("→ player_client: web (com PO Token)", file=sys.stderr)
+    elif has_visitor_data:
+        player_clients = ["tv_embedded", "ios"]
+        print("→ player_client: tv_embedded/ios (com visitorData)", file=sys.stderr)
+    else:
+        player_clients = ["tv_embedded", "ios", "android_embedded"]
+        print("→ player_client: tv_embedded/ios/android (sem tokens)", file=sys.stderr)
+
     opts = {
-        'quiet': True,
-        'no_warnings': True,
-        # Formatar para preferir HLS (m3u8) - compatível com ExoPlayer
-        'format': 'bestvideo[protocol^=m3u8]+bestaudio/best[protocol^=m3u8]/best',
-        'socket_timeout': 25,
-        'nocheckcertificate': True,
-        'geo_bypass': True,
-        'user_agent': user_agent,
-        'http_headers': {
-            'User-Agent': user_agent,
-            'Accept': '*/*',
-            'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Origin': 'https://www.youtube.com',
-            'Referer': 'https://www.youtube.com/',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'cross-site',
-            'DNT': '1',
+        "quiet": True,
+        "no_warnings": True,
+        "format": "best[protocol^=m3u8]/best",
+        "socket_timeout": 30,
+        "nocheckcertificate": True,
+        "geo_bypass": True,
+        "user_agent": ua,
+        "http_headers": {
+            "User-Agent": ua,
+            "Accept": "*/*",
+            "Accept-Language": f"{hl},{hl[:2]};q=0.9,en-US;q=0.7",
+            "Referer": "https://www.youtube.com/",
+            "Origin": "https://www.youtube.com",
         },
-        'extractor_args': {
-            'youtube': {
-                # android_embedded gera URLs HLS com maior TTL
-                # tv_embedded é alternativa estável para Smart TVs
-                'player_client': ['android_embedded', 'tv_embedded', 'android', 'web'],
-                # Não pular HLS - é exatamente o que queremos
-                'skip': ['dash'],
-                # Não fazer requisições desnecessárias
-                'player_skip': ['configs', 'webpage'],
-                # Pegar o hlsManifestUrl que é mais estável
-                'include_live_dash': False,
+        "extractor_args": {
+            "youtube": {
+                "player_client": player_clients,
+                "skip": ["dash"],
             }
         },
-        # Não baixar o vídeo, só extrair info
-        'noplaylist': True,
-        'extract_flat': False,
+        "noplaylist": True,
     }
-    
-    # Adicionar cookies se fornecidos (CRÍTICO para streams com restrição de região)
-    if cookies:
-        # Salvar cookies temporariamente
-        import tempfile
-        cookie_file = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False)
-        cookie_file.write(cookies)
-        cookie_file.close()
-        opts['cookiefile'] = cookie_file.name
-        print(f"✓ Cookies carregados: {len(cookies)} chars", file=sys.stderr)
-    
+
+    # Adicionar PO Token
+    if has_po_token:
+        opts["extractor_args"]["youtube"]["po_token"] = [f"web+{po_token}"]
+
+    # Adicionar visitor_data
+    if has_visitor_data:
+        opts["extractor_args"]["youtube"]["visitor_data"] = [visitor_data]
+
+    # Cookies
+    if cookies_file and os.path.exists(cookies_file):
+        opts["cookiefile"] = cookies_file
+        print(f"  cookies: ✓ (arquivo: {cookies_file})", file=sys.stderr)
+
     return opts
 
 
-def extract_hls_url(info: dict, user_agent: str) -> tuple[str, str]:
-    """
-    Extrai a melhor URL HLS do resultado do yt-dlp.
-    
-    PRIORIDADE:
-    1. hlsManifestUrl - master playlist, mais estável e inclui múltiplas qualidades
-    2. Formato m3u8_native - stream HLS nativo
-    3. Formato m3u8 - HLS genérico
-    4. URL direta como fallback
-    
-    Retorna: (url, tipo)
-    """
-    # MELHOR OPÇÃO: hlsManifestUrl (master playlist do YouTube)
-    hls_manifest = info.get('hls_manifest_url') or info.get('hlsManifestUrl')
-    if hls_manifest:
-        print(f"✓ Usando hlsManifestUrl (melhor opção): {hls_manifest[:60]}...", file=sys.stderr)
-        return hls_manifest, 'hls_manifest'
-    
-    # SEGUNDA OPÇÃO: formato m3u8_native nos formats
-    formats = info.get('formats', [])
-    
-    # Filtrar apenas HLS
-    hls_formats = [
-        f for f in formats 
-        if f.get('protocol') in ('m3u8', 'm3u8_native') 
-        or '.m3u8' in f.get('url', '')
+# ──────────────────────────────────────────────────────────────
+# EXTRAÇÃO DE URL HLS
+# ──────────────────────────────────────────────────────────────
+
+def extract_best_hls(info: dict) -> tuple:
+    """Retorna (url, tipo) do melhor stream HLS disponível."""
+
+    # 1. Master playlist (melhor)
+    manifest = info.get("hls_manifest_url") or info.get("hlsManifestUrl")
+    if manifest:
+        return manifest, "hls_manifest"
+
+    # 2. Formatos m3u8
+    formats = info.get("formats", [])
+    hls = [
+        f for f in formats
+        if f.get("protocol") in ("m3u8", "m3u8_native")
+        or ".m3u8" in f.get("url", "")
     ]
-    
-    if hls_formats:
-        # Ordenar por qualidade (resolution) e pegar o melhor
-        hls_formats.sort(
-            key=lambda f: (f.get('height') or 0, f.get('tbr') or 0), 
-            reverse=True
-        )
-        
-        # Verificar se tem formato que inclui áudio + vídeo
-        combined = [f for f in hls_formats if f.get('acodec') != 'none' and f.get('vcodec') != 'none']
-        if combined:
-            best = combined[0]
-        else:
-            best = hls_formats[0]
-        
-        url = best.get('url', '')
-        print(f"✓ Formato HLS encontrado ({best.get('height', '?')}p): {url[:60]}...", file=sys.stderr)
-        return url, 'hls_format'
-    
-    # FALLBACK: URL direta (pode não ser HLS)
-    direct_url = info.get('url', '')
-    if direct_url:
-        print(f"⚠ Usando URL direta (não é HLS): {direct_url[:60]}...", file=sys.stderr)
-        return direct_url, 'direct'
-    
-    return None, None
+
+    if hls:
+        hls.sort(key=lambda f: (f.get("height") or 0, f.get("tbr") or 0), reverse=True)
+        combined = [f for f in hls if f.get("acodec") != "none" and f.get("vcodec") != "none"]
+        best = (combined or hls)[0]
+        return best["url"], "hls_format"
+
+    # 3. URL direta
+    return info.get("url", ""), "direct"
 
 
-def validate_url(url: str, headers: dict, timeout: int = 8) -> bool:
-    """
-    Valida se a URL está acessível com os headers fornecidos.
-    Usa HEAD request para ser rápido.
-    """
+# ──────────────────────────────────────────────────────────────
+# VALIDAÇÃO
+# ──────────────────────────────────────────────────────────────
+
+def validate_url(url: str, headers: dict, timeout: int = 10) -> tuple:
+    """Retorna (ok: bool, status_code: int)."""
     if not url:
-        return False
-        
+        return False, 0
     try:
         parsed = urlparse(url)
-        ctx = ssl._create_unverified_context() if parsed.scheme == 'https' else None
-        
-        conn_class = http.client.HTTPSConnection if parsed.scheme == 'https' else http.client.HTTPConnection
-        conn = conn_class(parsed.netloc, timeout=timeout, **({"context": ctx} if ctx else {}))
-        
-        path = parsed.path + ('?' + parsed.query if parsed.query else '')
-        
-        req_headers = {
-            'User-Agent': headers.get('User-Agent', ''),
-            'Accept': '*/*',
-            'Range': 'bytes=0-0',  # Pede só o início para verificar acesso
-        }
-        if 'Cookie' in headers:
-            req_headers['Cookie'] = headers['Cookie']
-        if 'Referer' in headers:
-            req_headers['Referer'] = headers['Referer']
-        
-        conn.request('HEAD', path, headers=req_headers)
+        ctx = ssl._create_unverified_context()
+        conn = http.client.HTTPSConnection(parsed.netloc, timeout=timeout, context=ctx)
+        path = parsed.path + ("?" + parsed.query if parsed.query else "")
+        conn.request("HEAD", path, headers=headers)
         resp = conn.getresponse()
         conn.close()
-        
-        # 200, 206 = OK; 302/301 = Redirect (também válido)
-        is_valid = resp.status in (200, 206, 301, 302, 303, 307, 308)
-        
-        if is_valid:
-            print(f"✓ URL válida (HTTP {resp.status}): {url[:50]}...", file=sys.stderr)
-        else:
-            print(f"✗ URL inválida (HTTP {resp.status}): {url[:50]}...", file=sys.stderr)
-        
-        return is_valid
-        
+        ok = resp.status in (200, 206, 301, 302, 307, 308)
+        print(f"  Validação HTTP {resp.status} → {'✓' if ok else '✗'}", file=sys.stderr)
+        return ok, resp.status
     except Exception as e:
-        # Timeout ou erro de rede - assumir válida se parecer HLS
-        is_hls = '.m3u8' in url or 'googlevideo.com' in url
-        print(f"⚠ Validação falhou ({e}), assumindo {'válida' if is_hls else 'inválida'}", file=sys.stderr)
-        return is_hls
+        print(f"  Erro na validação: {e}", file=sys.stderr)
+        return False, 0
 
 
-def extract_channel(channel: dict, device_user_agent: str = None, 
-                   device_cookies: str = None, video_format: str = 'best') -> dict:
-    """
-    Extrai stream de um canal com tratamento robusto de erros 404.
-    
-    Args:
-        channel: dict com name, url, logo, group
-        device_user_agent: UA REAL do WebView Android (passado pelo Kotlin!)
-        device_cookies: Cookies reais do YouTube do dispositivo
-        video_format: formato do yt-dlp
-    
-    CRÍTICO: device_user_agent deve ser o mesmo UA que o player ExoPlayer vai usar!
-    """
-    name = channel.get('name', 'Unknown')
-    url = channel.get('url', '')
-    
-    if not url:
-        return {'name': name, 'success': False, 'error': 'URL vazia'}
-    
-    is_youtube = 'youtube.com' in url or 'youtu.be' in url
-    if not is_youtube:
-        return {'name': name, 'success': False, 'error': 'Não é URL do YouTube'}
-    
-    print(f"\n{'='*50}", file=sys.stderr)
-    print(f"Processando: {name}", file=sys.stderr)
+# ──────────────────────────────────────────────────────────────
+# EXTRAÇÃO DE CANAL
+# ──────────────────────────────────────────────────────────────
+
+def extract_channel(channel: dict, tokens: dict, cookies_file: str = None) -> dict:
+    url = channel.get("url", "")
+    name = channel.get("name", url)
+
+    print(f"\n{'─'*50}", file=sys.stderr)
+    print(f"Canal: {name}", file=sys.stderr)
     print(f"URL: {url}", file=sys.stderr)
-    print(f"UA do dispositivo: {'Fornecido ✓' if device_user_agent else 'Não fornecido ⚠'}", file=sys.stderr)
-    print(f"Cookies: {'Fornecidos ✓' if device_cookies else 'Não fornecidos ⚠'}", file=sys.stderr)
-    
-    # ============================================================
-    # LISTA DE UAs para tentar, em ordem de preferência
-    # O UA do dispositivo tem PRIORIDADE MÁXIMA
-    # ============================================================
-    user_agents_to_try = []
-    
-    if device_user_agent:
-        # UA real do WebView - MELHOR OPÇÃO
-        user_agents_to_try.append(('device_webview', device_user_agent))
-    
-    # Adicionar UAs de fallback
-    for ua_name, ua_string in FALLBACK_USER_AGENTS.items():
-        user_agents_to_try.append((ua_name, ua_string))
-    
+
+    if not url:
+        return _fail(channel, name, "URL vazia")
+
+    ua = tokens.get("userAgent", "Mozilla/5.0")
     attempts = []
-    
-    for ua_name, user_agent in user_agents_to_try:
-        print(f"\n→ Tentativa com UA '{ua_name}': {user_agent[:50]}...", file=sys.stderr)
-        start_time = time.time()
-        
-        try:
-            opts = build_ydl_opts(user_agent, device_cookies, video_format)
-            
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-            
-            if not info:
-                raise Exception("yt-dlp retornou info vazia")
-            
-            # Extrair a melhor URL HLS
-            m3u8_url, url_type = extract_hls_url(info, user_agent)
-            
-            if not m3u8_url:
-                raise Exception("Nenhuma URL HLS encontrada")
-            
-            duration = int((time.time() - start_time) * 1000)
-            
-            # ============================================================
-            # HEADERS CRÍTICOS: DEVEM SER EXATAMENTE IGUAIS AOS DO PLAYER
-            # ============================================================
+
+    # ── Tentativa 1: com tokens do WebView ──────────────────────
+    print(f"\n[1/2] Usando tokens do WebView Android...", file=sys.stderr)
+    try:
+        t0 = time.time()
+        opts = build_opts_with_webview_tokens(tokens, cookies_file)
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+
+        m3u8_url, url_type = extract_best_hls(info)
+        ms = int((time.time() - t0) * 1000)
+
+        if m3u8_url:
             headers = {
-                'User-Agent': user_agent,  # MESMO UA usado na extração!
-                'Referer': 'https://www.youtube.com/',
-                'Origin': 'https://www.youtube.com',
+                "User-Agent": ua,
+                "Referer": "https://www.youtube.com/",
+                "Origin": "https://www.youtube.com",
             }
-            
-            # Adicionar cookies do dispositivo se disponíveis
-            if device_cookies:
-                headers['Cookie'] = device_cookies
-            
-            # Adicionar cookies que o yt-dlp extraiu
-            yt_headers = info.get('http_headers', {})
-            if 'Cookie' in yt_headers and not device_cookies:
-                headers['Cookie'] = yt_headers['Cookie']
-            
-            # Validar a URL antes de retornar
-            print(f"Validando URL extraída...", file=sys.stderr)
-            is_valid = validate_url(m3u8_url, headers)
-            
-            attempts.append({
-                'method': f'yt-dlp ({ua_name})',
-                'success': is_valid,
-                'duration': duration,
-                'url_type': url_type,
-                'error': None if is_valid else 'Validação falhou'
-            })
-            
-            if is_valid:
-                print(f"✅ SUCESSO com UA '{ua_name}'! ({url_type}, {duration}ms)", file=sys.stderr)
-                
-                return {
-                    'name': name,
-                    'logo': channel.get('logo', ''),
-                    'group': channel.get('group', 'YouTube'),
-                    'm3u8': m3u8_url,
-                    'headers': headers,
-                    'extraction_method': f'yt-dlp ({ua_name})',
-                    'url_type': url_type,
-                    'attempts': attempts,
-                    'success': True,
-                    'error': None
-                }
+            # Incluir cookies se disponíveis
+            cookies_raw = tokens.get("cookies", "")
+            if cookies_raw:
+                headers["Cookie"] = cookies_raw
+
+            ok, status = validate_url(m3u8_url, headers)
+            attempts.append({"method": "webview_tokens", "ok": ok, "status": status, "ms": ms})
+
+            if ok:
+                print(f"✅ SUCESSO com tokens WebView ({url_type}, {ms}ms)", file=sys.stderr)
+                return _ok(channel, name, m3u8_url, headers, "webview_tokens", url_type, attempts)
             else:
-                print(f"⚠ URL extraída mas inválida. Tentando próximo UA...", file=sys.stderr)
-                
-        except Exception as e:
-            duration = int((time.time() - start_time) * 1000)
-            error_msg = str(e)
-            print(f"✗ Falha com UA '{ua_name}': {error_msg[:100]}", file=sys.stderr)
-            
-            attempts.append({
-                'method': f'yt-dlp ({ua_name})',
-                'success': False,
-                'duration': duration,
-                'error': error_msg[:200]
-            })
-    
-    # Tentar streamlink como último recurso
-    if STREAMLINK_AVAILABLE:
-        print(f"\n→ Tentativa final com Streamlink...", file=sys.stderr)
-        try:
-            import streamlink as sl
-            session = sl.Streamlink()
-            session.set_option('http-timeout', 20)
-            if device_user_agent:
-                session.set_option('http-headers', {'User-Agent': device_user_agent})
-            
-            streams = session.streams(url)
-            if streams:
-                priority_qualities = ['best', '1080p', '720p', '480p', 'worst']
-                selected = next((q for q in priority_qualities if q in streams), None)
-                if not selected:
-                    selected = list(streams.keys())[0]
-                
-                stream = streams[selected]
-                stream_url = stream.to_url()
-                
-                if stream_url:
-                    ua = device_user_agent or FALLBACK_USER_AGENTS['android_chrome']
-                    headers = {
-                        'User-Agent': ua,
-                        'Referer': 'https://www.youtube.com/',
-                        'Origin': 'https://www.youtube.com',
-                    }
-                    if device_cookies:
-                        headers['Cookie'] = device_cookies
-                    
-                    attempts.append({
-                        'method': f'streamlink ({selected})',
-                        'success': True,
-                        'duration': 0,
-                    })
-                    
-                    print(f"✅ SUCESSO com streamlink ({selected})!", file=sys.stderr)
-                    return {
-                        'name': name,
-                        'logo': channel.get('logo', ''),
-                        'group': channel.get('group', 'YouTube'),
-                        'm3u8': stream_url,
-                        'headers': headers,
-                        'extraction_method': f'streamlink ({selected})',
-                        'attempts': attempts,
-                        'success': True,
-                        'error': None
-                    }
-        except Exception as e:
-            print(f"✗ Streamlink também falhou: {e}", file=sys.stderr)
-            attempts.append({'method': 'streamlink', 'success': False, 'error': str(e)[:100]})
-    
-    print(f"❌ FALHA TOTAL para: {name}", file=sys.stderr)
+                print(f"✗ HTTP {status} — tokens podem ter expirado", file=sys.stderr)
+
+    except Exception as e:
+        ms = int((time.time() - t0) * 1000)
+        print(f"✗ Falha: {str(e)[:120]}", file=sys.stderr)
+        attempts.append({"method": "webview_tokens", "ok": False, "error": str(e)[:120], "ms": ms})
+
+    # ── Tentativa 2: fallback tv_embedded sem tokens ──────────────
+    print(f"\n[2/2] Fallback: tv_embedded sem tokens...", file=sys.stderr)
+    try:
+        t0 = time.time()
+        fallback_ua = (
+            "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "SamsungBrowser/4.0 Chrome/76.0.3809.146 TV Safari/537.36"
+        )
+        opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "format": "best[protocol^=m3u8]/best",
+            "socket_timeout": 30,
+            "nocheckcertificate": True,
+            "http_headers": {
+                "User-Agent": fallback_ua,
+                "Referer": "https://www.youtube.com/",
+            },
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["tv_embedded"],
+                    "skip": ["dash"],
+                }
+            },
+            "noplaylist": True,
+        }
+
+        if cookies_file and os.path.exists(cookies_file):
+            opts["cookiefile"] = cookies_file
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+
+        m3u8_url, url_type = extract_best_hls(info)
+        ms = int((time.time() - t0) * 1000)
+
+        if m3u8_url:
+            headers = {
+                "User-Agent": fallback_ua,
+                "Referer": "https://www.youtube.com/",
+            }
+            ok, status = validate_url(m3u8_url, headers)
+            attempts.append({"method": "tv_embedded_fallback", "ok": ok, "status": status, "ms": ms})
+
+            if ok:
+                print(f"✅ SUCESSO com tv_embedded fallback ({ms}ms)", file=sys.stderr)
+                return _ok(channel, name, m3u8_url, headers, "tv_embedded_fallback", url_type, attempts)
+
+    except Exception as e:
+        print(f"✗ Fallback também falhou: {str(e)[:80]}", file=sys.stderr)
+        attempts.append({"method": "tv_embedded_fallback", "ok": False, "error": str(e)[:80]})
+
+    print(f"\n❌ FALHA TOTAL: {name}", file=sys.stderr)
+    return _fail(channel, name, "Todos os métodos falharam", attempts)
+
+
+def _ok(ch, name, url, headers, method, url_type, attempts):
     return {
-        'name': name,
-        'success': False,
-        'attempts': attempts,
-        'error': 'Todos os métodos falharam. Verifique se a live está ativa.',
-        'm3u8': None,
-        'headers': {},
+        "name": name, "logo": ch.get("logo", ""), "group": ch.get("group", "YouTube"),
+        "success": True, "m3u8": url, "headers": headers,
+        "extraction_method": method, "url_type": url_type,
+        "attempts": attempts, "error": None,
+    }
+
+def _fail(ch, name, error, attempts=None):
+    return {
+        "name": name, "logo": ch.get("logo", "") if ch else "",
+        "group": ch.get("group", "YouTube") if ch else "YouTube",
+        "success": False, "m3u8": None, "headers": {},
+        "attempts": attempts or [], "error": error,
     }
 
 
-def extract(input_path: str, output_path: str, 
-            cookies_path: str = None, video_format: str = 'best',
+# ──────────────────────────────────────────────────────────────
+# EXTRAÇÃO EM LOTE (chamada pelo Kotlin via Chaquopy)
+# ──────────────────────────────────────────────────────────────
+
+def extract(input_path: str, output_path: str,
+            cookies_file: str = None,
             device_user_agent: str = None) -> None:
     """
-    Função principal de extração em lote.
-    
-    NOVO PARÂMETRO: device_user_agent
-    Deve ser passado pelo Kotlin com o UA real do WebView do Android.
-    Isso é CRÍTICO para evitar erros 404 na reprodução.
+    Ponto de entrada chamado pelo YouTubeExtractorV3.kt.
+
+    O input_path agora contém um objeto "tokens" além dos "channels":
+    {
+        "channels": [...],
+        "tokens": {
+            "userAgent": "...",
+            "visitorData": "...",
+            "poToken": "...",
+            ...
+        }
+    }
     """
     if not os.path.exists(input_path):
         print(f"❌ Arquivo não encontrado: {input_path}", file=sys.stderr)
         return
-    
-    # Carregar cookies se fornecidos
-    device_cookies = None
-    if cookies_path and os.path.exists(cookies_path):
-        try:
-            with open(cookies_path, 'r') as f:
-                cookie_data = f.read().strip()
-                if cookie_data:
-                    device_cookies = cookie_data
-                    print(f"✓ Cookies carregados de: {cookies_path}", file=sys.stderr)
-        except Exception as e:
-            print(f"⚠ Erro ao ler cookies: {e}", file=sys.stderr)
-    
-    # Carregar canais
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            channels = data.get('channels', [])
-    except Exception as e:
-        print(f"❌ Erro ao ler JSON: {e}", file=sys.stderr)
-        return
-    
-    youtube_channels = [
-        ch for ch in channels 
-        if 'youtube.com' in ch.get('url', '') or 'youtu.be' in ch.get('url', '')
+
+    with open(input_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    channels = data.get("channels", [])
+    tokens = data.get("tokens", {})
+
+    # Garantir que o UA do device_user_agent seja usado se tokens estiver vazio
+    if device_user_agent and not tokens.get("userAgent"):
+        tokens["userAgent"] = device_user_agent
+
+    yt_channels = [
+        ch for ch in channels
+        if "youtube.com" in ch.get("url", "") or "youtu.be" in ch.get("url", "")
     ]
-    
+
     print(f"\n{'='*50}", file=sys.stderr)
-    print(f"EXTRAÇÃO: {len(youtube_channels)} canais YouTube de {len(channels)} total", file=sys.stderr)
-    if device_user_agent:
-        print(f"UA do dispositivo: {device_user_agent[:60]}...", file=sys.stderr)
-    else:
-        print(f"⚠ UA do dispositivo não fornecido! Usando fallbacks.", file=sys.stderr)
-        print(f"  → Isso pode causar erros 404 na reprodução!", file=sys.stderr)
-        print(f"  → Passe o UA real do WebView pelo Kotlin.", file=sys.stderr)
+    print(f"EXTRAÇÃO V5: {len(yt_channels)} canais", file=sys.stderr)
+    print(f"poToken: {'✓' if tokens.get('poToken') else '✗'}", file=sys.stderr)
+    print(f"visitorData: {'✓' if tokens.get('visitorData') else '✗'}", file=sys.stderr)
+    print(f"cookies: {'✓' if tokens.get('cookies') else '✗'}", file=sys.stderr)
     print(f"{'='*50}\n", file=sys.stderr)
-    
+
     results = []
     success_count = 0
-    fail_count = 0
-    
-    for i, channel in enumerate(youtube_channels, 1):
-        print(f"[{i}/{len(youtube_channels)}]", file=sys.stderr, end=' ')
-        result = extract_channel(
-            channel=channel,
-            device_user_agent=device_user_agent,
-            device_cookies=device_cookies,
-            video_format=video_format
-        )
+
+    for i, channel in enumerate(yt_channels, 1):
+        print(f"[{i}/{len(yt_channels)}]", file=sys.stderr, end=" ")
+        result = extract_channel(channel, tokens, cookies_file)
         results.append(result)
-        if result.get('success'):
+        if result.get("success"):
             success_count += 1
-        else:
-            fail_count += 1
-    
-    # Salvar resultado
+
     output_data = {
-        'channels': results,
-        'stats': {
-            'total': len(youtube_channels),
-            'success': success_count,
-            'failed': fail_count,
-            'timestamp': time.time(),
-            'device_ua_used': bool(device_user_agent),
+        "channels": results,
+        "stats": {
+            "total": len(yt_channels),
+            "success": success_count,
+            "failed": len(yt_channels) - success_count,
+            "timestamp": time.time(),
+            "had_po_token": bool(tokens.get("poToken")),
+            "had_visitor_data": bool(tokens.get("visitorData")),
         }
     }
-    
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, ensure_ascii=False, indent=2)
-        
-        print(f"\n{'='*50}", file=sys.stderr)
-        print(f"CONCLUÍDO: {success_count}/{len(youtube_channels)} com sucesso", file=sys.stderr)
-        print(f"{'='*50}", file=sys.stderr)
-    except Exception as e:
-        print(f"❌ Erro ao salvar: {e}", file=sys.stderr)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, ensure_ascii=False, indent=2)
+
+    print(f"\n{'='*50}", file=sys.stderr)
+    print(f"CONCLUÍDO: {success_count}/{len(yt_channels)} ✅", file=sys.stderr)
+    print(f"{'='*50}", file=sys.stderr)
