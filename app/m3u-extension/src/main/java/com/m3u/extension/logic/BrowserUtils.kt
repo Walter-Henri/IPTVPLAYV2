@@ -5,169 +5,217 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.webkit.CookieManager
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.m3u.extension.util.LogManager
 import kotlinx.coroutines.CompletableDeferred
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.withTimeout
 
 /**
- * BrowserUtils - Utilitários para lidar com WebView, User-Agent real e Cookies.
+ * BrowserUtils
+ *
+ * WebView-based utility that acts as a "native engine" for stream extraction.
+ * Mirrors the approach used by the working older APK version: network sniffing
+ * via shouldInterceptRequest captured HLS URLs before the page even finished loading.
+ *
+ * Extraction strategies (applied in order within the same WebView session):
+ *   1. NETWORK SNIFFING — intercepts HLS manifest requests at the network layer.
+ *   2. JS INJECTION     — reads ytInitialPlayerResponse.streamingData.hlsManifestUrl.
+ *   3. JS VIDEO TAG     — reads <video> src directly from the DOM.
  */
 object BrowserUtils {
     private const val TAG = "BrowserUtils"
+
+    @Volatile
     private var cachedUserAgent: String? = null
 
+    // ── HLS URL Patterns ──────────────────────────────────────────
+
+    /** Returns true if the URL looks like a real HLS manifest (not analytics/stats). */
+    private fun isHlsManifest(url: String): Boolean {
+        if (url.contains("youtube.com/api/stats") ||
+            url.contains("/api/stats/") ||
+            url.contains("doubleclick") ||
+            url.contains("googlesyndication")
+        ) return false
+
+        return url.contains("manifest.googlevideo.com") ||
+               (url.contains("googlevideo.com") && url.contains(".m3u8")) ||
+               (url.endsWith(".m3u8", ignoreCase = true)) ||
+               (url.contains(".m3u8?")) ||
+               url.endsWith("manifest", ignoreCase = true)
+    }
+
+    // ── Main Public API ───────────────────────────────────────────
+
     /**
-     * Extrai o link HLS (M3U8) usando um navegador real (WebView) em background.
-     * Isso é o "Standard de Ouro" contra bloqueios, pois usa o motor Chromium real.
-     * 
-     * NOVIDADE: Adicionado Sniffing de Rede para captura instantânea.
+     * Extracts the HLS stream URL from a YouTube page using a hidden WebView.
+     * This is the "Gold Standard" method — same as the old native engine.
+     *
+     * @param url  YouTube channel/video/live URL
      */
     suspend fun extractHlsWithWebView(context: Context, url: String): String? {
-        LogManager.debug("Abrindo navegador em background para: ${url.take(30)}...")
-        // Se já for um arquivo m3u8, não precisa de navegador
-        if (url.endsWith(".m3u8", true) || url.contains(".m3u8?")) return url
-        
+        // Short-circuit for direct m3u8 links
+        if (url.endsWith(".m3u8", ignoreCase = true) || url.contains(".m3u8?")) return url
+
+        LogManager.debug("Abrindo WebView para sniffing: ${url.take(40)}...")
+
         val deferred = CompletableDeferred<String?>()
-        
+
         Handler(Looper.getMainLooper()).post {
             try {
-                val webView = WebView(context)
-                val ua = getRealUserAgent(context)
-                
-                webView.settings.apply {
-                    javaScriptEnabled = true
-                    domStorageEnabled = true
-                    databaseEnabled = true
-                    mediaPlaybackRequiresUserGesture = false
-                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                    userAgentString = ua
-                }
-
-                webView.webViewClient = object : WebViewClient() {
-                    // 1. SNIFFING DE REDE: Captura o m3u8/mpd antes mesmo da página terminar de carregar
-                    override fun shouldInterceptRequest(
-                        view: WebView?,
-                        request: android.webkit.WebResourceRequest?
-                    ): android.webkit.WebResourceResponse? {
-                        val requestUrl = request?.url?.toString() ?: ""
-                        
-                        // Verifica se é uma URL válida de stream (não URLs de estatísticas ou analytics)
-                        val isValidStreamUrl = !deferred.isCompleted && (
-                            // URLs que terminam com .m3u8 ou contêm .m3u8? (com query params)
-                            (requestUrl.endsWith(".m3u8") || requestUrl.contains(".m3u8?")) ||
-                            // URLs de manifesto do YouTube que terminam com /file/index.m3u8
-                            (requestUrl.contains("manifest.googlevideo.com") && requestUrl.endsWith("/file/index.m3u8")) ||
-                            // URLs DASH (.mpd)
-                            requestUrl.endsWith(".mpd") ||
-                            // URLs de manifesto gerais que terminam com manifest
-                            requestUrl.endsWith("manifest")
-                        )
-                        
-                        if (isValidStreamUrl) {
-                            LogManager.info("Link interceptado via rede (Sniffing)!", "BROWSER")
-                            LogManager.debug("Tipo detectado: ${if (requestUrl.contains(".m3u8")) "M3U8" else if (requestUrl.contains(".mpd")) "MPD" else "MANIFEST"}", "BROWSER")
-                            deferred.complete(requestUrl)
-                            
-                            // Limpa WebView em background
-                            Handler(Looper.getMainLooper()).post { view?.destroy() }
-                        }
-                        return super.shouldInterceptRequest(view, request)
-                    }
-
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        if (deferred.isCompleted) return
-                        
-                        LogManager.debug("Página carregada. Injetando extratores...", "BROWSER")
-                        
-                        val js = """
-                            (function() {
-                                try {
-                                    // Estratégia A: Metadados Internos do YouTube
-                                    if (window.ytInitialPlayerResponse && window.ytInitialPlayerResponse.streamingData) {
-                                        var data = window.ytInitialPlayerResponse.streamingData;
-                                        if (data.hlsManifestUrl) return data.hlsManifestUrl;
-                                    }
-                                    
-                                    // Estratégia B: Configurações do Player
-                                    if (window.ytplayer && window.ytplayer.config && window.ytplayer.config.args) {
-                                        var args = window.ytplayer.config.args;
-                                        if (args.raw_player_response && args.raw_player_response.streamingData) {
-                                            var hls = args.raw_player_response.streamingData.hlsManifestUrl;
-                                            if (hls) return hls;
-                                        }
-                                    }
-
-                                    // Estratégia C: Busca Brutal no HTML
-                                    var html = document.documentElement.innerHTML;
-                                    var patterns = [
-                                        /hlsManifestUrl":"([^"]+)"/,
-                                        /m3u8":"([^"]+)"/,
-                                        /url":"([^"]+\.m3u8[^"]*)"/
-                                    ];
-                                    
-                                    for (var i = 0; i < patterns.size; i++) {
-                                        var match = html.match(patterns[i]);
-                                        if (match) return match[1].replace(/\\/g, '');
-                                    }
-                                    
-                                    // Estratégia D: Capturar de tags <video>
-                                    var videos = document.getElementsByTagName('video');
-                                    for (var i = 0; i < videos.length; i++) {
-                                        if (videos[i].src && videos[i].src.includes('.m3u8')) return videos[i].src;
-                                    }
-                                } catch (e) {}
-                                return null;
-                            })();
-                        """.trimIndent()
- 
-                        view?.evaluateJavascript(js) { result ->
-                            val hlsUrl = result?.trim('"')?.takeIf { it != "null" && it.isNotBlank() }
-                            if (hlsUrl != null && !deferred.isCompleted) {
-                                LogManager.info("Link extraído via Injeção JS!", "BROWSER")
-                                deferred.complete(hlsUrl)
-                                view?.destroy()
-                            }
-                        }
-                    }
-                }
-
-                Log.d(TAG, "Navegador Pro-Max acessando: $url")
-                webView.loadUrl(url)
-                
-                // Timeout de segurança local para fechar a WebView se nada for achado
-                Handler(Looper.getMainLooper()).postDelayed({
-                    if (!deferred.isCompleted) {
-                        LogManager.warn("Navegador atingiu timeout interno. Tentando captura final...", "BROWSER")
-                        webView.evaluateJavascript("document.getElementsByTagName('video')[0]?.src") { finalSrc ->
-                            val src = finalSrc?.trim('"')?.takeIf { it != "null" && it.isNotBlank() && it.contains(".m3u8") }
-                            deferred.complete(src) 
-                            webView.destroy()
-                        }
-                    }
-                }, 20000)
-                
+                setupWebViewCapture(context, url, deferred)
             } catch (e: Exception) {
-                LogManager.error("Erro no navegador interno: ${e.message}", "BROWSER")
-                deferred.complete(null)
+                LogManager.error("WebView setup falhou: ${e.message}", "BROWSER")
+                if (!deferred.isCompleted) deferred.complete(null)
             }
         }
 
         return try {
-            kotlinx.coroutines.withTimeout(25000) {
-                deferred.await()
-            }
-        } catch (e: Exception) {
-            LogManager.warn("Timeout total do motor de navegador", "BROWSER")
+            withTimeout(28_000L) { deferred.await() }
+        } catch (_: Exception) {
+            LogManager.warn("Timeout no WebView sniffing", "BROWSER")
             null
         }
     }
 
-    /**
-     * Obtém o User-Agent real do dispositivo usando o motor do WebView.
-     */
+    // ── WebView Setup ─────────────────────────────────────────────
+
+    @Suppress("SetJavaScriptEnabled")
+    private fun setupWebViewCapture(
+        context: Context,
+        url: String,
+        deferred: CompletableDeferred<String?>
+    ) {
+        val handler      = Handler(Looper.getMainLooper())
+        val webView      = WebView(context)
+        val cookieMgr    = CookieManager.getInstance()
+        val ua           = getRealUserAgent(context)
+
+        cookieMgr.setAcceptCookie(true)
+        cookieMgr.setAcceptThirdPartyCookies(webView, true)
+
+        webView.settings.apply {
+            javaScriptEnabled                = true
+            domStorageEnabled                = true
+            databaseEnabled                  = true
+            mediaPlaybackRequiresUserGesture = false
+            mixedContentMode                 = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            userAgentString                  = ua
+            cacheMode                        = WebSettings.LOAD_DEFAULT
+        }
+
+        // Suppress console noise from YouTube's JS
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(msg: ConsoleMessage?): Boolean = true
+        }
+
+        webView.webViewClient = object : WebViewClient() {
+
+            // ── Strategy 1: Network Sniffing ────────────────────────
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                val reqUrl = request?.url?.toString() ?: ""
+                if (!deferred.isCompleted && isHlsManifest(reqUrl)) {
+                    LogManager.info("🎯 HLS interceptado via sniffing: ${reqUrl.take(70)}", "BROWSER")
+                    handler.post {
+                        if (!deferred.isCompleted) {
+                            deferred.complete(reqUrl)
+                            view?.destroy()
+                        }
+                    }
+                }
+                return super.shouldInterceptRequest(view, request)
+            }
+
+            // ── Strategy 2 & 3: JS Injection on page load ─────────
+            override fun onPageFinished(view: WebView?, pageUrl: String?) {
+                if (deferred.isCompleted) return
+                LogManager.debug("Página carregada — injetando JS extrator", "BROWSER")
+
+                val js = """
+                    (function() {
+                        try {
+                            // Strategy A: ytInitialPlayerResponse (most reliable)
+                            if (window.ytInitialPlayerResponse) {
+                                var sd = window.ytInitialPlayerResponse.streamingData;
+                                if (sd && sd.hlsManifestUrl) return sd.hlsManifestUrl;
+                            }
+
+                            // Strategy B: ytplayer.config (older YouTube layout)
+                            if (window.ytplayer && window.ytplayer.config) {
+                                var args = window.ytplayer.config.args;
+                                if (args && args.raw_player_response) {
+                                    var hls = args.raw_player_response.streamingData && args.raw_player_response.streamingData.hlsManifestUrl;
+                                    if (hls) return hls;
+                                }
+                            }
+
+                            // Strategy C: Raw HTML scan for hlsManifestUrl
+                            var html = document.documentElement.innerHTML;
+                            var patterns = [
+                                /\"hlsManifestUrl\":\"([^\"]+)\"/,
+                                /hlsManifestUrl\":\"([^\"]+)\"/
+                            ];
+                            for (var i = 0; i < patterns.length; i++) {
+                                var m = html.match(patterns[i]);
+                                if (m) return m[1].replace(/\\\\/g, '');
+                            }
+
+                            // Strategy D: <video> tag src
+                            var vids = document.getElementsByTagName('video');
+                            for (var i = 0; i < vids.length; i++) {
+                                if (vids[i].src && vids[i].src.indexOf('.m3u8') !== -1) {
+                                    return vids[i].src;
+                                }
+                            }
+                        } catch(e) {}
+                        return null;
+                    })();
+                """.trimIndent()
+
+                view?.evaluateJavascript(js) { result ->
+                    val hlsUrl = result?.trim('"')?.takeIf { it != "null" && it.isNotBlank() }
+                    if (hlsUrl != null && !deferred.isCompleted) {
+                        LogManager.info("✓ HLS via injeção JS: ${hlsUrl.take(60)}", "BROWSER")
+                        deferred.complete(hlsUrl)
+                        view?.destroy()
+                    }
+                }
+            }
+        }
+
+        Log.d(TAG, "Carregando: $url")
+        webView.loadUrl(url)
+
+        // Hard timeout: grab video tag as last resort, then give up
+        handler.postDelayed({
+            if (!deferred.isCompleted) {
+                LogManager.warn("Timeout WebView — última tentativa via <video>", "BROWSER")
+                webView.evaluateJavascript(
+                    "document.getElementsByTagName('video')[0]?.src"
+                ) { src ->
+                    val clean = src?.trim('"')?.takeIf {
+                        it != "null" && it.isNotBlank() && it.contains(".m3u8")
+                    }
+                    if (!deferred.isCompleted) {
+                        deferred.complete(clean)
+                        webView.destroy()
+                    }
+                }
+            }
+        }, 22_000L)
+    }
+
+    // ── User-Agent ─────────────────────────────────────────────────
+
     fun getRealUserAgent(context: Context): String {
         cachedUserAgent?.let { return it }
         return try {
@@ -175,60 +223,67 @@ object BrowserUtils {
             cachedUserAgent = ua
             ua
         } catch (e: Exception) {
-            Log.e(TAG, "Falha ao obter UA real, usando fallback", e)
-            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36"
+            Log.e(TAG, "Falha ao obter UA real", e)
+            "Mozilla/5.0 (Linux; Android 14; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
         }
     }
 
+    // ── YouTube Session Warmup ─────────────────────────────────────
+
     /**
-     * "Aquece" uma sessão do YouTube no WebView para obter cookies válidos.
+     * Opens YouTube in a WebView to obtain session cookies.
+     * Called before extracting channels so yt-dlp has fresh cookies.
      */
     suspend fun warmupYouTubeSession(context: Context): Map<String, String> {
         val deferred = CompletableDeferred<Map<String, String>>()
-        
+
         Handler(Looper.getMainLooper()).post {
             try {
-                val webView = WebView(context)
-                val cookieManager = CookieManager.getInstance()
-                
+                val webView   = WebView(context)
+                val cookieMgr = CookieManager.getInstance()
+
+                cookieMgr.setAcceptCookie(true)
+                cookieMgr.setAcceptThirdPartyCookies(webView, true)
+
                 webView.settings.apply {
                     javaScriptEnabled = true
                     domStorageEnabled = true
-                    userAgentString = getRealUserAgent(context)
+                    userAgentString   = getRealUserAgent(context)
                 }
 
                 webView.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
-                        val cookies = cookieManager.getCookie(url)
-                        LogManager.debug("Sessão aquecida! Cookies obtidos.", "BROWSER")
-                        
-                        val cookieMap = mutableMapOf<String, String>()
-                        cookies?.split(";")?.forEach { pair ->
-                            val parts = pair.split("=")
-                            if (parts.size >= 2) {
-                                cookieMap[parts[0].trim()] = parts[1].trim()
-                            }
+                        val cookieStr = cookieMgr.getCookie("https://www.youtube.com") ?: ""
+                        val cookieMap = parseCookieString(cookieStr)
+                        LogManager.debug("Warmup OK — ${cookieMap.size} cookies", "BROWSER")
+                        if (!deferred.isCompleted) {
+                            deferred.complete(cookieMap)
+                            view?.destroy()
                         }
-                        deferred.complete(cookieMap)
-                        view?.destroy()
                     }
                 }
- 
-                LogManager.debug("Aquecendo sessão do motor no WebView...", "BROWSER")
+
                 webView.loadUrl("https://www.youtube.com")
             } catch (e: Exception) {
-                LogManager.error("Erro no warmup do WebView: ${e.message}", "BROWSER")
-                deferred.complete(emptyMap())
+                LogManager.error("Warmup falhou: ${e.message}", "BROWSER")
+                if (!deferred.isCompleted) deferred.complete(emptyMap())
             }
         }
 
         return try {
-            kotlinx.coroutines.withTimeout(15000) {
-                deferred.await()
-            }
-        } catch (e: Exception) {
-            LogManager.warn("Timeout no warmup do motor do navegador", "BROWSER")
+            withTimeout(15_000L) { deferred.await() }
+        } catch (_: Exception) {
+            LogManager.warn("Timeout no warmup", "BROWSER")
             emptyMap()
         }
+    }
+
+    private fun parseCookieString(raw: String): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        raw.split(";").forEach { pair ->
+            val parts = pair.trim().split("=", limit = 2)
+            if (parts.size == 2) map[parts[0].trim()] = parts[1].trim()
+        }
+        return map
     }
 }

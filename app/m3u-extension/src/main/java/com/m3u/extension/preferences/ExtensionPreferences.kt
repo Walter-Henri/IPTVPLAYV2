@@ -24,9 +24,9 @@ class ExtensionPreferences(private val context: Context) {
         val KEY_SUCCESS_CHANNELS = stringPreferencesKey("success_channels")
         val KEY_FAILED_CHANNELS = stringPreferencesKey("failed_channels")
         
-        // Default: Prioritize HLS Master Playlist (96/95) for multi-quality support in ExoPlayer.
-        // Fallback to best available m3u8 stream.
-        const val DEFAULT_FORMAT = "manifest[protocol^=m3u8]+bestaudio/best[protocol^=m3u8]/best"
+        // Prioritize HLS/m3u8 streams for live compatibility (ExoPlayer handles adaptive quality).
+        // Format 95/96 = HLS master playlist from YouTube. Falls back through m3u8 variants.
+        const val DEFAULT_FORMAT = "bestvideo[protocol^=m3u8]+bestaudio[protocol^=m3u8]/best[protocol^=m3u8]/best"
     }
 
     val format: Flow<String> = context.dataStore.data
