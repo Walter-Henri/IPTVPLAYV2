@@ -1,72 +1,63 @@
-<h1 align="center">IPTV PLAY V2</h1>
-<p align="center">
-  Um reprodutor de mídia nativo e profissional para Android, focado em performance, design premium e automação.
-</p>
+# 📺 IPTV Player Beta (Project Universal)
 
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/Walter-Henri/IPTVPLAYV2?color=blue&label=Versão">
-  <img src="https://img.shields.io/badge/Android-8.0%2B-brightgreen?logo=android">
-  <img src="https://img.shields.io/github/actions/workflow/status/Walter-Henri/IPTVPLAYV2/android-unified-build.yml?label=Build&logo=github">
-  <img src="https://img.shields.io/github/license/Walter-Henri/IPTVPLAYV2?color=orange">
-</p>
+[![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com/about/dashboards)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9-blue.svg)](https://kotlinlang.org)
+[![HLS](https://img.shields.io/badge/Streaming-M3U8%20|%20HLS-orange.svg)](https://en.wikipedia.org/wiki/HTTP_Live_Streaming)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**IPTV PLAY V2** é a evolução do player de mídia nativo para Android. Reconstruído para ser escalável, seguro e totalmente automatizado, oferecendo uma experiência de streaming fluida tanto em dispositivos móveis quanto em Android TV.
+> **O player IPTV definitivo para Android Mobile e Android TV, com motor nativo de extração YouTube e proteção anti-403.**
 
 ---
 
-## ✨ Funcionalidades Profissionais
+## ✨ Features Premium
 
-- 📱 **Interface Premium:** Construída com **Jetpack Compose** e **Haze (Glassmorphism)** para um visual moderno e translúcido.
-- ⚡ **Performance Nativa:** Motor Media3/ExoPlayer otimizado para baixo buffering e suporte a HLS, DASH, RTSP e RTMP.
-- 📺 **Android TV Ready:** Experiência completa de 10 pés com suporte total a D-PAD (controle remoto).
-- 🧩 **Extensão YouTube Pro:** Módulo avançado com **Chaquopy** (yt-dlp) e **WebView Sniffing** para extração estável de lives.
-- 🛡️ **Bypass de 403**: Protocolo inteligente de injeção de **PO Token** e **Visitor Data** para máxima compatibilidade com o YouTube.
-- 🛠 **Arquitetura Multi-Módulo:** Separação clara de responsabilidades (`core`, `data`, `business`, `i18n`).
-- 🚀 **CI/CD Integrado:** Build e assinatura automática via GitHub Actions para cada push na branch principal.
+- **🚀 Motor Native Extractor (v6)**: Extração HLS direta via NewPipe Extractor + Headless Plugin.
+- **🛡️ Protocolo Anti-403**: Sistema inteligente de bypass (PO Token + Visitor Data) integrado.
+- **☁️ Dropbox Sync**: Sincronização automática de playlists dinâmicas via Dropbox.
+- **📺 Interface Adaptável**: UX premium para TV (Material3 TV) e Mobile com suporte a controle remoto.
+- **⚙️ Multi-Engine Playback**: Suporte a ExoPlayer, MPV e VLC em uma única interface.
 
-## 🛡️ Segurança e Build Profissional
+---
 
-O projeto segue as melhores práticas de segurança para o GitHub:
-- **Zero Secrets no Repo:** Arquivos sensíveis como `meu-app.keystore` e `local.properties` são ignorados via `.gitignore`.
-- **Assinatura via GitHub Secrets:** O processo de assinatura de produção é feito de forma segura e automatizada durante o workflow de CI/CD usando secrets encriptados.
+## 🛠️ Arquitetura do Ecossistema
 
-## 🛠 Stack Tecnológica
+O projeto utiliza uma arquitetura de microserviços mobile, permitindo que a extração pesada ocorra em um processo isolado.
 
-- **Linguagem:** Kotlin 2.1+
-- **UI Toolkit:** Jetpack Compose (100%)
-- **Arquitetura:** Clean Architecture + MVVM
-- **Injeção de Dependências:** Hilt
-- **Extração de Mídia:** yt-dlp & Streamlink integration
-- **Assinatura:** Automatizada via GitHub Actions (v2)
-
-## 🚀 Como Compilar e Automatizar
-
-### 1. Automação no GitHub (Recomendado)
-Sempre que você fizer um `git push`, o GitHub Actions irá:
-1. Compilar o app.
-2. Assinar os APKs (Universal e Extension).
-3. Gerar um artefato pronto para download na aba **Actions**.
-
-### 2. Build Local
-Para compilar manualmente na sua máquina:
-
-```bash
-# Dar permissão ao wrapper
-chmod +x gradlew
-
-# Gerar APK Universal (Smartphone + TV)
-./gradlew :app:universal:assembleRelease
-
-# Gerar APK de Extensão
-./gradlew :app:m3u-extension:assembleRelease
+```mermaid
+graph TD
+    A[Universal App Host] <-->|AIDL / IPC| B[Headless Plugin Extractor]
+    B -->|Bypass| C[YouTube / Twitch API]
+    A -->|Streaming| D[ExoPlayer / MPV Engine]
+    E[Dropbox] -->|Sync| B
 ```
 
-## ⬇️ Download
-Você pode baixar os APKs assinados após o término de cada build na aba [Actions](https://github.com/Walter-Henri/IPTVPLAYV2/actions) do seu repositório.
+---
 
-## 📜 Licença
+## 📥 Instalação Rápida
 
-Distribuído sob a licença **GPL 3.0**. Veja o arquivo `LICENSE` para detalhes.
+Para o funcionamento completo (incluindo YouTube), você pode gerar os pacotes finais rodando o script `build-final.bat`.
+Os APKs gerados estarão localizados nas respectivas pastas de `build/` (Universal e Plugin):
+
+1. **Host App**: `app-universal-release.apk`
+2. **Extractor Plugin**: `app-m3u-plugin-release.apk`
+
+> [!IMPORTANT]
+> O Extrator funciona como um serviço headless. Após a instalação, ele não aparecerá no menu de apps, mas será ativado automaticamente pelo app principal.
 
 ---
-Desenvolvido por [Walter Henri](https://github.com/Walter-Henri)
+
+## 📘 Documentação Técnica
+
+Para detalhes profundos sobre a implementação, ríalos de segurança e fluxos de dados, consulte nosso arquivo mestre:
+
+👉 **[Consulte o MASTER_DOCS.md](./MASTER_DOCS.md)**
+
+---
+
+## 🤝 Contribuição e Licença
+
+Este projeto é desenvolvido com foco em performance e privacidade. Sinta-se à vontade para abrir Issues ou Pull Requests.
+
+- **Designer/Lead**: Team Antigravity
+- **Engine**: NewPipe / ExoPlayer
+- **Licença**: MIT

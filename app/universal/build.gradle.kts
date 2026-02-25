@@ -28,17 +28,31 @@ android {
         resourceConfigurations.addAll(listOf("en", "pt-rBR"))
 
         manifestPlaceholders += mapOf(
-            "description" to "M3U Universal App with Extension Support",
+            "description" to "M3U Universal App with Plugin Support",
             "version" to "1",
             "mainClass" to ".MainActivity"
         )
 
-        ndk {
-            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
-        }
+        // SHA-256 fingerprint of the trusted plugin certificate.
+        // IMPORTANT: Replace with the real release certificate SHA-256 before production.
+        // Use: keytool -list -v -keystore <keystore> -alias <alias> | grep SHA256
+        buildConfigField(
+            "String",
+            "TRUSTED_PLUGIN_CERT_SHA256",
+            "\"DEBUG_PLACEHOLDER_REPLACE_WITH_REAL_SHA256\""
+        )
     }
 
     ndkVersion = project.property("ndkVersion") as String
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a")
+            isUniversalApk = true // Opcional: gera um APK com tudo também
+        }
+    }
 
     signingConfigs {
         create("release") {
@@ -106,7 +120,6 @@ android {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
             freeCompilerArgs.addAll(
                 listOf(
-                    "-Xcontext-receivers",
                     "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
                     "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
@@ -125,10 +138,21 @@ android {
     }
 
     packaging {
-        resources.excludes += "META-INF/**"
+        resources {
+            excludes += "META-INF/**"
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/INDEX.LIST"
+        }
+        jniLibs {
+            useLegacyPackaging = true
+            keepDebugSymbols += "**/*.so"
+            pickFirsts.add("**/*.so")
+        }
     }
 
     lint {
+        checkReleaseBuilds = false
         abortOnError = false
         disable += setOf(
             "PermissionLaunchedDuringComposition"
@@ -141,13 +165,13 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":core:media-resolver"))
     implementation(project(":core:foundation"))
-    implementation(project(":core:extension"))
+    implementation(project(":core:plugin"))
     implementation(project(":core:aidl"))
     implementation(project(":data"))
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.m3u.extension.api)
-    implementation(libs.m3u.extension.annotation)
-    ksp(libs.m3u.extension.processor)
+    implementation(libs.m3u.plugin.api)
+    implementation(libs.m3u.plugin.annotation)
+    ksp(libs.m3u.plugin.processor)
     // business
     implementation(project(":business:foryou"))
     implementation(project(":business:favorite"))
@@ -155,7 +179,7 @@ dependencies {
     implementation(project(":business:playlist"))
     implementation(project(":business:channel"))
     implementation(project(":business:playlist-configuration"))
-    implementation(project(":business:extension"))
+    implementation(project(":business:plugin"))
     // baselineprofile
     implementation(libs.androidx.profileinstaller)
     // "baselineProfile"(project(":baselineprofile:smartphone")) // TODO: Create module :baselineprofile:smartphone

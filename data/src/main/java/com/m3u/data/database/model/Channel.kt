@@ -83,7 +83,7 @@ fun Channel.copyXtreamEpisode(episode: XtreamChannelInfo.Episode): Channel {
             val segments = url.pathSegments.dropLast(1)
             pathSegments = segments
         }
-        .appendPathSegments("${episode.id}.${episode.containerExtension}")
+        .appendPathSegments("${episode.id}.${episode.containerPlugin}")
         .build()
     return copy(
         url = newUrl.toString(),

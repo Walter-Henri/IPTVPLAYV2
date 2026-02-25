@@ -55,9 +55,9 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":core:media-resolver"))
     implementation(project(":core:foundation"))
-    implementation(libs.m3u.extension.api)
-    implementation(libs.m3u.extension.annotation)
-    ksp(libs.m3u.extension.processor)
+    implementation(libs.m3u.plugin.api)
+    implementation(libs.m3u.plugin.annotation)
+    ksp(libs.m3u.plugin.processor)
     implementation(project(":lint:annotation"))
     ksp(project(":lint:processor"))
 
@@ -101,6 +101,7 @@ dependencies {
 
     // Phase 01: Multi-Engine Player
     implementation(libs.vlc.android)
+    implementation(libs.mpv.lib)
     // implementation(libs.ijkplayer.java)
     // implementation(libs.ijkplayer.armv7a)
     // implementation(libs.ijkplayer.arm64)

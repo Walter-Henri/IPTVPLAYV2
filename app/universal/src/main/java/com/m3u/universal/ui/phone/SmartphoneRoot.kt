@@ -1,4 +1,4 @@
-package com.m3u.universal.ui.phone
+﻿package com.m3u.universal.ui.phone
 
 import android.content.Intent
 import android.Manifest
@@ -256,7 +256,7 @@ fun SmartphoneRoot(
                             2 -> SmartphoneRecentsScreen(
                                 onPlay = { id -> playbackManager.launchPlayerActivity(id, fullScreen = true) }
                             )
-                            4 -> com.m3u.universal.ui.extension.ExtensionIntegrationScreen(
+                            4 -> com.m3u.universal.ui.plugin.PluginIntegrationScreen(
                                 onPlay = { id -> playbackManager.launchPlayerActivity(id.toInt(), fullScreen = true) }
                             )
                         }

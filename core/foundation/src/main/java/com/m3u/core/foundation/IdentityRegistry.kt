@@ -4,18 +4,19 @@ import android.content.Context
 import android.content.SharedPreferences
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
+import android.util.Log
 
 /**
  * IdentityRegistry
  *
  * Thread-safe global registry for all session tokens shared between
- * the Extension app (com.m3u.extension) and the Universal app (com.m3u.universal).
+ * the Plugin app (com.m3u.plugin) and the Universal app (com.m3u.universal).
  *
  * Tokens are kept in-memory for speed AND persisted to SharedPreferences so they
- * survive process restarts (important when the extension restarts before the main app).
+ * survive process restarts (important when the Plugin restarts before the main app).
  *
  * Data flow:
- *   Extension → broadcasts com.m3u.IDENTITY_UPDATE
+ *   Plugin → broadcasts com.m3u.IDENTITY_UPDATE
  *   → ChannelDataReceiver.onReceive
  *   → IdentityRegistry.applyBroadcast(intent)
  *   → PlayerManagerImpl picks them up via IdentityRegistry.applyTo(headers, url)
@@ -47,11 +48,29 @@ object IdentityRegistry {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.set(sp)
 
+        // 1. Carregar do SharedPreferences (cache local do app)
         sp.getString(KEY_UA, null)?.let       { userAgent.set(it) }
         sp.getString(KEY_COOKIES, null)?.let  { cookies["youtube.com"] = it; cookies["googlevideo.com"] = it }
         sp.getString(KEY_PO_TOKEN, null)?.let { poToken.set(it) }
         sp.getString(KEY_VISITOR, null)?.let  { visitorData.set(it) }
         sp.getString(KEY_CLIENT_VER, null)?.let { clientVersion.set(it) }
+
+        // 2. Tentar carregar do arquivo de sessão compartilhado (Identidade Única)
+        loadFromSessionFile()
+    }
+
+    private fun loadFromSessionFile() {
+        SessionPersistenceManager.loadSession()?.let { session: SessionPersistenceManager.SessionData ->
+            if (session.ua.isNotBlank()) userAgent.set(session.ua)
+            if (session.cookies.isNotBlank()) {
+                cookies["youtube.com"] = session.cookies
+                cookies["googlevideo.com"] = session.cookies
+            }
+            if (session.poToken.isNotBlank()) poToken.set(session.poToken)
+            if (session.visitorData.isNotBlank()) visitorData.set(session.visitorData)
+            
+            Log.d("IdentityRegistry", "Sessão carregada do arquivo id.txt (GenTime: ${session.genTime})")
+        }
     }
 
     // ---------- setters ----------
@@ -165,6 +184,25 @@ object IdentityRegistry {
         intent.getStringExtra("po_token")?.takeIf { it.isNotBlank() }?.let      { setPoToken(it) }
         intent.getStringExtra("visitor_data")?.takeIf { it.isNotBlank() }?.let  { setVisitorData(it) }
         intent.getStringExtra("client_version")?.takeIf { it.isNotBlank() }?.let{ setClientVersion(it) }
+        
+        // Sincronizar com o arquivo após broadcast (garante que Universal também salve se atuar como mestre)
+        saveToSessionFile()
+    }
+
+    private fun saveToSessionFile() {
+        val cookiesStr = cookies["youtube.com"] ?: ""
+        if (userAgent.get().isNullOrBlank()) return
+        
+        SessionPersistenceManager.saveSession(
+            SessionPersistenceManager.SessionData(
+                ua = userAgent.get() ?: "",
+                cookies = cookiesStr,
+                poToken = poToken.get() ?: "",
+                visitorData = visitorData.get() ?: "",
+                genTime = System.currentTimeMillis() / 1000,
+                sourceIp = SessionPersistenceManager.getLocalIpAddress()
+            )
+        )
     }
 
     /** Returns a debug summary string for logs / settings screen. */

@@ -357,9 +357,9 @@ class WebPlayerActivity : ComponentActivity() {
         return if (index == -1) this else this.substring(0, index)
     }
 
-    private fun getExtensionCookies(): Map<String, String> = emptyMap()
+    private fun getPluginCookies(): Map<String, String> = emptyMap()
 
-    private fun getExtensionUserAgent(): String = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    private fun getPluginUserAgent(): String = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
     private inner class AndroidBackend {
         @JavascriptInterface

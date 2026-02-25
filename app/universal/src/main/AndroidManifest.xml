@@ -19,11 +19,16 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Permission to bind the headless ExtractorService -->
+    <uses-permission android:name="com.m3u.permission.BIND_EXTRACTOR" />
 
     <queries>
-        <package android:name="com.m3u.extension" />
+        <package android:name="com.m3u.plugin" />
         <intent>
-            <action android:name="com.m3u.extension.ExtensionService" />
+            <action android:name="com.m3u.plugin.PluginService" />
+        </intent>
+        <intent>
+            <action android:name="com.m3u.action.EXTRACTOR" />
         </intent>
     </queries>
 
@@ -93,19 +98,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Extension Debug Activity -->
-        <activity
-            android:name=".extension.ExtensionDebugActivity"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|locale|layoutDirection"
-            android:exported="true"
-            android:label="Extension Debug"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.M3U">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+
 
         <!-- Removed legacy smartphone activities not present in this module -->
         <activity
@@ -124,7 +117,7 @@
             android:theme="@style/Theme.M3U" />
 
         <service
-            android:name="com.m3u.core.extension.RemoteService"
+            android:name="com.m3u.core.plugin.RemoteService"
             android:exported="true"
             android:foregroundServiceType="dataSync|mediaPlayback"
             android:process=":remote"

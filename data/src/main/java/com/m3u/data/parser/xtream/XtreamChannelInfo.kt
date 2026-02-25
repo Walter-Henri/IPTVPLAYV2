@@ -17,8 +17,8 @@ data class XtreamChannelInfo(
     data class Episode(
 //        @SerialName("added")
 //        val added: String?,
-        @SerialName("container_extension")
-        val containerExtension: String?,
+        @SerialName("container_Plugin")
+        val containerPlugin: String?,
 //        @SerialName("custom_sid")
 //        val customSid: String?,
 //        @SerialName("direct_source")

@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import com.m3u.core.extension.IExtension
+import com.m3u.core.plugin.IPlugin
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -66,7 +66,7 @@ class MediaResolverImpl @Inject constructor(
             // Verifica se é URL do YouTube ou GoogleVideo (manifesto) para usar Extensão
             // Links do googlevideo.com expiram rápido e precisam de renovação pela extensão
             if (url.contains("youtube.com") || url.contains("youtu.be") || url.contains("googlevideo.com")) {
-                return@withContext resolveWithExtension(url)
+                return@withContext resolveWithPlugin(url)
             }
 
             // Verifica cache primeiro (se não forçar refresh)
@@ -132,14 +132,14 @@ class MediaResolverImpl @Inject constructor(
         urlCache.clearAll()
     }
     
-    private suspend fun resolveWithExtension(url: String): ResolveResult = suspendCoroutine { continuation ->
-        val intent = Intent("com.m3u.extension.ExtensionService")
-        intent.setPackage("com.m3u.extension")
+    private suspend fun resolveWithPlugin(url: String): ResolveResult = suspendCoroutine { continuation ->
+        val intent = Intent("com.m3u.plugin.PluginService")
+        intent.setPackage("com.m3u.plugin")
         
         val connection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 try {
-                    val binder = IExtension.Stub.asInterface(service)
+                    val binder = IPlugin.Stub.asInterface(service)
                     val resultUrl = binder.resolve(url)
                     if (!resultUrl.isNullOrEmpty()) {
                         val (base, headers) = parseKodiUrl(resultUrl!!)
@@ -151,14 +151,14 @@ class MediaResolverImpl @Inject constructor(
                     } else {
                         continuation.resume(ResolveResult.Error(
                             error = ResolveError.UNKNOWN,
-                            message = "Extension returned null or empty URL",
+                            message = "Plugin returned null or empty URL",
                             originalUrl = url
                         ))
                     }
                 } catch (e: Exception) {
                     continuation.resume(ResolveResult.Error(
                         error = ResolveError.UNKNOWN,
-                        message = "Extension error: ${e.message}",
+                        message = "Plugin error: ${e.message}",
                         originalUrl = url
                     ))
                 } finally {
@@ -174,7 +174,7 @@ class MediaResolverImpl @Inject constructor(
             if (!bound) {
                 continuation.resume(ResolveResult.Error(
                     error = ResolveError.NO_AVAILABLE_API,
-                    message = "Extension not installed",
+                    message = "Plugin not installed",
                     originalUrl = url
                 ))
             }

@@ -40,8 +40,8 @@ data class XtreamVod(
 //    val added: String? = null,
     @SerialName("category_id")
     val categoryId: Int? = null,
-    @SerialName("container_extension")
-    val containerExtension: String? = null,
+    @SerialName("container_Plugin")
+    val containerPlugin: String? = null,
 //    @SerialName("custom_sid")
 //    val customSid: String? = null,
 //    @SerialName("direct_source")
@@ -103,9 +103,9 @@ fun XtreamLive.toChannel(
     playlistUrl: String,
     category: String,
     // one of "allowed_output_formats"
-    containerExtension: String
+    containerPlugin: String
 ): Channel = Channel(
-    url = "$basicUrl/live/$username/$password/$streamId.$containerExtension",
+    url = "$basicUrl/live/$username/$password/$streamId.$containerPlugin",
     category = category,
     title = name.orEmpty(),
     cover = streamIcon,
@@ -120,7 +120,7 @@ fun XtreamVod.toChannel(
     playlistUrl: String,
     category: String
 ): Channel = Channel(
-    url = "$basicUrl/movie/$username/$password/$streamId.${this.containerExtension ?: "mp4"}",
+    url = "$basicUrl/movie/$username/$password/$streamId.${this.containerPlugin ?: "mp4"}",
     category = category,
     title = name.orEmpty(),
     cover = streamIcon,

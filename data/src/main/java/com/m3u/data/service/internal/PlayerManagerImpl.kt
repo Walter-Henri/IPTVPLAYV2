@@ -87,6 +87,7 @@ import com.m3u.data.service.internal.player.PlayerController
 import com.m3u.data.service.internal.player.ExoPlayerController
 import com.m3u.data.service.internal.player.VlcPlayerController
 import com.m3u.data.service.internal.player.WebPlayController
+import com.m3u.data.service.internal.player.MpvPlayerController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineScope
@@ -230,6 +231,7 @@ class PlayerManagerImpl @Inject constructor(
     private var currentPlayerEngine = -1
 
     init {
+        // 1. Sync Playback State
         mainCoroutineScope.launch {
             playbackState.collectLatest { state ->
                 timber.d("onPlaybackStateChanged: $state")
@@ -241,7 +243,9 @@ class PlayerManagerImpl @Inject constructor(
                 }
             }
         }
-         mainCoroutineScope.launch {
+
+        // 2. Sync Exceptions & Recovery
+        mainCoroutineScope.launch {
             playbackException.collect { exception ->
                 if (exception == null) return@collect
                 
@@ -251,50 +255,82 @@ class PlayerManagerImpl @Inject constructor(
                                 currentUrl.contains("youtube.com") || 
                                 currentUrl.contains("youtu.be")
 
-                // 1. YouTube 403 Recovery (Session Refresh)
-                if (isYouTube && exception.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && retryCount < 2) {
-                    timber.w("YouTube 403 detectado. Tentando renovação de link e identidade...")
+                // A. YouTube 403 Recovery (Session Refresh)
+                if (isYouTube && exception.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS && retryCount < 3) {
+                    timber.w("YouTube 403 detectado. Aguardando sinal da Extensão (id.txt)...")
                     retryCount++
                     
                     mainCoroutineScope.launch {
-                        // Limpa o cache de resolução para forçar o extrator
                         mediaResolver.clearAllCache()
                         
-                        delay(1000)
+                        var PluginSignaled = false
+                        val startTime = System.currentTimeMillis()
+                        while (System.currentTimeMillis() - startTime < 10000) {
+                            val session = com.m3u.core.foundation.SessionPersistenceManager.loadSession()
+                            if (session != null && (System.currentTimeMillis() / 1000 - session.genTime) < 30) {
+                                timber.d("Sinal da extensão detectado! Nova sessão pronta.")
+                                PluginSignaled = true
+                                break
+                            }
+                            delay(1000)
+                        }
+
+                        if (!PluginSignaled) timber.w("Timeout aguardando sinal da extensão. Tentando mesmo assim...")
+
                         if (currentCommand != null) {
                             play(currentCommand, applyContinueWatching = true)
-                        } else {
+                        } else if (currentUrl.isNotBlank()) {
                             playUrl(currentUrl, applyContinueWatching = true)
                         }
                     }
                     return@collect
                 }
 
-                // 2. SMART FALLBACK: Se o ExoPlayer (0) falhar, tenta VLC (1) AUTOMATICAMENTE
+                // B. SMART FALLBACK: ExoPlayer (0) -> VLC (1)
                 if (currentPlayerEngine == 0 && retryCount < 1) {
                     timber.w("Playback falhou no ExoPlayer. Tentando fallback inteligente para LibVLC...")
                     retryCount++
                     if (currentCommand != null) {
                         mainCoroutineScope.launch {
                             delay(800) 
-                            tryPlay(
-                                applyContinueWatching = true,
-                                forceEngine = 1
-                            )
+                            tryPlay(applyContinueWatching = true, forceEngine = 1)
                         }
                     }
                 }
             }
         }
+
+        // 3. Position Sync Loop
         mainCoroutineScope.launch {
             while (true) {
                 ensureActive()
-                // Sync position and duration from current controller
                 currentController?.let {
                    playbackPosition.value = it.playbackPosition.value
                    duration.value = it.duration.value
                 }
                 delay(1.seconds)
+            }
+        }
+
+        // 4. Hot Switch: Troca de player em tempo real
+        mainCoroutineScope.launch {
+            settings.playerEngine.collectLatest { engine ->
+                if (currentPlayerEngine != -1 && currentPlayerEngine != engine) {
+                    val currentCmd = mediaCommand.value
+                    val currentUrl = channel.value?.url.orEmpty()
+                    val position = playbackPosition.value
+                    
+                    timber.d("Hot Switch detectado: $currentPlayerEngine -> $engine | Posição: $position ms")
+                    
+                    if (currentCmd != null) {
+                        play(currentCmd, applyContinueWatching = true)
+                    } else if (currentUrl.isNotBlank()) {
+                        playUrl(currentUrl, applyContinueWatching = true)
+                    }
+                    
+                    delay(1500)
+                    seekTo(position)
+                }
             }
         }
     }
@@ -442,7 +478,9 @@ class PlayerManagerImpl @Inject constructor(
         
         val rtmp: Boolean = protocol == "rtmp"
         val isTunneling: Boolean = settings.get(PreferencesKeys.TUNNELING) ?: false
-        val currentEngine = forceEngine ?: settings.playerEngine.value
+        
+        // UNIFICATION: Set MPV (3) as primary by default if no engine is explicitly selected
+        val currentEngine = forceEngine ?: settings.playerEngine.value.let { if (it == 0) 3 else it }
         val baseHeaders: Map<String, String> = resolvedHeaders ?: getRequestHeaders(url, playlist.value)
         
         // Merge with dynamic headers from APP 2 (Youtube Extractor)
@@ -515,6 +553,7 @@ class PlayerManagerImpl @Inject constructor(
             currentController = when (currentEngine) {
                 1 -> VlcPlayerController(context)
                 2 -> WebPlayController(context)
+                3 -> MpvPlayerController(context)
                 else -> {
                     val dataSourceFactory = if (rtmp) RtmpDataSource.Factory() else createDataSourceFactory(sanitizedUrl, userAgent, headers)
                     val extractorsFactory = DefaultExtractorsFactory()
@@ -535,27 +574,7 @@ class PlayerManagerImpl @Inject constructor(
             }
             
             // Sync states from controller to PlayerManager flows
-            mainCoroutineScope.launch {
-                currentController?.playbackState?.collect { playbackState.value = it }
-            }
-            mainCoroutineScope.launch {
-                currentController?.isPlaying?.collect { isPlaying.value = it }
-            }
-            mainCoroutineScope.launch {
-                currentController?.videoSize?.collect { size.value = it }
-            }
-            mainCoroutineScope.launch {
-                currentController?.playbackException?.collect { playbackException.value = it }
-            }
-            mainCoroutineScope.launch {
-                currentController?.tracksGroups?.collect { tracksGroups.value = it }
-            }
-            mainCoroutineScope.launch {
-                currentController?.playbackPosition?.collect { playbackPosition.value = it }
-            }
-            mainCoroutineScope.launch {
-                currentController?.duration?.collect { duration.value = it }
-            }
+            syncControllerStates(currentController)
             
             player.value = currentController?.playerObject as? Player
             
@@ -577,6 +596,33 @@ class PlayerManagerImpl @Inject constructor(
                 val pos = getCwPosition(sanitizedUrl)
                 if (pos > 0) currentController?.seekTo(pos)
             }
+        }
+    }
+
+
+
+    private fun syncControllerStates(controller: PlayerController?) {
+        if (controller == null) return
+        mainCoroutineScope.launch {
+            controller.playbackState.collect { playbackState.value = it }
+        }
+        mainCoroutineScope.launch {
+            controller.isPlaying.collect { isPlaying.value = it }
+        }
+        mainCoroutineScope.launch {
+            controller.videoSize.collect { size.value = it }
+        }
+        mainCoroutineScope.launch {
+            controller.playbackException.collect { playbackException.value = it }
+        }
+        mainCoroutineScope.launch {
+            controller.tracksGroups.collect { tracksGroups.value = it }
+        }
+        mainCoroutineScope.launch {
+            controller.playbackPosition.collect { playbackPosition.value = it }
+        }
+        mainCoroutineScope.launch {
+            controller.duration.collect { duration.value = it }
         }
     }
 
@@ -1165,27 +1211,42 @@ class PlayerManagerImpl @Inject constructor(
     private fun getRequestHeaders(channelUrl: String, playlist: Playlist?): Map<String, String> {
         val options = channelUrl.readKodiUrlOptions()
         val headers = mutableMapOf<String, String>()
+        val sanitizedUrl = channelUrl.stripKodiOptions()
         
         // 1. Aplicar headers padrão inteligentes baseados na URL
-        headers.putAll(HeaderProvider.getHeadersForUrl(channelUrl.stripKodiOptions()))
+        headers.putAll(HeaderProvider.getHeadersForUrl(sanitizedUrl))
 
-        // 2. Sobrescrever com todos os headers encontrados nas opções do link (Kodi)
+        // 2. Sobrescrever com headers dinâmicos do registro (Extração Youtube)
+        val dynamicHeaders = JsonHeaderRegistry.getHeadersForUrl(sanitizedUrl)
+        if (dynamicHeaders != null) {
+            headers.putAll(dynamicHeaders)
+        }
+
+        // 3. Sobrescrever com todos os headers encontrados nas opções do link (Kodi)
         options.forEach { (key, value) ->
             if (!value.isNullOrBlank()) {
-                // Remove variações de case para garantir que a opção do link ganhe
                 val existingKey = headers.keys.find { it.equals(key, true) }
                 if (existingKey != null) headers.remove(existingKey)
                 headers[key] = value
             }
         }
 
-        // 3. Lógica específica para User-Agent (playlist fallback ou sistema)
+        // 4. Lógica específica para YouTube Referer/Origin
+        if (sanitizedUrl.contains("googlevideo.com") || sanitizedUrl.contains("youtube.com") || sanitizedUrl.contains("youtu.be")) {
+            if (!headers.containsKey("Referer")) headers["Referer"] = "https://www.youtube.com/"
+            if (!headers.containsKey("Origin")) headers["Origin"] = "https://www.youtube.com"
+        }
+
+        // 5. Lógica específica para User-Agent (prioridade: Registry -> Kodi -> Playlist -> Global)
         val ua = getUserAgent(channelUrl, playlist)
         if (!ua.isNullOrBlank()) {
             val keysToRemove = headers.keys.filter { it.equals("user-agent", true) }
             keysToRemove.forEach { headers.remove(it) }
             headers["User-Agent"] = ua
         }
+
+        // 6. Apply global identity override (PO Token, etc.)
+        com.m3u.core.foundation.IdentityRegistry.applyTo(headers, sanitizedUrl)
 
         return headers
     }

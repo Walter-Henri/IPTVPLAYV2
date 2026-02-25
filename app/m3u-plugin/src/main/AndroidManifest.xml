@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Custom permission for binding the ExtractorService -->
+    <permission
+        android:name="com.m3u.permission.BIND_EXTRACTOR"
+        android:protectionLevel="signature" />
+
+    <application
+        android:name=".PluginApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_plugin"
+        android:roundIcon="@drawable/ic_launcher_plugin"
+        android:label="M3U Plugin"
+        android:extractNativeLibs="true"
+        android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <!-- NO LAUNCHER activity — headless plugin, invisible to user -->
+
+        <!-- Legacy PluginService (backward compatibility with IPlugin AIDL) -->
+        <service
+            android:name=".PluginService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.m3u.plugin.PluginService" />
+            </intent-filter>
+        </service>
+
+        <!-- NEW headless ExtractorService (IExtractorService AIDL) -->
+        <service
+            android:name=".ExtractorService"
+            android:exported="true"
+            android:permission="com.m3u.permission.BIND_EXTRACTOR">
+            <intent-filter>
+                <action android:name="com.m3u.action.EXTRACTOR" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.m3u.plugin.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths_plugin" />
+        </provider>
+
+    </application>
+
+</manifest>

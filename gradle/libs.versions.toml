@@ -1,64 +1,64 @@
 [versions]
 # Android & Kotlin
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 android-gradle-plugin = "8.7.3"
-kotlin-symbol-processor = "2.1.0-1.0.29"
-kotlinx-coroutines = "1.9.0"
+kotlin-symbol-processor = "2.1.10-1.0.31"
+kotlinx-coroutines = "1.10.2"
 
 # AndroidX Core
-androidx-core = "1.13.1"
-androidx-core-splashscreen = "1.0.1"
+androidx-core = "1.15.0"
+androidx-core-splashscreen = "1.2.0"
 androidx-appcompat = "1.7.0"
-androidx-activity = "1.9.0"
-androidx-lifecycle = "2.8.7"
-androidx-startup = "1.1.1"
-androidx-work = "2.9.0"
-androidx-paging = "3.3.0"
-androidx-profileinstaller = "1.3.1"
+androidx-activity = "1.10.1"
+androidx-lifecycle = "2.9.0"
+androidx-startup = "1.2.0"
+androidx-work = "2.10.0"
+androidx-paging = "3.3.6"
+androidx-profileinstaller = "1.4.1"
 
 # Jetpack Compose
-androidx-compose-bom = "2025.01.01"
+androidx-compose-bom = "2025.02.00"
 androidx-compose-material3 = "1.3.1"
-androidx-compose-material3-adaptive = "1.0.0"
-androidx-constraintlayout-compose = "1.1.0"
-androidx-navigation = "2.8.5"
-androidx-compose-material = "1.6.8"
+androidx-compose-material3-adaptive = "1.1.0"
+androidx-constraintlayout-compose = "1.1.1"
+androidx-navigation = "2.8.9"
+androidx-compose-material = "1.7.8"
 
 # Hilt & Dagger
-google-dagger = "2.54"
+google-dagger = "2.55"
 androidx-hilt = "1.2.0"
 
 # TV & Media
 androidx-tv = "1.0.0-alpha10"
 androidx-tv-foundation = "1.0.0-alpha10"
-androidx-media3 = "1.5.1"
-glance = "1.1.0"
+androidx-media3 = "1.6.0"
+glance = "1.1.1"
 
 # Storage
-androidx-room = "2.6.1"
-datastore = "1.1.1"
+androidx-room = "2.7.1"
+datastore = "1.1.3"
 
 # UI & Graphics
 androidx-graphics-shapes = "1.0.1"
-haze = "0.7.3"
+haze = "1.3.0"
 io-coil = "2.7.0"
-lottie-compose = "6.4.1"
+lottie-compose = "6.6.4"
 minabox = "1.9.0"
-google-accompanist = "0.34.0"
+google-accompanist = "0.36.0"
 
 # Networking
 dropbox-core = "7.0.0"
 squareup-retrofit2 = "2.11.0"
 okhttp = "4.12.0"
 gson = "2.11.0"
-ktor-server = "2.3.11"
+ktor-server = "2.3.13"
 mm2d-mmupnp = "3.1.6"
-jsoup = "1.17.2"
+jsoup = "1.18.3"
 
 # Serialization
-kotlinx-serialization-json = "1.7.0"
+kotlinx-serialization-json = "1.8.0"
 kotlinx-serialization-converter-retrofit = "1.0.0"
-kotlinx-datetime = "0.6.0"
+kotlinx-datetime = "0.6.1"
 
 # Code Generation
 kotlinpoet = "1.17.0"
@@ -67,13 +67,13 @@ auto-ksp = "1.1.0"
 squareup-wire = "4.9.9"
 wireRuntime = "4.9.9"
 
-# M3U Extension
-m3u-extension = "1.9"
+# M3U Plugin
+m3u-plugin = "1.9"
 
 # Debugging & Monitoring
-chucker = "4.0.0"
+chucker = "4.1.0"
 squareup-leakcanary = "2.14"
-acra = "5.11.3"
+acra = "5.12.0"
 timber = "5.0.1"
 
 # Logging
@@ -87,24 +87,20 @@ nextLib = "0.8.5"
 androidx-test-ext-junit = "1.2.1"
 espresso-core = "3.6.1"
 androidx-test-uiautomator = "2.3.0"
-androidx-benchmark = "1.2.4"
+androidx-benchmark = "1.3.3"
 
 # Material Design
 com-google-android-material = "1.12.0"
 
 # Utilities
 disklrucache = "2.0.2"
-youtubedl-android = "0.17.1"
-chaquopy = "15.0.1"
 ffmpeg-kit = "6.0"
 vlc-android = "3.6.0-eap11"
 ijkplayer = "0.8.8"
+newpipe-extractor = "v0.24.5"
+mpv-lib = "0.1.10"
 
 [libraries]
-# Yt-dlp
-youtubedl-android = { group = "io.github.junkfood02.youtubedl-android", name = "library", version.ref = "youtubedl-android" }
-youtubedl-android-ffmpeg = { group = "io.github.junkfood02.youtubedl-android", name = "ffmpeg", version.ref = "youtubedl-android" }
-
 # AndroidX Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidx-core-splashscreen" }
@@ -245,10 +241,11 @@ symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-ap
 # Wire (Protocol Buffers)
 wire-runtime = { module = "com.squareup.wire:wire-runtime", version.ref = "wireRuntime" }
 
-# M3U Extension
-m3u-extension-api = { module = "com.github.oxyroid.m3u-extension:api", version.ref = "m3u-extension" }
-m3u-extension-annotation = { module = "com.github.oxyroid.m3u-extension:annotation", version.ref = "m3u-extension" }
-m3u-extension-processor = { module = "com.github.oxyroid.m3u-extension:processor", version.ref = "m3u-extension" }
+# M3U Plugin
+m3u-plugin-api = { module = "com.github.oxyroid.m3u-extension:api", version.ref = "m3u-plugin" }
+m3u-plugin-annotation = { module = "com.github.oxyroid.m3u-extension:annotation", version.ref = "m3u-plugin" }
+m3u-plugin-processor = { module = "com.github.oxyroid.m3u-extension:processor", version.ref = "m3u-plugin" }
+newpipe-extractor = { group = "com.github.TeamNewPipe", name = "NewPipeExtractor", version.ref = "newpipe-extractor" }
 
 # Media Libraries
 nextlib-media3ext = { module = "com.github.sintrs.nextlib:nextlib-media3ext", version.ref = "nextLib" }
@@ -264,6 +261,9 @@ ijkplayer-armv7a = { module = "tv.danmaku.ijk.media:ijkplayer-armv7a", version.r
 ijkplayer-arm64 = { module = "tv.danmaku.ijk.media:ijkplayer-arm64", version.ref = "ijkplayer" }
 ijkplayer-x86 = { module = "tv.danmaku.ijk.media:ijkplayer-x86", version.ref = "ijkplayer" }
 ijkplayer-x86-64 = { module = "tv.danmaku.ijk.media:ijkplayer-x86_64", version.ref = "ijkplayer" }
+
+# MPV
+mpv-lib = { module = "io.github.abdallahmehiz:mpv-android-lib", version.ref = "mpv-lib" }
 
 # Debugging
 chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
@@ -288,7 +288,6 @@ androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchm
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "androidx-profileinstaller" }
 
 [plugins]
-com-chaquo-python = { id = "com.chaquo.python", version.ref = "chaquopy" }
 com-android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 com-android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
 com-android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }

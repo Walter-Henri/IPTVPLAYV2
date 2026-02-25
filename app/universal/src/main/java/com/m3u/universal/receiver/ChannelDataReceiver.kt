@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 /**
  * ChannelDataReceiver
  *
- * Handles two broadcasts sent by the Extension app:
+ * Handles two broadcasts sent by the Plugin app:
  *
  * 1. com.m3u.CHANNEL_DATA_READY
  *    Payload: Uri (content URI with JSON body of extracted channel data)
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * 2. com.m3u.IDENTITY_UPDATE
  *    Payload: extras (user_agent, cookies, po_token, visitor_data, client_version)
  *    Action: updates IdentityRegistry so the player uses the correct session tokens
- *    for goglevideo.com streams without needing to re-bind to the extension.
+ *    for goglevideo.com streams without needing to re-bind to the Plugin.
  */
 @dagger.hilt.android.AndroidEntryPoint
 class ChannelDataReceiver : BroadcastReceiver() {

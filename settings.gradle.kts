@@ -26,12 +26,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "M3U"
 
-// Módulo principal (fusão de universal + extension)
+// Módulo principal (fusão de universal + plugin)
 include(":app:universal")
-include(":app:m3u-extension")
+include(":app:m3u-plugin")
 
 // Core modules
-include(":core", ":core:foundation", ":core:extension", ":core:media-resolver", ":core:aidl")
+include(":core", ":core:foundation", ":core:plugin", ":core:media-resolver", ":core:aidl")
 
 // Data module
 include(":data")
@@ -44,7 +44,7 @@ include(
     ":business:playlist",
     ":business:playlist-configuration",
     ":business:channel",
-    ":business:extension",
+    ":business:plugin",
 )
 
 // Internationalization

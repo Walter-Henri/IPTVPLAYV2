@@ -72,7 +72,7 @@ class LikableSymbolProcessor(
 
             val packageName = classDeclaration.packageName.asString()
             val classSimpleName = classDeclaration.simpleName.asString()
-            val fileName = "${classSimpleName}LikeableExtensions"
+            val fileName = "${classSimpleName}LikeablePlugins"
 
             val typeName: TypeName = classDeclaration.asType(emptyList()).toTypeName()
 

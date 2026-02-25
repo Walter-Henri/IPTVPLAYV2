@@ -7,8 +7,8 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.ComponentName
 import android.os.IBinder
-import com.m3u.core.extension.IExtension
-import com.m3u.core.extension.IExtensionCallback
+import com.m3u.core.plugin.IPlugin
+import com.m3u.core.plugin.IPluginCallback
 import com.m3u.data.database.dao.ChannelDao
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
@@ -65,7 +65,7 @@ class VirtualPlaylistViewModel @Inject constructor(
         viewModelScope.launch {
             _status.value = DownloadStatus.InProgress(0)
             try {
-                // Now using Extension via AIDL
+                // Now using Plugin via AIDL
                 val resultJson = syncChannelsAsync()
                 if (resultJson != null) {
                      val count = playlistRepository.importChannelsJsonBody(resultJson)
@@ -82,15 +82,15 @@ class VirtualPlaylistViewModel @Inject constructor(
 
     private suspend fun syncChannelsAsync(): String? = withContext(Dispatchers.IO) {
         val deferred = CompletableDeferred<String?>()
-        val intent = Intent("com.m3u.extension.ExtensionService")
-        intent.setPackage("com.m3u.extension")
+        val intent = Intent("com.m3u.plugin.PluginService")
+        intent.setPackage("com.m3u.plugin")
         
         val connection: ServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 val self = this
                 try {
-                    val binder = IExtension.Stub.asInterface(service)
-                    binder.syncChannels(object : IExtensionCallback.Stub() {
+                    val binder = IPlugin.Stub.asInterface(service)
+                    binder.syncChannels(object : IPluginCallback.Stub() {
                         override fun onProgress(current: Int, total: Int, name: String) {
                              viewModelScope.launch {
                                  _status.value = DownloadStatus.InProgress(current)

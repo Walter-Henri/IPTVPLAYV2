@@ -177,7 +177,7 @@ object AdaptiveDesign {
 }
 
 /**
- * Modifier extension para aplicar padding adaptativo
+ * Modifier Plugin para aplicar padding adaptativo
  */
 @Composable
 fun Modifier.adaptivePadding(): Modifier {
@@ -185,7 +185,7 @@ fun Modifier.adaptivePadding(): Modifier {
 }
 
 /**
- * Modifier extension para aplicar espaçamento adaptativo
+ * Modifier Plugin para aplicar espaçamento adaptativo
  */
 @Composable
 fun Modifier.adaptiveSpacing(): Modifier {

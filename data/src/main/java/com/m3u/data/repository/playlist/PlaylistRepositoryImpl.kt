@@ -141,7 +141,7 @@ internal class PlaylistRepositoryImpl @Inject constructor(
     }
 
     override suspend fun importChannelsJson(retryTimes: Int): Int {
-        logger.log("importChannelsJson via Data layer is deprecated. Use Extension.")
+        logger.log("importChannelsJson via Data layer is deprecated. Use Plugin.")
         return 0
     }
 
@@ -332,7 +332,7 @@ internal class PlaylistRepositoryImpl @Inject constructor(
         val vodCategories = output.vodCategories.associate { (it.categoryId?.toString() ?: "") to (it.categoryName ?: "Geral") }
         val serialCategories = output.serialCategories.associate { (it.categoryId?.toString() ?: "") to (it.categoryName ?: "Geral") }
         
-        val containerExtension = output.allowedOutputFormats.firstOrNull() ?: "ts"
+        val containerPlugin = output.allowedOutputFormats.firstOrNull() ?: "ts"
 
         val cache = createCoroutineCache<Channel>(BUFFER_M3U_CAPACITY) { all ->
             channelDao.insertOrReplaceAll(*all.toTypedArray())
@@ -348,7 +348,7 @@ internal class PlaylistRepositoryImpl @Inject constructor(
                         password = password,
                         playlistUrl = playlistUrl,
                         category = liveCategories[data.categoryId?.toString()] ?: "Geral",
-                        containerExtension = containerExtension
+                        containerPlugin = containerPlugin
                     )
                     is XtreamVod -> data.toXtreamChannel(
                         basicUrl = basicUrl,

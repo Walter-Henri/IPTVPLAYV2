@@ -84,7 +84,7 @@ interface XtreamParser {
             val GET_VOD_INFO = Action("get_vod_info")
 
             // series episode url
-            // http://{host}:{port}/series/{username}/{password}/{episode_id}.{episode_container_extension}
+            // http://{host}:{port}/series/{username}/{password}/{episode_id}.{episode_container_Plugin}
             val GET_SERIES_INFO = Action("get_series_info")
 
             fun of(value: String): Action {
